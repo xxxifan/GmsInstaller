@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+    <item>
+        <selector>
+            <item android:drawable="?colorAccent" />
+            <item
+                android:drawable="@color/pink_dark"
+                android:state_pressed="true" />
+            <item
+                android:drawable="@color/pink_light"
+                android:state_enabled="false" />
+        </selector>
+    </item>
+</ripple>

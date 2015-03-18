@@ -7,5 +7,4 @@
     android:layout_height="56dp"
     android:background="?colorPrimary"
     android:elevation="5dp"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+    app:popupTheme="@style/CardPopupTheme" />

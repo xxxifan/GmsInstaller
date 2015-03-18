@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">谷歌框架安装器</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">设置</string>
+    
+    <string name="title_install_status">当前状态</string>
+    <string name="btn_install">立即安装</string>
+    <string name="msg_loading">请稍候&#8230;</string>
+    <string name="msg_no_root">系统检测到没有root权限，请检查设备是否正确root</string>
 </resources>

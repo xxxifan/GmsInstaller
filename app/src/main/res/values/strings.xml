@@ -1,9 +1,10 @@
 <resources>
     <string name="app_name">谷歌框架安装器</string>
-
+    <string name="app_mark">酷安出品</string>
     <string name="action_settings">设置</string>
-    
+
     <string name="title_install_status">当前状态</string>
+    <string name="title_gapps">谷歌服务</string>
     <string name="title_gapps_framework">谷歌服务基本框架</string>
     <string name="title_gapps_extension">谷歌服务扩展部件</string>
     <string name="title_gapps_family">谷歌应用</string>

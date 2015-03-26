@@ -9,5 +9,4 @@
     <style name="CardPopupTheme" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:colorBackground">@color/white</item>
     </style>
-
 </resources>

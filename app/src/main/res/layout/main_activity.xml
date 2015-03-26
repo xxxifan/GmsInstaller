@@ -1,122 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout android:id="@+id/main_slideup"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    app:umanoFadeColor="#00000000"
+    app:umanoPanelHeight="88dp">
 
+    <!-- Main part -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="4dp">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            android:layout_margin="4dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="1dp"
+            app:cardUseCompatPadding="true">
 
-            <ImageView
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:src="@drawable/ic_done_ring"
-                android:tint="@color/green" />
+            <include layout="@layout/main_gapps_install" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="16dp"
-                android:text="已安装谷歌服务框架"
-                android:textSize="18sp" />
-        </LinearLayout>
+        </android.support.v7.widget.CardView>
 
-        <include layout="@layout/view_shadow" />
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="1dp"
+            app:cardUseCompatPadding="true">
+
+            <include layout="@layout/main_gapps_manual" />
+
+        </android.support.v7.widget.CardView>
     </LinearLayout>
 
-    <android.support.v7.widget.CardView
+    <!-- Slide part -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="1dp"
-        app:cardUseCompatPadding="true">
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/main_list"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/status_icon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_done_ring"
+            android:tint="@color/green" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:overScrollMode="never" />
-
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="1dp"
-        app:cardUseCompatPadding="true">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center_vertical">
 
             <TextView
-                style="@style/Base.TextAppearance.AppCompat.Title"
-                android:layout_width="match_parent"
+                android:id="@+id/status_text"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="@string/title_flash_zip" />
+                android:layout_marginLeft="16dp"
+                android:text="@string/msg_min_gapps_installed"
+                android:textSize="18sp" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?android:listDivider" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/status_sub_text"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/title_flash_zip_summary" />
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/flash_selected_file_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_centerVertical="true"
-                        android:layout_toLeftOf="@+id/flash_select_btn"
-                        android:textColor="@color/primary_text_disabled_material_light" />
-
-                    <TextView
-                        android:id="@+id/flash_select_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:padding="8dp"
-                        android:text="@string/btn_open_file"
-                        android:textColor="?colorAccent" />
-                </RelativeLayout>
-
-            </LinearLayout>
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
-
-</LinearLayout>
+                android:layout_below="@id/status_text"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="2dp"
+                android:text="sub text"
+                android:textSize="14sp" />
+        </RelativeLayout>
+    </LinearLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

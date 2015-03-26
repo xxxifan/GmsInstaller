@@ -36,6 +36,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.main_activity);
 
         initView();
+        setTitle(R.string.app_mark);
     }
 
     @Override
@@ -43,13 +44,14 @@ public class MainActivity extends BaseActivity {
         super.setupToolbar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
+        toolbar.setTitleTextColor(getResources().getColor(android.support.v7.appcompat.R.color
+                .primary_text_disabled_material_light));
         // hide divider
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            toolbar.setElevation(0);
-        } else {
-            findViewById(R.id.toolbar_shadow).setVisibility(View.GONE);
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            toolbar.setElevation(0);
+//        } else {
+//            findViewById(R.id.toolbar_shadow).setVisibility(View.GONE);
+//        }
     }
 
     private void initView() {

@@ -18,11 +18,13 @@ public class BaseActivity extends ActionBarActivity {
         stub.inflate();
 
         // setup toolbar
-        setupToolbar();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setupToolbar(toolbar);
+        }
     }
 
-    protected void setupToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    protected void setupToolbar(Toolbar toolbar) {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);

@@ -1,22 +1,35 @@
 package org.coolapk.gmsinstaller.util;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.text.TextUtils;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Sink;
+import okio.Source;
 
 /**
  * Created by BobPeng on 2015/3/17.
  */
-public class Utils {
+public class CommandUtils {
 
     public static final String MIN_PKGS = "com.google.android.gms,com.google.android.gsf,com.google.android.gsf.login,com.android.vending";
+    public static final String SYSTEM_APP = "/system/app/";
+    public static final String SYSTEM_PRIV_APP = "/system/priv-app/";
 
+    public static final String CMD_RW_SYSTEM = "mount -o remount,rw /system";
+    public static final String CMD_RO_SYSTEM = "mount -o remount,ro /system";
     private static final String COMMAND_SU = "su";
     private static final String COMMAND_SH = "sh";
     private static final String COMMAND_EXIT = "exit\n";
@@ -24,6 +37,14 @@ public class Utils {
 
     public static boolean checkRootPermission() {
         return execCommand("echo root", true, false).result == 0;
+    }
+
+    public static void chmod(String mode, String path) {
+        execCommand("chmod " + mode + " " + path, true, false);
+    }
+
+    public static void installBusybox() {
+
     }
 
     public static CommandResult execCommand(String command, boolean isRoot, boolean isNeedResultMsg) {
@@ -121,6 +142,50 @@ public class Utils {
         }
 
         return status;
+    }
+
+    public static boolean isFormerSdk() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public static void initEnvironment() {
+        Context context = AppHelper.getAppContext();
+        File zipBin = new File("/system/xbin/zip");
+        File busyBoxBin = new File("/system/xbin/busybox");
+
+        if (!zipBin.exists()) {
+            try {
+                File tmp = new File(context.getFilesDir(), "zip");
+                extractAssetTo(context.getAssets().open("binary/zip"), tmp, zipBin);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (!busyBoxBin.exists()) {
+            try {
+                File tmp = new File(context.getFilesDir(), "busybox");
+                extractAssetTo(context.getAssets().open("binary/busybox"), tmp, busyBoxBin);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            CommandUtils.execCommand(new String[]{CMD_RW_SYSTEM, "/system/xbin/busybox --install -s " +
+                    "/system/xbin", CMD_RO_SYSTEM}, true, false);
+        }
+    }
+
+    public static void extractAssetTo(InputStream inputStream, File tmpFile, File target) throws
+            IOException {
+        Source source = Okio.source(inputStream);
+        BufferedSource buffer = Okio.buffer(source);
+        Sink sink = Okio.sink(tmpFile);
+        buffer.readAll(sink);
+
+        sink.close();
+        buffer.close();
+        source.close();
+
+        String[] cmd = new String[]{CommandUtils.CMD_RW_SYSTEM, "cat " + tmpFile.getPath() + " > " +
+                target.getPath(), "chmod 0755 " + target.getPath(), CMD_RO_SYSTEM};
+        CommandUtils.execCommand(cmd, true, false);
     }
 
     /**

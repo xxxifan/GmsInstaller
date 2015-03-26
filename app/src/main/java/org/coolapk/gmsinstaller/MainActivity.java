@@ -1,94 +1,100 @@
 package org.coolapk.gmsinstaller;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.coolapk.gmsinstaller.app.AppPresenter;
-import org.coolapk.gmsinstaller.util.Utils;
+import org.coolapk.gmsinstaller.model.Gapp;
+import org.coolapk.gmsinstaller.util.CommandUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends BaseActivity {
 
-    private static final int STATUS_INIT = -1;
-    private static final int STATUS_NO_ROOT = -2;
-    private static final int STATUS_NOT_INSTALLED = 0;
-    private static final int STATUS_INSTALLED = 1;
-    private static final int STATUS_INSTALL_INCOMPLETE = 2;
-    private static final int STATUS_UPDATE_AVAILABLE = 3;
-
     private MaterialDialog mDialog;
 
+    private RecyclerView mRecyclerView;
     private AppPresenter mPresenter;
+    private String[] mGapps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        // Don't show up indicator
+        initView();
+    }
+
+    @Override
+    protected void setupToolbar(Toolbar toolbar) {
+        super.setupToolbar(toolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        initView();
-
+        // hide divider
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            toolbar.setElevation(0);
+        } else {
+            findViewById(R.id.toolbar_shadow).setVisibility(View.GONE);
+        }
     }
 
     private void initView() {
-        TextView statusTextView = (TextView) findViewById(R.id.main_install_status);
-        TextView commandTextView = (TextView) findViewById(R.id.main_command_status);
-        Button installBtn = (Button) findViewById(R.id.main_install_btn);
-
-        installBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onInstallClick();
-            }
-        });
-        mPresenter = new AppPresenter(this, statusTextView, commandTextView);
+        mPresenter = new AppPresenter(getWindow().getDecorView());
+        mPresenter.setOnInstallClickListener(new InstallClickListener());
+        mRecyclerView = (RecyclerView) findViewById(R.id.main_list);
+        mRecyclerView.setLayoutManager(new CardLayoutManager(this));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setAdapter(new CardAdapter(this));
+        mRecyclerView.addItemDecoration(new CardItemDecoration(this));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mPresenter.getStatus() == STATUS_INIT) {
-            checkRoot();
-        } else {
-            checkInstallStatus();
+        if (mPresenter.getStatus() == AppPresenter.STATUS_INIT) {
+            checkData();
         }
     }
 
     private void checkInstallStatus() {
-        int installStatus = Utils.checkMinPkgInstall();
+        int installStatus = CommandUtils.checkMinPkgInstall();
         if (installStatus < 0) {
             //TODO 未安装
-            mPresenter.setStatus(STATUS_NOT_INSTALLED);
-            Toast.makeText(this, "未安装", Toast.LENGTH_SHORT).show();
+            mPresenter.setStatus(AppPresenter.STATUS_NOT_INSTALLED);
         } else if (installStatus < 3) {
             // TODO 安装不完整
-            mPresenter.setStatus(STATUS_INSTALL_INCOMPLETE);
-            Toast.makeText(this, "安装不完整", Toast.LENGTH_SHORT).show();
+            mPresenter.setStatus(AppPresenter.STATUS_INSTALL_INCOMPLETE);
         } else {
             // TODO 已安装最小包，继续检测其他包
-            mPresenter.setStatus(STATUS_INSTALLED);
-            Toast.makeText(this, "已安装最小包，继续检测其他包", Toast.LENGTH_SHORT).show();
+            mPresenter.setStatus(AppPresenter.STATUS_INSTALLED);
         }
     }
 
-    private void checkRoot() {
+    private void checkData() {
         mDialog = new MaterialDialog.Builder(this)
                 .cancelable(false).content(R.string.msg_loading).progress(true, 0)
                 .build();
         mDialog.show();
-
         new AsyncTask<Void, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(Void... params) {
-                return Utils.checkRootPermission();
+                CommandUtils.initEnvironment();
+                boolean isRoot = CommandUtils.checkRootPermission();
+                return isRoot;
             }
 
             @Override
@@ -97,17 +103,86 @@ public class MainActivity extends BaseActivity {
                 if (result) {
                     checkInstallStatus();
                 } else {
-                    mPresenter.setStatus(STATUS_NO_ROOT);
-                    Toast.makeText(MainActivity.this, R.string.msg_no_root, Toast.LENGTH_SHORT).show();
+                    mPresenter.setStatus(AppPresenter.STATUS_NO_ROOT);
                 }
                 mDialog.dismiss();
             }
         }.execute();
     }
 
-    private void onInstallClick() {
-        // check selection
-        // download and install
+    private void unpackGapps() {
+        File dataPath = getFilesDir();
+        File flagFile = new File(dataPath, ".extract");
+        if (!dataPath.exists()) {
+            dataPath.mkdirs();
+        }
+
+        // cache gapp list
+        try {
+            mGapps = getAssets().list(Gapp.MIN_FOLDER);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (!flagFile.exists()) {
+            try {
+                int count;
+                for (String gapp : mGapps) {
+                    File targetPath = new File(getFilesDir(), gapp);
+                    if (targetPath.exists()) {
+                        continue;
+                    }
+
+                    InputStream is = getAssets().open(Gapp.MIN_FOLDER + File.separator + gapp);
+                    byte[] buffer = new byte[is.available()];
+                    count = is.read(buffer);
+
+                    FileOutputStream outputStream = new FileOutputStream(targetPath);
+                    outputStream.write(buffer, 0, count);
+                    outputStream.flush();
+                    outputStream.close();
+                    is.close();
+                    CommandUtils.chmod("0755", targetPath.getPath());
+                }
+
+                // create flag file
+                flagFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class InstallClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            if (mPresenter.getStatus() == AppPresenter.STATUS_INSTALLED) {
+                // TODO installed confirm
+            }
+            boolean isFormerSdk = CommandUtils.isFormerSdk();
+            String systemFolder = isFormerSdk ? CommandUtils.SYSTEM_APP : CommandUtils.SYSTEM_PRIV_APP;
+            List<String> commands = new ArrayList<>();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                commands.add("setenforce 0");
+            }
+            commands.add("mount -o remount,rw /system");
+            for (String gapp : mGapps) {
+                commands.add("cat " + getFilesDir() + File.separator + gapp + " > " + systemFolder +
+                        gapp);
+                commands.add("chmod 0644 " + systemFolder + gapp);
+            }
+            commands.add("mount -o remount,ro /system");
+            if (!isFormerSdk) {
+                commands.add("pm clear com.google.android.gms");
+            }
+
+//            Utils.execCommand(command.toArray(new String[command.size()]), true, false);
+            for (String cmd : commands) {
+                Log.e("", cmd);
+            }
+        }
     }
 
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/list_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_framework"
+        android:tint="@color/primary_dark_material_light" />
+
+    <TextView
+        android:id="@+id/list_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@id/list_icon"
+        android:text="谷歌服务基本框架"
+        android:textSize="16sp" />
+
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/list_title"
+        android:layout_below="@id/list_title"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/list_action_btn"
+        android:layout_toRightOf="@id/list_icon"
+        android:max="100"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/list_action_btn"
+        style="?android:borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:minWidth="24dp"
+        android:text="已安装"
+        android:textColor="@color/green" />
+</RelativeLayout>

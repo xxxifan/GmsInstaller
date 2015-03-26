@@ -4,7 +4,26 @@
     <string name="action_settings">设置</string>
     
     <string name="title_install_status">当前状态</string>
+    <string name="title_gapps_framework">谷歌服务基本框架</string>
+    <string name="title_gapps_extension">谷歌服务扩展部件</string>
+    <string name="title_gapps_family">谷歌应用</string>
+    <string name="title_flash_zip">从刷机包安装</string>
+    <string name="title_flash_zip_summary">选择谷歌套件刷机包(.zip)，我们将自动帮您安装，此过程无需进入recovery模式</string>
+
+
     <string name="btn_install">立即安装</string>
+    <string name="btn_collapse">收起</string>
+    <string name="btn_more">更多</string>
+    <string name="btn_open_file">选择文件</string>
+
+
     <string name="msg_loading">请稍候&#8230;</string>
+    <string name="msg_no_more_gapps">暂无更多谷歌应用</string>
     <string name="msg_no_root">系统检测到没有root权限，请检查设备是否正确root</string>
+    <string name="msg_check_root">正在检测root权限&#8230;</string>
+    <string name="msg_min_gapps_installed">已安装基本框架</string>
+    <string name="msg_min_gapps_incomplete">发现未安装的框架</string>
+    <string name="msg_min_gapps_not_installed">未安装基本框架</string>
+    <string name="msg_gapps_update_available">谷歌服务套件有可用的更新</string>
+    <string name="msg_installing">正在安装</string>
 </resources>

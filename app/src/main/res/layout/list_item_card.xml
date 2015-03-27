@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
+    android:background="?selectableItemBackground"
     android:orientation="horizontal"
     android:padding="8dp">
 
@@ -19,7 +20,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_toLeftOf="@+id/list_action_btn"
+        android:layout_toLeftOf="@+id/list_status_text"
         android:layout_toRightOf="@id/list_icon"
         android:orientation="vertical">
 
@@ -27,26 +28,16 @@
             android:id="@+id/list_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="谷歌服务基本框架"
             android:textSize="16sp" />
-
-        <ProgressBar
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:max="100"
-            android:visibility="gone" />
     </LinearLayout>
 
 
     <TextView
-        android:id="@+id/list_action_btn"
-        style="?android:borderlessButtonStyle"
+        android:id="@+id/list_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:padding="16dp"
         android:layout_alignParentRight="true"
-        android:minWidth="24dp"
-        android:text="查看"
         android:textColor="?colorAccent" />
 </RelativeLayout>

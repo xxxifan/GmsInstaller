@@ -12,6 +12,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.coolapk.gmsinstaller.app.AppPresenter;
 import org.coolapk.gmsinstaller.model.Gapp;
+import org.coolapk.gmsinstaller.ui.PanelPresenter;
+import org.coolapk.gmsinstaller.ui.StatusPresenter;
 import org.coolapk.gmsinstaller.util.CommandUtils;
 
 import java.io.File;
@@ -28,6 +30,8 @@ public class MainActivity extends BaseActivity {
 
     private RecyclerView mRecyclerView;
     private AppPresenter mPresenter;
+    private StatusPresenter mStatusPresenter;
+    private PanelPresenter mPanelPresenter;
     private String[] mGapps;
 
     @Override
@@ -46,22 +50,24 @@ public class MainActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         toolbar.setTitleTextColor(getResources().getColor(android.support.v7.appcompat.R.color
                 .primary_text_disabled_material_light));
-        // hide divider
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            toolbar.setElevation(0);
-//        } else {
-//            findViewById(R.id.toolbar_shadow).setVisibility(View.GONE);
-//        }
     }
 
     private void initView() {
         mPresenter = new AppPresenter(getWindow().getDecorView());
         mPresenter.setOnInstallClickListener(new InstallClickListener());
+
         mRecyclerView = (RecyclerView) findViewById(R.id.main_list);
+        mRecyclerView.addItemDecoration(new CardItemDecoration(this));
         mRecyclerView.setLayoutManager(new CardLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setAdapter(new CardAdapter(this));
-        mRecyclerView.addItemDecoration(new CardItemDecoration(this));
+        CardAdapter adapter = new CardAdapter(this);
+        adapter.setOnItemClickListener(new CardAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                mPanelPresenter.display(position);
+            }
+        });
+        mRecyclerView.setAdapter(adapter);
     }
 
     @Override

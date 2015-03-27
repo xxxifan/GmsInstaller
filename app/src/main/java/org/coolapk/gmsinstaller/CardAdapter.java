@@ -15,8 +15,14 @@ import java.util.List;
  */
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
+    public static final int STATUS_FW_INSTALLED = 1;
+    public static final int STATUS_EX_INSTALLED = 2;
+
     private Context mContext;
     private List<ItemInfo> mArray;
+    private boolean mIsInstalled;
+
+    private ItemClickListener mItemClickListener;
 
     public CardAdapter(Context context) {
         mContext = context;
@@ -31,15 +37,24 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = View.inflate(mContext, R.layout.list_item_card, null);
-        ViewHolder holder = new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.imageView.setImageResource(mArray.get(position).icon);
         holder.titleText.setText(mArray.get(position).title);
-        // TOdo STATUS LISTENENR
+        if (mIsInstalled) {
+            holder.actionBtn.setText(mContext.getString(R.string.btn_installed));
+            holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.green));
+        } else {
+            holder.actionBtn.setText(mContext.getString(R.string.btn_not_installed));
+            holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.pink));
+        }
+    }
+
+    public void setInstallStatus(boolean status) {
+        mIsInstalled = status;
     }
 
     @Override
@@ -47,7 +62,15 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         return mArray.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public void setOnItemClickListener(ItemClickListener listener) {
+        mItemClickListener = listener;
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView imageView;
         public TextView titleText;
         public TextView actionBtn;
@@ -56,7 +79,16 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             super(view);
             imageView = (ImageView) view.findViewById(R.id.list_icon);
             titleText = (TextView) view.findViewById(R.id.list_title);
-            actionBtn = (TextView) view.findViewById(R.id.list_action_btn);
+            actionBtn = (TextView) view.findViewById(R.id.list_status_text);
+            view.setOnClickListener(this);
+        }
+
+
+        @Override
+        public void onClick(View v) {
+            if (mItemClickListener != null) {
+                mItemClickListener.onItemClick(v, getAdapterPosition());
+            }
         }
     }
 

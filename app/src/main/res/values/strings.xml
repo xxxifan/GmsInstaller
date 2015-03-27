@@ -10,9 +10,12 @@
     <string name="title_gapps_family">谷歌应用</string>
     <string name="title_flash_zip">从刷机包安装</string>
     <string name="title_flash_zip_summary">选择谷歌套件刷机包(.zip)，我们将自动帮您安装，此过程无需进入recovery模式</string>
+    <string name="title_package_details">详情</string>
 
 
     <string name="btn_install">立即安装</string>
+    <string name="btn_installed">已安装</string>
+    <string name="btn_not_installed">未安装</string>
     <string name="btn_collapse">收起</string>
     <string name="btn_more">更多</string>
     <string name="btn_open_file">选择文件</string>

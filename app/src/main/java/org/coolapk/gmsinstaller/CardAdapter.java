@@ -18,8 +18,12 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public static final int STATUS_FW_INSTALLED = 1;
     public static final int STATUS_EX_INSTALLED = 2;
 
+    public static int[] CARD_ITEMS = new int[]{
+            R.string.title_gapps_framework, R.string.title_gapps_extension
+    };
+
     private Context mContext;
-    private List<ItemInfo> mArray;
+    private List<ItemInfo> mDataList;
     private boolean mIsInstalled;
 
     private ItemClickListener mItemClickListener;
@@ -27,11 +31,9 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public CardAdapter(Context context) {
         mContext = context;
 
-        mArray = new ArrayList<>();
-        mArray.add(new ItemInfo(R.drawable.ic_framework, mContext.getString(R.string
-                .title_gapps_framework)));
-        mArray.add(new ItemInfo(R.drawable.ic_extension, mContext.getString(R.string
-                .title_gapps_extension)));
+        mDataList = new ArrayList<>();
+        mDataList.add(new ItemInfo(R.drawable.ic_framework, mContext.getString(CARD_ITEMS[0])));
+        mDataList.add(new ItemInfo(R.drawable.ic_extension, mContext.getString(CARD_ITEMS[1])));
     }
 
     @Override
@@ -42,8 +44,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.imageView.setImageResource(mArray.get(position).icon);
-        holder.titleText.setText(mArray.get(position).title);
+        holder.imageView.setImageResource(mDataList.get(position).icon);
+        holder.titleText.setText(mDataList.get(position).title);
         if (mIsInstalled) {
             holder.actionBtn.setText(mContext.getString(R.string.btn_installed));
             holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.green));
@@ -53,13 +55,17 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         }
     }
 
-    public void setInstallStatus(boolean status) {
-        mIsInstalled = status;
-    }
-
     @Override
     public int getItemCount() {
-        return mArray.size();
+        return mDataList.size();
+    }
+
+    public List<ItemInfo> getItemInfoList() {
+        return mDataList;
+    }
+
+    public void setInstallStatus(boolean status) {
+        mIsInstalled = status;
     }
 
     public void setOnItemClickListener(ItemClickListener listener) {
@@ -83,7 +89,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             view.setOnClickListener(this);
         }
 
-
         @Override
         public void onClick(View v) {
             if (mItemClickListener != null) {
@@ -92,7 +97,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         }
     }
 
-    private class ItemInfo {
+    public class ItemInfo {
         public int icon;
         public String title;
 

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="1dp"
+    app:cardCornerRadius="2dp"
     app:cardUseCompatPadding="true">
 
     <LinearLayout

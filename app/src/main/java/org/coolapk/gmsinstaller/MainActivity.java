@@ -7,10 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import org.coolapk.gmsinstaller.app.AppPresenter;
 import org.coolapk.gmsinstaller.model.Gapp;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
@@ -23,13 +23,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class MainActivity extends BaseActivity {
 
     private MaterialDialog mDialog;
 
     private RecyclerView mRecyclerView;
-    private AppPresenter mPresenter;
     private StatusPresenter mStatusPresenter;
     private PanelPresenter mPanelPresenter;
     private String[] mGapps;
@@ -50,11 +48,16 @@ public class MainActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         toolbar.setTitleTextColor(getResources().getColor(android.support.v7.appcompat.R.color
                 .primary_text_disabled_material_light));
+
+        // hack toolbar to scroll with slidingUpPanel
+        ((ViewGroup) toolbar.getParent()).removeView(toolbar);
+        ((ViewGroup) findViewById(R.id.sliding_main)).addView(toolbar, 0);
     }
 
     private void initView() {
-        mPresenter = new AppPresenter(getWindow().getDecorView());
-        mPresenter.setOnInstallClickListener(new InstallClickListener());
+        View root = getWindow().getDecorView();
+        mStatusPresenter = new StatusPresenter(root);
+        mPanelPresenter = new PanelPresenter(root);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.main_list);
         mRecyclerView.addItemDecoration(new CardItemDecoration(this));
@@ -73,7 +76,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mPresenter.getStatus() == AppPresenter.STATUS_INIT) {
+        if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INIT) {
             checkData();
         }
     }
@@ -82,13 +85,13 @@ public class MainActivity extends BaseActivity {
         int installStatus = CommandUtils.checkMinPkgInstall();
         if (installStatus < 0) {
             //TODO 未安装
-            mPresenter.setStatus(AppPresenter.STATUS_NOT_INSTALLED);
+            mStatusPresenter.setStatus(StatusPresenter.STATUS_NOT_INSTALLED);
         } else if (installStatus < 3) {
             // TODO 安装不完整
-            mPresenter.setStatus(AppPresenter.STATUS_INSTALL_INCOMPLETE);
+            mStatusPresenter.setStatus(StatusPresenter.STATUS_INSTALL_INCOMPLETE);
         } else {
             // TODO 已安装最小包，继续检测其他包
-            mPresenter.setStatus(AppPresenter.STATUS_INSTALLED);
+            mStatusPresenter.setStatus(StatusPresenter.STATUS_INSTALLED);
         }
     }
 
@@ -111,7 +114,7 @@ public class MainActivity extends BaseActivity {
                 if (result) {
                     checkInstallStatus();
                 } else {
-                    mPresenter.setStatus(AppPresenter.STATUS_NO_ROOT);
+                    mStatusPresenter.setStatus(StatusPresenter.STATUS_NO_ROOT);
                 }
                 mDialog.dismiss();
             }
@@ -165,7 +168,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onClick(View v) {
-            if (mPresenter.getStatus() == AppPresenter.STATUS_INSTALLED) {
+            if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INSTALLED) {
                 // TODO installed confirm
             }
             boolean isFormerSdk = CommandUtils.isFormerSdk();

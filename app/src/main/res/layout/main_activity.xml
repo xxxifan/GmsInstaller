@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.sothree.slidinguppanel.SlidingUpPanelLayout
-    android:id="@+id/main_slideup"
+    android:id="@+id/sliding_up_panel"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    app:umanoFadeColor="#00000000"
-    app:umanoPanelHeight="12dp">
+    app:umanoAnchorPoint="0.6"
+    app:umanoPanelHeight="0dp">
 
     <!-- Main part -->
     <LinearLayout
+        android:id="@+id/sliding_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="4dp">
+        android:orientation="vertical">
 
         <include layout="@layout/main_status_header" />
 
@@ -27,23 +27,96 @@
     <!-- Slide part -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@color/white"
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/sliding_title"
+            style="?android:textAppearanceMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="@string/title_package_details" />
+            android:text="谷歌框架" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?android:listDivider" />
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Update time -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_package_update_date"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/update_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="20150303" />
+
+            <!-- Package size -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/title_package_size"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/package_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="26.87 MB" />
+
+            <!-- Package detail -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/title_package_details"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/package_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Google Login Service\nGoogle Server Framework" />
+
+        </LinearLayout>
+
+        <Button
+            style="?android:borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center_vertical"
+            android:padding="16dp"
+            android:text="立即安装"
+            android:textColor="?colorAccent"
+            android:textSize="16sp" />
+
+        <Button
+            style="?android:borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center_vertical"
+            android:padding="16dp"
+            android:text="卸载"
+            android:textColor="?colorAccent"
+            android:textSize="16sp" />
     </LinearLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

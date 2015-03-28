@@ -23,9 +23,11 @@ android {
     packagingOptions{
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
     lintOptions {
         abortOnError false
+        disable 'InvalidPackage'
     }
 }
 

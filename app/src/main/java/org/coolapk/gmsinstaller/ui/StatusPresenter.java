@@ -1,6 +1,7 @@
 package org.coolapk.gmsinstaller.ui;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,11 +26,12 @@ public class StatusPresenter {
 
     private int mStatus = STATUS_INIT;
 
-    public StatusPresenter(ImageView statusIcon, TextView statusText, TextView subStatusText) {
-        mContext = statusIcon.getContext();
-        mStatusIcon = statusIcon;
-        mStatusText = statusText;
-        mSubStatusText = subStatusText;
+    public StatusPresenter(View root) {
+        mContext = root.getContext();
+
+        mStatusIcon = (ImageView) root.findViewById(R.id.status_icon);
+        mStatusText = (TextView) root.findViewById(R.id.status_text);
+        mSubStatusText = (TextView) root.findViewById(R.id.status_sub_text);
 
         setStatus(STATUS_INIT);
     }

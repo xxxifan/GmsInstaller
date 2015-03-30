@@ -1,30 +1,38 @@
 package org.coolapk.gmsinstaller.cloud;
 
-import org.coolapk.gmsinstaller.model.Gapp;
+import android.util.Log;
 
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import org.coolapk.gmsinstaller.model.Gpack;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import okio.BufferedSource;
 
 /**
  * Created by BobPeng on 2015/3/19.
  */
 public class CloudHelper {
-    public static final String APP_KEY = "c6EE3W2aqH0WsTOGZwt3ahub";
-    public static List<Gapp> getOptionalGapps() {
-        // TODO get from cloud
-        Gapp search = new Gapp();
-        search.displayName = "搜索";
-        Gapp inbox = new Gapp();
-        inbox.displayName = "Inbox";
-        Gapp gmail = new Gapp();
-        gmail.displayName = "Gmail";
-        Gapp keep = new Gapp();
-        keep.displayName = "keep";
-        List<Gapp> gapps = new ArrayList<>();
-        gapps.add(search);
-        gapps.add(inbox);
-        gapps.add(gmail);
-        gapps.add(keep);
-        return gapps;
+
+    public static List<Gpack> getGpackList() {
+        Request request = new Request.Builder().url("http://ibobpeng.com/sitemap").build();
+        try {
+            Response response = new OkHttpClient().newCall(request).execute();
+            if (response != null) {
+                BufferedSource source = response.body().source();
+                String xml = source.readString(Charset.forName("utf-8"));
+                Log.e("", xml);
+                return new ArrayList<>();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

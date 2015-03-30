@@ -1,12 +1,15 @@
 package org.coolapk.gmsinstaller.ui;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.coolapk.gmsinstaller.R;
+
+import java.util.Calendar;
 
 /**
  * Created by BobPeng on 2015/3/26.
@@ -18,6 +21,8 @@ public class StatusPresenter {
     public static final int STATUS_INSTALLED = 1;
     public static final int STATUS_INSTALL_INCOMPLETE = 2;
     public static final int STATUS_UPDATE_AVAILABLE = 3;
+    public static final int STATUS_CHECKING_UPDATES = 11;
+    public static final int STATUS_CHECKING_ROOT = 12;
     public static final int STATUS_INSTALLING = 10;
 
     private static final int ICON_STATE_WARN = -1;
@@ -57,7 +62,7 @@ public class StatusPresenter {
                 setStatusIconState(ICON_STATE_WARN);
                 break;
             case STATUS_INIT:
-                setStatusText(R.string.msg_check_root);
+                setStatusText(R.string.msg_loading);
                 setStatusIconState(ICON_STATE_LOADING);
                 break;
             case STATUS_NOT_INSTALLED:
@@ -80,7 +85,16 @@ public class StatusPresenter {
                 setStatusText(R.string.msg_installing);
                 setStatusIconState(ICON_STATE_LOADING);
                 break;
+            case STATUS_CHECKING_UPDATES:
+                setStatusText(R.string.msg_checking_updates);
+                setStatusIconState(ICON_STATE_LOADING);
+                break;
+            case STATUS_CHECKING_ROOT:
+                setStatusText(R.string.msg_check_root);
+                setStatusIconState(ICON_STATE_LOADING);
+                break;
         }
+        Log.e("","on status " + status + " at "+ Calendar.getInstance().getTime().toString());
     }
 
     public void setStatusIconState(int state, int progress) {

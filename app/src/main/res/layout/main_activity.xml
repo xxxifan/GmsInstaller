@@ -100,6 +100,7 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/package_install_btn"
             style="?android:borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -110,6 +111,7 @@
             android:textSize="16sp" />
 
         <Button
+            android:id="@+id/package_uninstall_btn"
             style="?android:borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

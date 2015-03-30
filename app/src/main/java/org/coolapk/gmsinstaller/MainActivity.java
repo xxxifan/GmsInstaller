@@ -8,7 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.coolapk.gmsinstaller.model.Gapp;
+import org.coolapk.gmsinstaller.cloud.CloudHelper;
+import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
 import org.coolapk.gmsinstaller.util.CommandUtils;
@@ -93,29 +94,65 @@ public class MainActivity extends BaseActivity {
     private void checkInstallStatus() {
         int installStatus = CommandUtils.checkMinPkgInstall();
         if (installStatus < 0) {
-            //TODO 未安装
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_NOT_INSTALLED);
+            onStatusEvent(StatusPresenter.STATUS_NOT_INSTALLED);
         } else if (installStatus < 3) {
-            // TODO 安装不完整
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_INSTALL_INCOMPLETE);
+            onStatusEvent(StatusPresenter.STATUS_INSTALL_INCOMPLETE);
         } else {
-            // TODO 已安装最小包，继续检测其他包
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_INSTALLED);
+            onStatusEvent(StatusPresenter.STATUS_INSTALLED);
         }
     }
 
+    /**
+     * CheckData
+     */
     public void onEventBackgroundThread(CheckDataEvent event) {
         CommandUtils.initEnvironment();
-        CheckDataResult data = new CheckDataResult();
-        data.result = CommandUtils.checkRootPermission();
-        post(data);
-    }
 
-    public void onEventMainThread(CheckDataResult event) {
-        if (event.result) {
+        // update to checking updates state
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+        boolean success = CloudHelper.getGpackList() != null;
+        if (success) {
+            // TODO prepare package detail
+        } else {
+            mPanelPresenter.setGappsDetail(null);
+        }
+
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
+        boolean hasRoot = CommandUtils.checkRootPermission();
+        if (hasRoot) {
             checkInstallStatus();
         } else {
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_NO_ROOT);
+            onNoRootEvent();
+        }
+    }
+
+    private void onNoRootEvent() {
+        onStatusEvent(StatusPresenter.STATUS_NO_ROOT);
+    }
+
+    private void prepareCheckUpdateState() {
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+    }
+
+    private void prepareCheckRootState() {
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
+    }
+
+    private void onStatusEvent(final int status) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mStatusPresenter.setStatus(status);
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mPanelPresenter.isPanelExpanded()) {
+            mPanelPresenter.collapsePanel();
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -128,7 +165,7 @@ public class MainActivity extends BaseActivity {
 
         // cache gapp list
         try {
-            mGapps = getAssets().list(Gapp.MIN_FOLDER);
+            mGapps = getAssets().list(Gpack.MIN_FOLDER);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -142,7 +179,7 @@ public class MainActivity extends BaseActivity {
                         continue;
                     }
 
-                    InputStream is = getAssets().open(Gapp.MIN_FOLDER + File.separator + gapp);
+                    InputStream is = getAssets().open(Gpack.MIN_FOLDER + File.separator + gapp);
                     byte[] buffer = new byte[is.available()];
                     count = is.read(buffer);
 
@@ -195,10 +232,6 @@ public class MainActivity extends BaseActivity {
     }
 
     public class CheckDataEvent {
-    }
-
-    public class CheckDataResult {
-        public boolean result;
     }
 
 }

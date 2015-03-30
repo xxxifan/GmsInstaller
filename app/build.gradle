@@ -1,8 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {
@@ -18,16 +16,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    productFlavors {
-    }
     packagingOptions{
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
     lintOptions {
         abortOnError false
-        disable 'InvalidPackage'
     }
 }
 
@@ -36,10 +30,11 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:cardview-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
-    compile 'com.afollestad:material-dialogs:0.6.5.2'
+    compile 'com.afollestad:material-dialogs:0.6.6.3'
     compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'org.apmem.tools:layouts:1.8@aar'
 
     compile 'com.squareup.okio:okio:1.3.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile 'de.greenrobot:eventbus:2.4.0'
 }

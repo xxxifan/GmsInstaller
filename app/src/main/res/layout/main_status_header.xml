@@ -17,24 +17,37 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/status_icon"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:src="@drawable/ic_done_ring"
-            android:tint="@color/green" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/status_loading"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:indeterminate="true"
+                android:padding="8dp" />
+
+            <ImageView
+                android:id="@+id/status_icon"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_done_ring"
+                android:tint="@color/green" />
+        </FrameLayout>
+
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="12dp">
 
             <TextView
                 android:id="@+id/status_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:text="@string/msg_min_gapps_installed"
                 android:textSize="18sp" />
 
             <TextView
@@ -42,10 +55,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/status_text"
-                android:layout_marginLeft="16dp"
                 android:layout_marginTop="2dp"
-                android:text="sub text"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
         </RelativeLayout>
     </LinearLayout>
 

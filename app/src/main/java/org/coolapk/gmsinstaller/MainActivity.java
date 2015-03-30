@@ -1,6 +1,5 @@
 package org.coolapk.gmsinstaller;
 
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -9,9 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
-import org.coolapk.gmsinstaller.model.Gapp;
+import org.coolapk.gmsinstaller.cloud.CloudHelper;
+import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
 import org.coolapk.gmsinstaller.util.CommandUtils;
@@ -23,9 +21,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity {
+import de.greenrobot.event.EventBus;
 
-    private MaterialDialog mDialog;
+public class MainActivity extends BaseActivity {
 
     private RecyclerView mRecyclerView;
     private StatusPresenter mStatusPresenter;
@@ -74,51 +72,88 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INIT) {
-            checkData();
+            post(new CheckDataEvent());
         }
     }
 
     private void checkInstallStatus() {
         int installStatus = CommandUtils.checkMinPkgInstall();
         if (installStatus < 0) {
-            //TODO 未安装
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_NOT_INSTALLED);
+            onStatusEvent(StatusPresenter.STATUS_NOT_INSTALLED);
         } else if (installStatus < 3) {
-            // TODO 安装不完整
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_INSTALL_INCOMPLETE);
+            onStatusEvent(StatusPresenter.STATUS_INSTALL_INCOMPLETE);
         } else {
-            // TODO 已安装最小包，继续检测其他包
-            mStatusPresenter.setStatus(StatusPresenter.STATUS_INSTALLED);
+            onStatusEvent(StatusPresenter.STATUS_INSTALLED);
         }
     }
 
-    private void checkData() {
-        mDialog = new MaterialDialog.Builder(this)
-                .cancelable(false).content(R.string.msg_loading).progress(true, 0)
-                .build();
-        mDialog.show();
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... params) {
-                CommandUtils.initEnvironment();
-                boolean isRoot = CommandUtils.checkRootPermission();
-                return isRoot;
-            }
+    /**
+     * CheckData
+     */
+    public void onEventBackgroundThread(CheckDataEvent event) {
+        CommandUtils.initEnvironment();
 
+        // update to checking updates state
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+        boolean success = CloudHelper.getGpackList() != null;
+        if (success) {
+            // TODO prepare package detail
+        } else {
+            mPanelPresenter.setGappsDetail(null);
+        }
+
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
+        boolean hasRoot = CommandUtils.checkRootPermission();
+        if (hasRoot) {
+            checkInstallStatus();
+        } else {
+            onNoRootEvent();
+        }
+    }
+
+    private void onNoRootEvent() {
+        onStatusEvent(StatusPresenter.STATUS_NO_ROOT);
+    }
+
+    private void prepareCheckUpdateState() {
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+    }
+
+    private void prepareCheckRootState() {
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
+    }
+
+    private void onStatusEvent(final int status) {
+        runOnUiThread(new Runnable() {
             @Override
-            protected void onPostExecute(Boolean result) {
-                super.onPostExecute(result);
-                if (result) {
-                    checkInstallStatus();
-                } else {
-                    mStatusPresenter.setStatus(StatusPresenter.STATUS_NO_ROOT);
-                }
-                mDialog.dismiss();
+            public void run() {
+                mStatusPresenter.setStatus(status);
             }
-        }.execute();
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mPanelPresenter.isPanelExpanded()) {
+            mPanelPresenter.collapsePanel();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void unpackGapps() {
@@ -130,7 +165,7 @@ public class MainActivity extends BaseActivity {
 
         // cache gapp list
         try {
-            mGapps = getAssets().list(Gapp.MIN_FOLDER);
+            mGapps = getAssets().list(Gpack.MIN_FOLDER);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -144,7 +179,7 @@ public class MainActivity extends BaseActivity {
                         continue;
                     }
 
-                    InputStream is = getAssets().open(Gapp.MIN_FOLDER + File.separator + gapp);
+                    InputStream is = getAssets().open(Gpack.MIN_FOLDER + File.separator + gapp);
                     byte[] buffer = new byte[is.available()];
                     count = is.read(buffer);
 
@@ -194,6 +229,9 @@ public class MainActivity extends BaseActivity {
                 Log.e("", cmd);
             }
         }
+    }
+
+    public class CheckDataEvent {
     }
 
 }

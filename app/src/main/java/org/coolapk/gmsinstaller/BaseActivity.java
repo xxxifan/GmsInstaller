@@ -5,6 +5,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.ViewStub;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Created by BobPeng on 2015/3/16.
  */
@@ -37,5 +39,9 @@ public class BaseActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void post(Object event) {
+        EventBus.getDefault().post(event);
     }
 }

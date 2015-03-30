@@ -1,6 +1,5 @@
 package org.coolapk.gmsinstaller;
 
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -8,8 +7,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.coolapk.gmsinstaller.model.Gapp;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
@@ -23,9 +20,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity {
+import de.greenrobot.event.EventBus;
 
-    private MaterialDialog mDialog;
+public class MainActivity extends BaseActivity {
 
     private RecyclerView mRecyclerView;
     private StatusPresenter mStatusPresenter;
@@ -74,10 +71,22 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INIT) {
-            checkData();
+            post(new CheckDataEvent());
         }
     }
 
@@ -95,30 +104,19 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void checkData() {
-        mDialog = new MaterialDialog.Builder(this)
-                .cancelable(false).content(R.string.msg_loading).progress(true, 0)
-                .build();
-        mDialog.show();
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... params) {
-                CommandUtils.initEnvironment();
-                boolean isRoot = CommandUtils.checkRootPermission();
-                return isRoot;
-            }
+    public void onEventBackgroundThread(CheckDataEvent event) {
+        CommandUtils.initEnvironment();
+        CheckDataResult data = new CheckDataResult();
+        data.result = CommandUtils.checkRootPermission();
+        post(data);
+    }
 
-            @Override
-            protected void onPostExecute(Boolean result) {
-                super.onPostExecute(result);
-                if (result) {
-                    checkInstallStatus();
-                } else {
-                    mStatusPresenter.setStatus(StatusPresenter.STATUS_NO_ROOT);
-                }
-                mDialog.dismiss();
-            }
-        }.execute();
+    public void onEventMainThread(CheckDataResult event) {
+        if (event.result) {
+            checkInstallStatus();
+        } else {
+            mStatusPresenter.setStatus(StatusPresenter.STATUS_NO_ROOT);
+        }
     }
 
     private void unpackGapps() {
@@ -194,6 +192,13 @@ public class MainActivity extends BaseActivity {
                 Log.e("", cmd);
             }
         }
+    }
+
+    public class CheckDataEvent {
+    }
+
+    public class CheckDataResult {
+        public boolean result;
     }
 
 }

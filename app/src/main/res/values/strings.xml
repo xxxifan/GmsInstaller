@@ -18,6 +18,7 @@
     <string name="btn_install">立即安装</string>
     <string name="btn_installed">已安装</string>
     <string name="btn_not_installed">未安装</string>
+    <string name="btn_uninstall">卸载</string>
     <string name="btn_collapse">收起</string>
     <string name="btn_more">更多</string>
     <string name="btn_open_file">选择文件</string>

@@ -19,9 +19,10 @@ import okio.BufferedSource;
  * Created by BobPeng on 2015/3/19.
  */
 public class CloudHelper {
+    private static final String CLOUD_DOMAIN = "http://192.168.1.100/";
 
     public static List<Gpack> getGpackList() {
-        Request request = new Request.Builder().url("http://ibobpeng.com/sitemap").build();
+        Request request = new Request.Builder().url(CLOUD_DOMAIN + "downloads/gapps-list").build();
         try {
             Response response = new OkHttpClient().newCall(request).execute();
             if (response != null) {

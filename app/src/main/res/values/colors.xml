@@ -10,4 +10,5 @@
     <color name="green">#4CAF50</color>
     <color name="divider">#1E000000</color>
     <color name="black">#000</color>
+    <color name="diabled_text">#39000000</color>
 </resources>

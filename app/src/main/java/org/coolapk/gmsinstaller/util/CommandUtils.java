@@ -6,6 +6,8 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
+import org.coolapk.gmsinstaller.cloud.CloudHelper;
+import org.coolapk.gmsinstaller.ui.StatusPresenter;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -25,6 +27,7 @@ import okio.Source;
 public class CommandUtils {
 
     public static final String MIN_PKGS = "com.google.android.gms,com.google.android.gsf,com.google.android.gsf.login,com.android.vending";
+    public static final String EXT_PKGS = "com.android.facelock,com.google.android.googlequicksearchbox";
     public static final String SYSTEM_APP = "/system/app/";
     public static final String SYSTEM_PRIV_APP = "/system/priv-app/";
 
@@ -41,10 +44,6 @@ public class CommandUtils {
 
     public static void chmod(String mode, String path) {
         execCommand("chmod " + mode + " " + path, true, false);
-    }
-
-    public static void installBusybox() {
-
     }
 
     public static CommandResult execCommand(String command, boolean isRoot, boolean isNeedResultMsg) {
@@ -124,15 +123,22 @@ public class CommandUtils {
                 errorMsg == null ? null : errorMsg.toString());
     }
 
-    public static int checkMinPkgInstall() {
+    public static int checkPackageInstalled(int type) {
+        boolean isMinimal = type == CloudHelper.PACKAGE_TYPE_MINIMAL;
+        int installed = isMinimal ? StatusPresenter.STATUS_MINIMAL_INSTALLED : StatusPresenter
+                .STATUS_EXTENSION_INSTALLED;
+        int notInstall = isMinimal ? StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED : StatusPresenter
+                .STATUS_EXTENSION_NOT_INSTALLED;
+
         PackageManager packageManager = AppHelper.getAppContext().getPackageManager();
-        int status = -1;
+        int status = notInstall;
         if (packageManager == null) {
             return status;
         }
 
-        String[] minPkg = MIN_PKGS.split(",");
-        for (String pkgName : minPkg) {
+        String[] packages;
+        packages = isMinimal ? MIN_PKGS.split(",") : EXT_PKGS.split(",");
+        for (String pkgName : packages) {
             try {
                 packageManager.getApplicationInfo(pkgName, 0);
                 status++;
@@ -141,7 +147,13 @@ public class CommandUtils {
             }
         }
 
-        return status;
+        if (status > 0 && status < 3) {
+            return isMinimal ? StatusPresenter.STATUS_MINIMAL_INSTALL_INCOMPLETE : installed;
+        } else if (status == 3) {
+            return installed;
+        } else {
+            return notInstall;
+        }
     }
 
     public static boolean isFormerSdk() {

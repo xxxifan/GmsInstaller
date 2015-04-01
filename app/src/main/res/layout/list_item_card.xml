@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
     android:background="?selectableItemBackground"
+    android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="8dp">
 
@@ -14,7 +14,8 @@
         android:src="@drawable/ic_framework"
         android:tint="@color/primary_dark_material_light" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/list_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -22,22 +23,15 @@
         android:layout_marginRight="8dp"
         android:layout_toLeftOf="@+id/list_status_text"
         android:layout_toRightOf="@id/list_icon"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/list_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp" />
-    </LinearLayout>
+        android:textSize="16sp" />
 
 
     <TextView
         android:id="@+id/list_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:padding="16dp"
-        android:layout_alignParentRight="true"
         android:textColor="?colorAccent" />
 </RelativeLayout>

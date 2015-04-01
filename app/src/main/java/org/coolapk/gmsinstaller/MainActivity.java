@@ -2,11 +2,11 @@ package org.coolapk.gmsinstaller;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
 import org.coolapk.gmsinstaller.model.Gpack;
@@ -25,7 +25,6 @@ import de.greenrobot.event.EventBus;
 
 public class MainActivity extends BaseActivity {
 
-    private RecyclerView mRecyclerView;
     private StatusPresenter mStatusPresenter;
     private PanelPresenter mPanelPresenter;
     private String[] mGapps;
@@ -56,19 +55,6 @@ public class MainActivity extends BaseActivity {
         View root = getWindow().getDecorView();
         mStatusPresenter = new StatusPresenter(root);
         mPanelPresenter = new PanelPresenter(root);
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.main_list);
-        mRecyclerView.addItemDecoration(new CardItemDecoration(this));
-        mRecyclerView.setLayoutManager(new CardLayoutManager(this));
-        mRecyclerView.setHasFixedSize(true);
-        CardAdapter adapter = new CardAdapter(this);
-        adapter.setOnItemClickListener(new CardAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                mPanelPresenter.display(position);
-            }
-        });
-        mRecyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -87,18 +73,7 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INIT) {
-            post(new CheckDataEvent());
-        }
-    }
-
-    private void checkInstallStatus() {
-        int installStatus = CommandUtils.checkMinPkgInstall();
-        if (installStatus < 0) {
-            onStatusEvent(StatusPresenter.STATUS_NOT_INSTALLED);
-        } else if (installStatus < 3) {
-            onStatusEvent(StatusPresenter.STATUS_INSTALL_INCOMPLETE);
-        } else {
-            onStatusEvent(StatusPresenter.STATUS_INSTALLED);
+            postEvent(new CheckDataEvent());
         }
     }
 
@@ -109,13 +84,7 @@ public class MainActivity extends BaseActivity {
         CommandUtils.initEnvironment();
 
         // update to checking updates state
-        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
-        boolean success = CloudHelper.getGpackList() != null;
-        if (success) {
-            // TODO prepare package detail
-        } else {
-            mPanelPresenter.setGappsDetail(null);
-        }
+        onEventBackgroundThread(new CheckUpdateEvent());
 
         onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
         boolean hasRoot = CommandUtils.checkRootPermission();
@@ -123,6 +92,40 @@ public class MainActivity extends BaseActivity {
             checkInstallStatus();
         } else {
             onNoRootEvent();
+        }
+    }
+
+    public void onEventMainThread(PanelDisplayEvent event) {
+        mPanelPresenter.display(event.position);
+    }
+
+    public void onEventBackgroundThread(CheckUpdateEvent event) {
+        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+        List<Gpack> gpacks = CloudHelper.getGpackList();
+        mPanelPresenter.setGappsDetail(gpacks);
+        if (gpacks == null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, R.string.msg_check_update_failed, Toast
+                            .LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void checkInstallStatus() {
+        int minStatus = CommandUtils.checkPackageInstalled(CloudHelper.PACKAGE_TYPE_MINIMAL);
+        onStatusEvent(minStatus); // only display minimal install status
+        boolean minInstalled = minStatus != StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED;
+        mPanelPresenter.setInstallStatus(0, minInstalled);
+
+        // check extension pack if minimal package installed
+        if (minInstalled) {
+            mPanelPresenter.setInstallStatus(1, CommandUtils.checkPackageInstalled(CloudHelper
+                    .PACKAGE_TYPE_EXTENSION) == StatusPresenter.STATUS_EXTENSION_INSTALLED);
+        } else {
+            mPanelPresenter.setInstallStatus(1, false);
         }
     }
 
@@ -164,11 +167,11 @@ public class MainActivity extends BaseActivity {
         }
 
         // cache gapp list
-        try {
-            mGapps = getAssets().list(Gpack.MIN_FOLDER);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            mGapps = getAssets().list(Gpack.MIN_FOLDER);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         if (!flagFile.exists()) {
             try {
@@ -179,7 +182,8 @@ public class MainActivity extends BaseActivity {
                         continue;
                     }
 
-                    InputStream is = getAssets().open(Gpack.MIN_FOLDER + File.separator + gapp);
+//                    InputStream is = getAssets().open(Gpack.MIN_FOLDER + File.separator + gapp);
+                    InputStream is = getAssets().open(File.separator + gapp);
                     byte[] buffer = new byte[is.available()];
                     count = is.read(buffer);
 
@@ -199,11 +203,18 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    public static class PanelDisplayEvent {
+        public int position;
+    }
+
+    public static class CheckUpdateEvent {
+    }
+
     private class InstallClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
-            if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INSTALLED) {
+            if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_MINIMAL_INSTALLED) {
                 // TODO installed confirm
             }
             boolean isFormerSdk = CommandUtils.isFormerSdk();

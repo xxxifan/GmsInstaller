@@ -15,16 +15,12 @@ import java.util.List;
  */
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
-    public static final int STATUS_FW_INSTALLED = 1;
-    public static final int STATUS_EX_INSTALLED = 2;
-
     public static int[] CARD_ITEMS = new int[]{
-            R.string.title_gapps_framework, R.string.title_gapps_extension
+            R.string.title_gapps_framework, R.string.title_gapps_extension, R.string.title_gapps_family
     };
 
     private Context mContext;
     private List<ItemInfo> mDataList;
-    private boolean mIsInstalled;
 
     private ItemClickListener mItemClickListener;
 
@@ -34,6 +30,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         mDataList = new ArrayList<>();
         mDataList.add(new ItemInfo(R.drawable.ic_framework, mContext.getString(CARD_ITEMS[0])));
         mDataList.add(new ItemInfo(R.drawable.ic_extension, mContext.getString(CARD_ITEMS[1])));
+        mDataList.add(new ItemInfo(R.drawable.ic_gapps, mContext.getString(CARD_ITEMS[2]), -1));
     }
 
     @Override
@@ -44,13 +41,17 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.imageView.setImageResource(mDataList.get(position).icon);
-        holder.titleText.setText(mDataList.get(position).title);
-        if (mIsInstalled) {
+        ItemInfo info = mDataList.get(position);
+        holder.imageView.setImageResource(info.icon);
+        holder.titleText.setText(info.title);
+        if (info.installStatus == 1) {
             holder.actionBtn.setText(mContext.getString(R.string.btn_installed));
             holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.green));
-        } else {
+        } else if (info.installStatus == 0) {
             holder.actionBtn.setText(mContext.getString(R.string.btn_not_installed));
+            holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.pink));
+        } else {
+            holder.actionBtn.setText(mContext.getString(R.string.btn_check) + "  ");
             holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.pink));
         }
     }
@@ -64,8 +65,9 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         return mDataList;
     }
 
-    public void setInstallStatus(boolean status) {
-        mIsInstalled = status;
+    public void setInstallStatus(int position, boolean status) {
+        mDataList.get(position).installStatus = status ? 1 : 0;
+        notifyItemChanged(position);
     }
 
     public void setOnItemClickListener(ItemClickListener listener) {
@@ -100,10 +102,17 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public class ItemInfo {
         public int icon;
         public String title;
+        public int installStatus;
 
         public ItemInfo(int icon, String title) {
             this.icon = icon;
             this.title = title;
+        }
+
+        public ItemInfo(int icon, String title, int status) {
+            this.icon = icon;
+            this.title = title;
+            this.installStatus = status;
         }
     }
 }

@@ -6,23 +6,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    app:umanoAnchorPoint="0.6"
+    app:umanoAnchorPoint="0.68"
     app:umanoPanelHeight="0dp">
 
     <!-- Main part -->
-    <LinearLayout
-        android:id="@+id/sliding_main"
+    <org.coolapk.gmsinstaller.widget.ScrollView
+        android:id="@+id/main_scroller"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:scrollbars="none">
 
-        <include layout="@layout/main_status_header" />
+        <LinearLayout
+            android:id="@+id/sliding_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="36dp">
 
-        <include layout="@layout/main_gapps_install" />
+            <include layout="@layout/main_status_header" />
 
-        <include layout="@layout/main_gapps_manual" />
+            <include layout="@layout/main_gapps_install" />
 
-    </LinearLayout>
+            <include layout="@layout/main_gapps_manual" />
+
+        </LinearLayout>
+    </org.coolapk.gmsinstaller.widget.ScrollView>
+
 
     <!-- Slide part -->
     <LinearLayout
@@ -62,8 +71,7 @@
                 android:id="@+id/update_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="20150303" />
+                android:layout_marginTop="2dp" />
 
             <!-- Package size -->
             <TextView
@@ -78,8 +86,7 @@
                 android:id="@+id/package_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="26.87 MB" />
+                android:layout_marginTop="2dp" />
 
             <!-- Package detail -->
             <TextView
@@ -94,8 +101,7 @@
                 android:id="@+id/package_detail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Google Login Service\nGoogle Server Framework" />
+                android:layout_marginTop="2dp" />
 
         </LinearLayout>
 
@@ -105,7 +111,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="left|center_vertical"
-            android:padding="16dp"
             android:text="@string/btn_install"
             android:textColor="?colorAccent"
             android:textSize="16sp" />
@@ -116,7 +121,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="left|center_vertical"
-            android:padding="16dp"
             android:text="@string/btn_uninstall"
             android:textColor="?colorAccent"
             android:textSize="16sp" />

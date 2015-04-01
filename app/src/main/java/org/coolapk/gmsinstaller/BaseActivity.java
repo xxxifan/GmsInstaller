@@ -41,7 +41,7 @@ public class BaseActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void post(Object event) {
+    public void postEvent(Object event) {
         EventBus.getDefault().post(event);
     }
 }

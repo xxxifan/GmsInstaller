@@ -9,4 +9,5 @@ public class Gpack {
     public String packageSize;
     public int sdkLevel;
     public String updateTime;
+    public String md5;
 }

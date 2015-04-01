@@ -1,5 +1,7 @@
 package org.coolapk.gmsinstaller.cloud;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import com.google.gson.Gson;
@@ -7,6 +9,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.model.Gapps;
 import org.coolapk.gmsinstaller.model.Gpack;
 
@@ -18,9 +21,10 @@ import java.util.List;
  * Created by BobPeng on 2015/3/19.
  */
 public class CloudHelper {
-    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
     public static final int PACKAGE_TYPE_MINIMAL = 1;
     public static final int PACKAGE_TYPE_EXTENSION = 2;
+    //    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
+    private static final String CLOUD_DOMAIN = "http://192.168.1.100/downloads/";
 
     public static List<Gpack> getProperPackages(List<Gpack> packs) {
         int sdkLevel = Build.VERSION.SDK_INT;
@@ -54,5 +58,15 @@ public class CloudHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void downloadPackage(String packageName, Intent data) {
+        Context context = AppHelper.getAppContext();
+        Intent intent = new Intent(AppHelper.getAppContext(), DownloadService.class);
+        if (data != null) {
+            intent.putExtras(data);
+        }
+        intent.putExtra("url", CLOUD_DOMAIN + packageName);
+        context.startService(intent);
     }
 }

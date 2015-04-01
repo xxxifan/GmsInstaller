@@ -24,6 +24,7 @@
     <string name="btn_more">更多</string>
     <string name="btn_open_file">选择文件</string>
     <string name="btn_check">查看</string>
+    <string name="btn_cancel">取消</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>

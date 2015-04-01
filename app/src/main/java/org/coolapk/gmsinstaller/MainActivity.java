@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
+import org.coolapk.gmsinstaller.cloud.DownloadEvent;
 import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
@@ -112,6 +113,14 @@ public class MainActivity extends BaseActivity {
                             .LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    public void onEventMainThread(DownloadEvent event) {
+        if (event.status == 2 && event.progress > event.lastProgress) {
+            Log.e("", " download " + event.downloaded);
+            Log.e("", " progress " + event.progress);
+            event.lastProgress = event.progress;
         }
     }
 

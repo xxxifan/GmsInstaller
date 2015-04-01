@@ -19,7 +19,6 @@ import java.io.InputStreamReader;
 import okio.BufferedSource;
 import okio.Okio;
 import okio.Sink;
-import okio.Source;
 
 /**
  * Created by BobPeng on 2015/3/17.
@@ -186,14 +185,12 @@ public class CommandUtils {
 
     public static void extractAssetTo(InputStream inputStream, File tmpFile, File target) throws
             IOException {
-        Source source = Okio.source(inputStream);
-        BufferedSource buffer = Okio.buffer(source);
-        Sink sink = Okio.sink(tmpFile);
-        buffer.readAll(sink);
+        BufferedSource buffer = Okio.buffer(Okio.source(inputStream)); // read source into buffer
+        Sink sink = Okio.sink(tmpFile); // get output sink
+        buffer.readAll(sink); // read buffer into sink
 
-        sink.close();
         buffer.close();
-        source.close();
+        sink.close();
 
         String[] cmd = new String[]{CommandUtils.CMD_RW_SYSTEM, "cat " + tmpFile.getPath() + " > " +
                 target.getPath(), "chmod 0755 " + target.getPath(), CMD_RO_SYSTEM};

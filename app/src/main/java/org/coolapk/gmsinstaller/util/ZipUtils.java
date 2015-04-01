@@ -1,12 +1,14 @@
 package org.coolapk.gmsinstaller.util;
 
+import org.coolapk.gmsinstaller.app.AppHelper;
+
+import java.io.File;
 import java.text.DecimalFormat;
 
 /**
  * Created by BobPeng on 2015/3/23.
  */
 public class ZipUtils {
-    public static final String SCRIPTER_PATH = "META-INF/com/google/android/updater-script";
     private static final String DECIMAL_FORMAT = "##0.0#";
     private static final String[] UNIT = {" B", " KB", " MB", " GB"};
 
@@ -28,5 +30,16 @@ public class ZipUtils {
         }
 
         return new DecimalFormat(DECIMAL_FORMAT).format(fsize) + UNIT[counter];
+    }
+
+    public static void unzipFile(File zipFile, File targetPath) {
+        String targetDir = targetPath.getPath() + "/tmp";
+        CommandUtils.execCommand(new String[]{"busybox rm -f " + targetDir + "/*", "unzip " + zipFile
+                .getPath() + " -d " + targetDir}, true, false);
+        //TODO
+    }
+
+    public static void flash() {
+        EdifyParser.parseScript(AppHelper.getExternalFilePath());
     }
 }

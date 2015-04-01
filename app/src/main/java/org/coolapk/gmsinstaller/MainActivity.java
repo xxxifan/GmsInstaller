@@ -103,6 +103,7 @@ public class MainActivity extends BaseActivity {
         onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
         List<Gpack> gpacks = CloudHelper.getGpackList();
         mPanelPresenter.setGappsDetail(gpacks);
+
         if (gpacks == null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -131,14 +132,6 @@ public class MainActivity extends BaseActivity {
 
     private void onNoRootEvent() {
         onStatusEvent(StatusPresenter.STATUS_NO_ROOT);
-    }
-
-    private void prepareCheckUpdateState() {
-        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
-    }
-
-    private void prepareCheckRootState() {
-        onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
     }
 
     private void onStatusEvent(final int status) {

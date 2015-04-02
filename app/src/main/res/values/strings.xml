@@ -14,6 +14,8 @@
     <string name="title_package_size">文件大小</string>
     <string name="title_package_details">包含文件</string>
     <string name="title_no_info">暂无信息</string>
+    <string name="title_downloading">正在下载</string>
+    <string name="title_downloaded">已下载 %s</string>
 
 
     <string name="btn_install">立即安装</string>
@@ -38,6 +40,9 @@
     <string name="msg_installing">正在安装</string>
     <string name="msg_checking_updates">正在检查更新</string>
     <string name="msg_check_update_failed">检查更新失败，请检查网络并重试</string>
+    <string name="msg_start_download">开始下载</string>
+    <string name="msg_download_failed">下载失败</string>
+    <string name="msg_download_canceled">下载已取消</string>
 
     <string-array name="gapps_description">
         <item>基本服务框架\nPlay商店\n联系人同步\n日历同步</item>

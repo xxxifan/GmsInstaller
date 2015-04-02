@@ -3,6 +3,7 @@ package org.coolapk.gmsinstaller.ui;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import de.greenrobot.event.EventBus;
  * Created by BobPeng on 2015/3/26.
  */
 public class StatusPresenter {
+    public static final int STATUS_DOWNLOADING_FAILED = -13;
     public static final int STATUS_NO_ROOT = -12;
     public static final int STATUS_EXTENSION_NOT_INSTALLED = -2;
     public static final int STATUS_MINIMAL_NOT_INSTALLED = -1;
@@ -28,9 +30,13 @@ public class StatusPresenter {
     public static final int STATUS_EXTENSION_INSTALLED = 2;
     public static final int STATUS_MINIMAL_INSTALL_INCOMPLETE = 3;
     public static final int STATUS_UPDATE_AVAILABLE = 4;
-    public static final int STATUS_INSTALLING = 10;
-    public static final int STATUS_CHECKING_UPDATES = 11;
-    public static final int STATUS_CHECKING_ROOT = 12;
+    public static final int STATUS_DOWNLOAD_CANCELED = 5;
+    // working status
+    public static final int STATUS_INSTALLING = 11;
+    public static final int STATUS_CHECKING_UPDATES = 12;
+    public static final int STATUS_CHECKING_ROOT = 13;
+    public static final int STATUS_DOWNLOADING = 14;
+
 
 
     private static final int ICON_STATE_WARN = -1;
@@ -42,6 +48,7 @@ public class StatusPresenter {
     private ImageView mStatusIcon;
     private TextView mStatusText;
     private TextView mSubStatusText;
+    private Button mCancelBtn;
     private CardAdapter mAdapter;
     private Context mContext;
 
@@ -55,6 +62,7 @@ public class StatusPresenter {
         mStatusIcon = (ImageView) root.findViewById(R.id.status_icon);
         mStatusText = (TextView) root.findViewById(R.id.status_text);
         mSubStatusText = (TextView) root.findViewById(R.id.status_sub_text);
+        mCancelBtn = (Button) root.findViewById(R.id.status_cancel_btn);
 
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.main_list);
         recyclerView.addItemDecoration(new CardItemDecoration(mContext));
@@ -131,6 +139,18 @@ public class StatusPresenter {
                 setStatusText(R.string.msg_check_root);
                 setStatusIconState(ICON_STATE_LOADING);
                 break;
+            case STATUS_DOWNLOADING:
+                setStatusText(R.string.msg_start_download);
+                setStatusIconState(ICON_STATE_LOADING);
+                break;
+            case STATUS_DOWNLOAD_CANCELED:
+                setStatusText(R.string.msg_download_canceled);
+                setStatusIconState(ICON_STATE_ALERT);
+                break;
+            case STATUS_DOWNLOADING_FAILED:
+                setStatusText(R.string.msg_download_failed);
+                setStatusIconState(ICON_STATE_WARN);
+                break;
         }
     }
 
@@ -179,5 +199,10 @@ public class StatusPresenter {
         mStatusText.setText(statusText);
         mSubStatusText.setVisibility(View.VISIBLE);
         mSubStatusText.setText(subStatusText);
+    }
+
+    public void setupCancelBtn(boolean visible, View.OnClickListener callback) {
+        mCancelBtn.setVisibility(visible ? View.VISIBLE : View.GONE);
+        mCancelBtn.setOnClickListener(callback);
     }
 }

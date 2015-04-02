@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
 import org.coolapk.gmsinstaller.cloud.DownloadEvent;
+import org.coolapk.gmsinstaller.cloud.DownloadService;
 import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
@@ -29,6 +31,7 @@ public class MainActivity extends BaseActivity {
     private StatusPresenter mStatusPresenter;
     private PanelPresenter mPanelPresenter;
     private String[] mGapps;
+    private boolean mIsServiceRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class MainActivity extends BaseActivity {
 
         initView();
         setTitle(R.string.app_mark);
+        mIsServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
     }
 
     @Override
@@ -73,7 +77,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INIT) {
+        if (!mIsServiceRunning && mStatusPresenter.getStatus() == StatusPresenter.STATUS_INIT) {
             postEvent(new CheckDataEvent());
         }
     }
@@ -101,7 +105,10 @@ public class MainActivity extends BaseActivity {
     }
 
     public void onEventBackgroundThread(CheckUpdateEvent event) {
-        onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+        if (!event.noEvent) {
+            onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
+        }
+
         List<Gpack> gpacks = CloudHelper.getGpackList();
         mPanelPresenter.setGappsDetail(gpacks);
 
@@ -117,10 +124,30 @@ public class MainActivity extends BaseActivity {
     }
 
     public void onEventMainThread(DownloadEvent event) {
-        if (event.status == 2 && event.progress > event.lastProgress) {
-            Log.e("", " download " + event.downloaded);
-            Log.e("", " progress " + event.progress);
-            event.lastProgress = event.progress;
+        if (event.status == 2) {
+            if (event.progress == 0) {
+                // first run
+                onStatusEvent(StatusPresenter.STATUS_DOWNLOADING);
+                mStatusPresenter.setupCancelBtn(true, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CloudHelper.cancelDownloads();
+                        onStatusEvent(StatusPresenter.STATUS_DOWNLOAD_CANCELED);
+                        v.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            mStatusPresenter.setStatusText(getString(R.string.title_downloading), getString(R.string
+                    .title_downloaded, event.progress + "%"));
+        } else if (event.status == 1) {
+            // TODO install
+            onStatusEvent(StatusPresenter.STATUS_INSTALLING);
+            mStatusPresenter.setupCancelBtn(false, null);
+            mPanelPresenter.onInstallFinished();
+        } else if (event.status < 0) {
+            mStatusPresenter.setStatusText(getString(R.string.msg_download_failed));
+            onStatusEvent(StatusPresenter.STATUS_DOWNLOADING_FAILED);
         }
     }
 
@@ -157,7 +184,11 @@ public class MainActivity extends BaseActivity {
         if (mPanelPresenter.isPanelExpanded()) {
             mPanelPresenter.collapsePanel();
         } else {
-            super.onBackPressed();
+            if (mStatusPresenter.getStatus() > 10) {
+                moveTaskToBack(false);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -210,6 +241,14 @@ public class MainActivity extends BaseActivity {
     }
 
     public static class CheckUpdateEvent {
+        public boolean noEvent;
+
+        public CheckUpdateEvent(boolean bool) {
+            noEvent = bool;
+        }
+
+        public CheckUpdateEvent() {
+        }
     }
 
     private class InstallClickListener implements View.OnClickListener {

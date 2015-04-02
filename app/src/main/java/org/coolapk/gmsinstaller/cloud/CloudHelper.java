@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Created by BobPeng on 2015/3/19.
  */
@@ -35,6 +37,7 @@ public class CloudHelper {
         List<Gpack> newPacks = new ArrayList<>(2);
         for (Gpack pack : packs) {
             if (pack.sdkLevel == sdkLevel) {
+                // minus 1 to match list position
                 newPacks.add(pack.packageType - 1, pack);
             }
         }
@@ -62,11 +65,15 @@ public class CloudHelper {
 
     public static void downloadPackage(String packageName, Intent data) {
         Context context = AppHelper.getAppContext();
-        Intent intent = new Intent(AppHelper.getAppContext(), DownloadService.class);
+        Intent intent = new Intent(context, DownloadService.class);
         if (data != null) {
             intent.putExtras(data);
         }
         intent.putExtra("url", CLOUD_DOMAIN + packageName);
         context.startService(intent);
+    }
+
+    public static void cancelDownloads() {
+        EventBus.getDefault().post(new DownloadService.StopEvent());
     }
 }

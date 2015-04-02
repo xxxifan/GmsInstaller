@@ -1,5 +1,6 @@
 package org.coolapk.gmsinstaller.app;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -7,6 +8,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by BobPeng on 2015/3/18.
@@ -44,5 +46,20 @@ public class AppHelper {
                     context.getExternalFilesDir(null) : context.getFilesDir();
         }
         return sExternalFile;
+    }
+
+    public static boolean isServiceRunning(String className) {
+        ActivityManager activityManager = (ActivityManager) AppHelper.getAppContext().getSystemService
+                (Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> serviceList = activityManager.getRunningServices(30);
+        if (serviceList == null || serviceList.size() <= 0) {
+            return false;
+        }
+        for (int i = 0; i < serviceList.size(); i++) {
+            if (serviceList.get(i).service.getClassName().equals(className)) {
+                return true;
+            }
+        }
+       return false;
     }
 }

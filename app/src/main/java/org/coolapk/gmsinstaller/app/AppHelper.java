@@ -8,7 +8,10 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by BobPeng on 2015/3/18.
@@ -60,6 +63,11 @@ public class AppHelper {
                 return true;
             }
         }
-       return false;
+        return false;
+    }
+
+    public static String getSimpleTimestamp() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMDD", Locale.getDefault());
+        return format.format(Calendar.getInstance().getTime());
     }
 }

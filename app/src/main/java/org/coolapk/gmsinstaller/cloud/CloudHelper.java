@@ -25,8 +25,8 @@ import de.greenrobot.event.EventBus;
 public class CloudHelper {
     public static final int PACKAGE_TYPE_MINIMAL = 1;
     public static final int PACKAGE_TYPE_EXTENSION = 2;
-    //    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
-    private static final String CLOUD_DOMAIN = "http://192.168.1.100/downloads/";
+    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
+//    private static final String CLOUD_DOMAIN = "http://192.168.1.100/downloads/";
 
     public static List<Gpack> getProperPackages(List<Gpack> packs) {
         int sdkLevel = Build.VERSION.SDK_INT;
@@ -51,7 +51,9 @@ public class CloudHelper {
     }
 
     public static List<Gpack> getGpackList() {
-        Request request = new Request.Builder().url(CLOUD_DOMAIN + "gapps-list").build();
+        Request request = new Request.Builder().url(CLOUD_DOMAIN + "gapps-list?" + AppHelper
+                .getSimpleTimestamp())
+                .build();
         try {
             Response response = new OkHttpClient().newCall(request).execute();
             if (response != null && response.isSuccessful()) {

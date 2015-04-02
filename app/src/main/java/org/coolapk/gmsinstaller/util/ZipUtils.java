@@ -1,6 +1,7 @@
 package org.coolapk.gmsinstaller.util;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
+import org.coolapk.gmsinstaller.model.Gpack;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +41,7 @@ public class ZipUtils {
 
     public static String getFileMd5(File file) {
         if (file == null || !file.exists()) {
-            return null;
+            return "";
         }
 
         int bufferSize = 4 * 1024;
@@ -65,13 +66,13 @@ public class ZipUtils {
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            return null;
+            return "";
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return null;
+            return "";
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return "";
         } finally {
             try {
                 if (digestInputStream != null)
@@ -89,14 +90,36 @@ public class ZipUtils {
         }
     }
 
-    public static void unzipFile(File zipFile, File targetPath) {
-        String targetDir = targetPath.getPath() + "/tmp";
-        CommandUtils.execCommand(new String[]{"busybox rm -f " + targetDir + "/*", "unzip " + zipFile
-                .getPath() + " -d " + targetDir}, true, false);
-        //TODO
+    public static boolean unzipFile(File zipFile, File targetPath) {
+        String path = targetPath.getPath();
+        CommandUtils.execCommand(new String[]{"busybox rm -f " + path + "/*", "unzip " + zipFile
+                .getPath() + " -d " + path}, true, false);
+        return targetPath.exists();
     }
 
-    public static void flash() {
-        EdifyParser.parseScript(AppHelper.getExternalFilePath());
+    public static void install(Gpack gpack) {
+        File storagePath = AppHelper.getExternalFilePath();
+        File gappFile = new File(storagePath, gpack.packageName);
+        File tmpPath = new File(storagePath, "tmp");
+        if (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5)) {
+            // unzip gapps to storagePath.
+            unzipFile(gappFile, tmpPath);
+            // convert flash script
+            try {
+                EdifyParser.parseScript(storagePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            CommandUtils.execCommand(new String[]{
+                    CommandUtils.CMD_RW_SYSTEM,
+                    "busybox mount -o remount,rw /",
+                    "sh " + tmpPath + "/" + "flash.sh",
+                    "busybox mount -o remount,ro /",
+                    CommandUtils.CMD_RO_SYSTEM
+            }, true, false);
+        } else {
+            // TODO file incomplete
+        }
     }
 }

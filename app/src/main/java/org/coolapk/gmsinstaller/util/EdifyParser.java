@@ -3,8 +3,8 @@ package org.coolapk.gmsinstaller.util;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,16 +32,19 @@ public class EdifyParser {
         line = line.replaceAll("(\\);)", "");
     }
 
-    public static void parseScript(File targetPath) {
-        String scriptPath = targetPath.getPath() + SCRIPTER_PATH;
-        File parseFile = new File(targetPath.getPath() + "/tmp/flash.sh");
+    public static void parseScript(File targetPath) throws FileNotFoundException {
+        File scriptFile = new File(targetPath, SCRIPTER_PATH);
+        if (!scriptFile.exists()) {
+            throw new FileNotFoundException("Script file doesn't exist!");
+        }
+
+        File parseFile = new File(targetPath.getPath(), "flash.sh");
         try {
-            BufferedSource source = Okio.buffer(Okio.source(new File(scriptPath)));
-//            Sink sink = Okio.sink(parseFile);
-            String script = source.readString(Charset.forName("utf-8"));
+            // read script into buffer
+            BufferedSource source = Okio.buffer(Okio.source(scriptFile));
+            String script = source.readUtf8();
             source.close();
             edifyToBash(script, parseFile.getPath());
-//            sink.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,7 +60,7 @@ public class EdifyParser {
             commands.add(interpreterAlgorithm(chained[i], outputPath));
         }
 
-        CommandUtils.execCommand(commands.toArray(new String[commands.size()]), true, false);
+        CommandUtils.execCommand(commands.toArray(new String[commands.size()]), false, false);
     }
 
     private static String interpreterAlgorithm(String curr, String outputPath) {

@@ -161,7 +161,6 @@ public class PanelPresenter implements View.OnClickListener {
         if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
             // TODO alert already installed
         } else {
-            // TODO Start install
             if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
                 // TODO please framework first!
             } else {
@@ -171,9 +170,9 @@ public class PanelPresenter implements View.OnClickListener {
                         String packageName = gpack.packageName;
                         File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
                         if (targetFile.exists() && checkDownload(gpack, targetFile)) {
-                            // todo INSTALL
+                            ZipUtils.install(gpack);
                             Log.e("", "INSTALL");
-//                            mInstallBtn.setTag(0);
+                            mInstallBtn.setTag(0);
                         } else {
                             // start download
                             Intent data = new Intent();

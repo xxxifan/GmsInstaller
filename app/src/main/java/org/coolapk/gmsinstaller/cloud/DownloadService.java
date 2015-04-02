@@ -96,7 +96,7 @@ public class DownloadService extends IntentService {
                 fileOutputStream.flush();
                 fileOutputStream.close();
                 stream.close();
-//                BufferedSource source = Okio.buffer(Okio.source(stream));
+//                BufferedSource source = response.body().source();
 //                BufferedSink sink = Okio.buffer(Okio.sink(new File(path)));
 //                long readBytes, downloaded = 0l;
 //                int bufferSize = 8 * 1024;
@@ -109,6 +109,7 @@ public class DownloadService extends IntentService {
 //                        return;
 //                    }
 //
+//                    sink.emit();
 //                    downloaded += readBytes;
 //                    if (downloaded > 0) {
 //                        event.status = 2;

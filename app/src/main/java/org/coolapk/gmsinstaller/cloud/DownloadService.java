@@ -11,11 +11,12 @@ import com.squareup.okhttp.Response;
 import org.coolapk.gmsinstaller.app.AppHelper;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import de.greenrobot.event.EventBus;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
 
 /**
  * Created by xifan on 15-4-1.
@@ -67,63 +68,35 @@ public class DownloadService extends IntentService {
 
                 eventBus.post(event);
 
-                InputStream stream = response.body().byteStream();
-                FileOutputStream fileOutputStream = new FileOutputStream(new File(path));
-                byte[] buffer = new byte[8 * 1024];
-                int count;
-                long downloaded = 0;
-                while ((count = stream.read(buffer)) > 0) {
+                BufferedSource source = response.body().source();
+                BufferedSink sink = Okio.buffer(Okio.sink(new File(path)));
+                long readBytes, downloaded = 0l;
+                int bufferSize = 8 * 1024;
+                Log.e("","bufferSize");
+                while ((readBytes = source.read(sink.buffer(), bufferSize)) > 0) {
+                    downloaded += readBytes;
+                    sink.emit();
+
                     if (mShutDown) {
                         mShutDown = false;
-                        fileOutputStream.flush();
-                        fileOutputStream.close();
-                        stream.close();
+                        sink.close();
+                        source.close();
                         return;
                     }
-                    fileOutputStream.write(buffer, 0, count);
-                    downloaded += count;
+
                     if (downloaded > 0) {
                         event.status = 2;
                         event.progress = (int) ((float) downloaded / event.total * 100);
                         event.downloaded = downloaded;
                         if (event.progress > event.lastProgress + 1) { // every 2 steps to update UI
+                            Log.e("","loop");
                             eventBus.post(event);
                             event.lastProgress = event.progress;
                         }
                     }
-
                 }
-                fileOutputStream.flush();
-                fileOutputStream.close();
-                stream.close();
-//                BufferedSource source = response.body().source();
-//                BufferedSink sink = Okio.buffer(Okio.sink(new File(path)));
-//                long readBytes, downloaded = 0l;
-//                int bufferSize = 8 * 1024;
-//                while ((readBytes = source.read(sink.buffer(), bufferSize)) > 0) {
-//                    if (mShutDown) {
-//                        mShutDown = false;
-//                        sink.flush();
-//                        sink.close();
-//                        source.close();
-//                        return;
-//                    }
-//
-//                    sink.emit();
-//                    downloaded += readBytes;
-//                    if (downloaded > 0) {
-//                        event.status = 2;
-//                        event.progress = (int) ((float) downloaded / event.total * 100);
-//                        event.downloaded = downloaded;
-//                        if (event.progress > event.lastProgress + 1) { // every 2 steps to update UI
-//                            eventBus.post(event);
-//                            event.lastProgress = event.progress;
-//                        }
-//                    }
-//                }
-//                sink.flush();
-//                sink.close();
-//                source.close();
+                sink.close();
+                source.close();
 
                 // end event
                 event.status = 1;

@@ -19,6 +19,8 @@ import java.util.Locale;
 public class AppHelper {
 
     public static final String PREFERENCE_DOWNLOAD_FILES = "download_files";
+    private static final String SDCARD_ZERO_FOLDER = "/storage/emulated/0/";
+    private static final String SDCARD_LEGACY_FOLDER = "/storage/emulated/legacy/";
 
     private static File sExternalFile;
 
@@ -47,6 +49,10 @@ public class AppHelper {
             Context context = getAppContext();
             sExternalFile = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ?
                     context.getExternalFilesDir(null) : context.getFilesDir();
+            if (sExternalFile.getPath().contains(SDCARD_ZERO_FOLDER)) {
+                sExternalFile = new File(sExternalFile.getPath().replace(SDCARD_ZERO_FOLDER,
+                        SDCARD_LEGACY_FOLDER));
+            }
         }
         return sExternalFile;
     }

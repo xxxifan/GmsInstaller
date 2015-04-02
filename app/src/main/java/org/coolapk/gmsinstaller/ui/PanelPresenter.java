@@ -44,6 +44,8 @@ public class PanelPresenter implements View.OnClickListener {
     private int mColorDisabled;
     private int mColorAccent;
 
+    private int mWorkingIndex = -1;
+
     private List<PackageInfo> mPackageInfos;
 
     public PanelPresenter(View rootView) {
@@ -99,6 +101,13 @@ public class PanelPresenter implements View.OnClickListener {
 
     public String getCurrentItemName() {
         return mContext.getString(CardAdapter.CARD_ITEMS[mDisplayIndex]);
+    }
+
+    public Gpack getWorkingGpack() {
+        if (mWorkingIndex > -1) {
+            return mPackageInfos.get(mWorkingIndex).getGpack();
+        }
+        return null;
     }
 
     public void setGappsDetail(List<Gpack> gpackList) {
@@ -160,18 +169,23 @@ public class PanelPresenter implements View.OnClickListener {
     private void onInstallClick(final Gpack gpack) {
         if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
             // TODO alert already installed
+            Log.e("", "alert already installed");
         } else {
             if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
                 // TODO please framework first!
+                Log.e("", "please framework first");
             } else {
+                // prepare to work :)
+                mWorkingIndex = mDisplayIndex;
+
                 new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
                         String packageName = gpack.packageName;
                         File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
                         if (targetFile.exists() && checkDownload(gpack, targetFile)) {
-                            ZipUtils.install(gpack);
                             Log.e("", "INSTALL");
+                            EventBus.getDefault().post(new MainActivity.InstallEvent());
                             mInstallBtn.setTag(0);
                         } else {
                             // start download
@@ -181,7 +195,6 @@ public class PanelPresenter implements View.OnClickListener {
                             Log.e("", "downloadPackage");
                             mInstallBtn.setTag(0);
                         }
-
                         return null;
                     }
                 }.execute();
@@ -204,9 +217,11 @@ public class PanelPresenter implements View.OnClickListener {
 
     public void onInstallFinished() {
         mInstallBtn.setTag(1);
+        mWorkingIndex = -1;
     }
 
     public void onUninstallFinished() {
         mUninstallBtn.setTag(1);
+        mWorkingIndex = -1;
     }
 }

@@ -7,10 +7,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
 
 /**
  * Created by BobPeng on 2015/3/23.
@@ -92,8 +97,10 @@ public class ZipUtils {
 
     public static boolean unzipFile(File zipFile, File targetPath) {
         String path = targetPath.getPath();
-        CommandUtils.execCommand(new String[]{"busybox rm -f " + path + "/*", "unzip " + zipFile
-                .getPath() + " -d " + path}, true, false);
+        CommandUtils.execCommand(new String[]{
+                "busybox rm -rf " + path + "/*",
+                "unzip -o " + zipFile.getPath() + " -d " + path
+        }, false, false);
         return targetPath.exists();
     }
 
@@ -101,25 +108,46 @@ public class ZipUtils {
         File storagePath = AppHelper.getExternalFilePath();
         File gappFile = new File(storagePath, gpack.packageName);
         File tmpPath = new File(storagePath, "tmp");
+
+        if (!tmpPath.exists()) {
+            tmpPath.mkdirs();
+        }
+
         if (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5)) {
             // unzip gapps to storagePath.
             unzipFile(gappFile, tmpPath);
+
             // convert flash script
             try {
-                EdifyParser.parseScript(storagePath);
+                EdifyParser.parseScript(tmpPath);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
-            CommandUtils.execCommand(new String[]{
-                    CommandUtils.CMD_RW_SYSTEM,
-                    "busybox mount -o remount,rw /",
-                    "sh " + tmpPath + "/" + "flash.sh",
-                    "busybox mount -o remount,ro /",
-                    CommandUtils.CMD_RO_SYSTEM
-            }, true, false);
+            File flash = new File(tmpPath, "flash.sh");
+            if (flash.exists()) {
+                flash.setExecutable(true, false);
+//                CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
+//                        CommandUtils.CMD_RW_SYSTEM,
+//                        "busybox mount -o remount,rw /",
+//                        "sh " + flash.getPath(),
+//                        "busybox mount -o remount,ro /",
+//                        CommandUtils.CMD_RO_SYSTEM
+//                }, true, true);
+//                Log.e("", "result=" + result.result + " success:" + result.successMsg + " error:" + result
+//                        .errorMsg);
+            }
         } else {
             // TODO file incomplete
         }
+    }
+
+    public static void writeFile(InputStream inputStream, File targetFile) throws IOException {
+        BufferedSource buffer = Okio.buffer(Okio.source(inputStream)); // read source into buffer
+        BufferedSink sink = Okio.buffer(Okio.sink(targetFile)); // get output sink
+        buffer.readAll(sink); // read buffer into sink
+        sink.emit(); // flush
+        buffer.close();
+        sink.close();
     }
 }

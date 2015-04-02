@@ -16,10 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import okio.BufferedSource;
-import okio.Okio;
-import okio.Sink;
-
 /**
  * Created by BobPeng on 2015/3/17.
  */
@@ -178,23 +174,24 @@ public class CommandUtils {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            CommandUtils.execCommand(new String[]{CMD_RW_SYSTEM, "/system/xbin/busybox --install -s " +
-                    "/system/xbin", CMD_RO_SYSTEM}, true, false);
+            CommandUtils.execCommand(new String[]{
+                    CMD_RW_SYSTEM,
+                    "/system/xbin/busybox --install -s " + "/system/xbin",
+                    CMD_RO_SYSTEM
+            }, true, false);
         }
     }
 
     public static void extractAssetTo(InputStream inputStream, File tmpFile, File target) throws
             IOException {
-        BufferedSource buffer = Okio.buffer(Okio.source(inputStream)); // read source into buffer
-        Sink sink = Okio.sink(tmpFile); // get output sink
-        buffer.readAll(sink); // read buffer into sink
+        ZipUtils.writeFile(inputStream, tmpFile);
 
-        buffer.close();
-        sink.close();
-
-        String[] cmd = new String[]{CommandUtils.CMD_RW_SYSTEM, "cat " + tmpFile.getPath() + " > " +
-                target.getPath(), "chmod 0755 " + target.getPath(), CMD_RO_SYSTEM};
-        CommandUtils.execCommand(cmd, true, false);
+        CommandUtils.execCommand(new String[]{
+                CommandUtils.CMD_RW_SYSTEM,
+                "cat " + tmpFile.getPath() + " > " + target.getPath(),
+                "chmod 0755 " + target.getPath(),
+                CMD_RO_SYSTEM
+        }, true, false);
     }
 
     /**

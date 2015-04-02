@@ -35,7 +35,7 @@
     <string name="msg_check_root">正在检测root权限&#8230;</string>
     <string name="msg_min_gapps_installed">已安装基本框架</string>
     <string name="msg_min_gapps_incomplete">发现未安装的框架</string>
-    <string name="msg_min_gapps_not_installed">未安装基本框架</string>
+    <string name="msg_min_gapps_not_installed">未安装谷歌服务</string>
     <string name="msg_gapps_update_available">谷歌服务套件有可用的更新</string>
     <string name="msg_installing">正在安装</string>
     <string name="msg_checking_updates">正在检查更新</string>

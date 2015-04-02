@@ -2,10 +2,11 @@ package org.coolapk.gmsinstaller;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
@@ -16,6 +17,9 @@ import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
 import org.coolapk.gmsinstaller.util.CommandUtils;
+import org.coolapk.gmsinstaller.util.ViewUtils;
+import org.coolapk.gmsinstaller.util.ZipUtils;
+import org.coolapk.gmsinstaller.widget.ScrollView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,7 +30,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends ActionBarActivity {
 
     private StatusPresenter mStatusPresenter;
     private PanelPresenter mPanelPresenter;
@@ -43,23 +47,17 @@ public class MainActivity extends BaseActivity {
         mIsServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
     }
 
-    @Override
-    protected void setupToolbar(Toolbar toolbar) {
-        super.setupToolbar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        toolbar.setTitleTextColor(getResources().getColor(android.support.v7.appcompat.R.color
-                .primary_text_disabled_material_light));
-
-        // hack toolbar to scroll with slidingUpPanel
-        ((ViewGroup) toolbar.getParent()).removeView(toolbar);
-        ((ViewGroup) findViewById(R.id.sliding_main)).addView(toolbar, 0);
-    }
-
     private void initView() {
+        setupToolbar();
         View root = getWindow().getDecorView();
         mStatusPresenter = new StatusPresenter(root);
         mPanelPresenter = new PanelPresenter(root);
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.primary_text_disabled_material_light));
+        setSupportActionBar(toolbar);
     }
 
     @Override
@@ -82,6 +80,35 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // correct bottom height to scroll more smoother
+        correctBottomHeight();
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void correctBottomHeight() {
+        ScrollView scrollView = (ScrollView) findViewById(R.id.main_scroller);
+        int count = scrollView.getChildCount();
+        int childHeight = 0;
+        for (int i = 0; i < count; i++) {
+            childHeight += scrollView.getChildAt(i).getMeasuredHeight();
+        }
+
+        int toolbarHeight = ViewUtils.dp2px(56);
+        int diff = childHeight - scrollView.getMeasuredHeight();
+        if (diff < toolbarHeight) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                diff += ViewUtils.dp2px(8);
+            }
+            findViewById(R.id.sliding_main).setPadding(0, 0, 0, diff);
+        }
+    }
+
+    public void postEvent(Object event) {
+        EventBus.getDefault().post(event);
+    }
+
     /**
      * CheckData
      */
@@ -96,12 +123,8 @@ public class MainActivity extends BaseActivity {
         if (hasRoot) {
             checkInstallStatus();
         } else {
-            onNoRootEvent();
+            onStatusEvent(StatusPresenter.STATUS_NO_ROOT);
         }
-    }
-
-    public void onEventMainThread(PanelDisplayEvent event) {
-        mPanelPresenter.display(event.position);
     }
 
     public void onEventBackgroundThread(CheckUpdateEvent event) {
@@ -123,6 +146,24 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    public void onEventBackgroundThread(InstallEvent event) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mStatusPresenter.setupCancelBtn(false, null);
+            }
+        });
+        onStatusEvent(StatusPresenter.STATUS_INSTALLING);
+        Gpack gpack = mPanelPresenter.getWorkingGpack();
+        ZipUtils.install(gpack);
+        checkInstallStatus(gpack.packageType);
+        mPanelPresenter.onInstallFinished();
+    }
+
+    public void onEventMainThread(PanelDisplayEvent event) {
+        mPanelPresenter.display(event.position);
+    }
+
     public void onEventMainThread(DownloadEvent event) {
         if (event.status == 2) {
             if (event.progress == 0) {
@@ -134,6 +175,7 @@ public class MainActivity extends BaseActivity {
                         CloudHelper.cancelDownloads();
                         onStatusEvent(StatusPresenter.STATUS_DOWNLOAD_CANCELED);
                         v.setVisibility(View.GONE);
+                        mPanelPresenter.onInstallFinished();
                     }
                 });
             }
@@ -141,33 +183,29 @@ public class MainActivity extends BaseActivity {
             mStatusPresenter.setStatusText(getString(R.string.title_downloading), getString(R.string
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {
-            // TODO install
-            onStatusEvent(StatusPresenter.STATUS_INSTALLING);
-            mStatusPresenter.setupCancelBtn(false, null);
-            mPanelPresenter.onInstallFinished();
+            postEvent(new InstallEvent());
         } else if (event.status < 0) {
             mStatusPresenter.setStatusText(getString(R.string.msg_download_failed));
             onStatusEvent(StatusPresenter.STATUS_DOWNLOADING_FAILED);
         }
     }
 
-    private void checkInstallStatus() {
-        int minStatus = CommandUtils.checkPackageInstalled(CloudHelper.PACKAGE_TYPE_MINIMAL);
-        onStatusEvent(minStatus); // only display minimal install status
-        boolean minInstalled = minStatus != StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED;
-        mPanelPresenter.setInstallStatus(0, minInstalled);
-
-        // check extension pack if minimal package installed
-        if (minInstalled) {
-            mPanelPresenter.setInstallStatus(1, CommandUtils.checkPackageInstalled(CloudHelper
-                    .PACKAGE_TYPE_EXTENSION) == StatusPresenter.STATUS_EXTENSION_INSTALLED);
-        } else {
-            mPanelPresenter.setInstallStatus(1, false);
-        }
+    private boolean checkInstallStatus() {
+        return checkInstallStatus(CloudHelper.PACKAGE_TYPE_MINIMAL);
     }
 
-    private void onNoRootEvent() {
-        onStatusEvent(StatusPresenter.STATUS_NO_ROOT);
+    private boolean checkInstallStatus(int type) {
+        int status = CommandUtils.checkPackageInstalled(type);
+        onStatusEvent(status); // primary check item will show status
+        boolean isInstalled = status > 0;
+        mPanelPresenter.setInstallStatus(type - 1, isInstalled);
+
+        // check another item
+        int nextItem = type == CloudHelper.PACKAGE_TYPE_MINIMAL ? CloudHelper
+                .PACKAGE_TYPE_EXTENSION : CloudHelper.PACKAGE_TYPE_MINIMAL;
+        mPanelPresenter.setInstallStatus(nextItem - 1, CommandUtils.checkPackageInstalled(nextItem) > 0);
+
+        return isInstalled;
     }
 
     private void onStatusEvent(final int status) {
@@ -249,6 +287,9 @@ public class MainActivity extends BaseActivity {
 
         public CheckUpdateEvent() {
         }
+    }
+
+    public static class InstallEvent {
     }
 
     private class InstallClickListener implements View.OnClickListener {

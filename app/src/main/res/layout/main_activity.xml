@@ -14,14 +14,16 @@
         android:id="@+id/main_scroller"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:overScrollMode="never"
         android:scrollbars="none">
 
         <LinearLayout
             android:id="@+id/sliding_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="36dp">
+            android:orientation="vertical">
+
+            <include layout="@layout/toolbar" />
 
             <include layout="@layout/main_status_header" />
 

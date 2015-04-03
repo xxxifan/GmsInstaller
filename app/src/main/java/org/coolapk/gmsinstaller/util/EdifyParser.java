@@ -133,8 +133,8 @@ public class EdifyParser {
             curr = curr.replaceAll("set_perm_recursive\\(", "");
             String[] array = curr.split(",\\s");
 
-            Log.v("Recovery Emulator", "chown -R " + array[0] + ":" + array[1] + " " + array[3]);
-            curr = "echo \"" + "chown -R " + array[0].trim() + ":" + array[1] + " " + array[3] + "\" >> " +
+            Log.v("Recovery Emulator", "busybox chown -R " + array[0] + ":" + array[1] + " " + array[3]);
+            curr = "echo \"" + "busybox chown -R " + array[0].trim() + ":" + array[1] + " " + array[3] + "\" >> " +
                     script + " && ";
             if (array.length == 5) {
                 Log.v("Recovery Emulator", "chmod -R " + array[3] + " " + array[4]);
@@ -153,9 +153,9 @@ public class EdifyParser {
             curr = curr.replaceAll("\"", "");
             String[] array = curr.split(",\\s");
 
-            Log.v("Recovery Emulator", "chown -R " + array[2] + ":" + array[4]
+            Log.v("Recovery Emulator", "busybox chown -R " + array[2] + ":" + array[4]
                     + " " + array[0].trim());
-            curr = "echo \"" + "chown -R " + array[2] + ":" + array[4] + " " + array[0].trim() + "\" " +
+            curr = "echo \"" + "busybox chown -R " + array[2] + ":" + array[4] + " " + array[0].trim() + "\" " +
                     ">> " + script + " && ";
             Log.v("Recovery Emulator", "chmod -R " + array[6] + " " + array[0].trim() + "/*");
             curr += "echo \"" + "chmod -R " + array[6] + " " + array[0].trim() + "/*" + "\" >> " +
@@ -179,8 +179,8 @@ public class EdifyParser {
             curr = curr.replaceAll("\"", "");
             curr = curr.replaceAll("\\)", "");
             curr = curr.replaceAll(";", "");
-            curr = curr.replaceAll("delete\\(", "busybox rm -rf ");
-            curr = curr.replaceAll("delete\\( ", "busybox rm -rf ");
+            curr = curr.replaceAll("delete_recursive\\(", "busybox rm -rf ");
+            curr = curr.replaceAll("delete_recursive\\( ", "busybox rm -rf ");
             Log.v("Recovery Emulator", curr);
             curr = "echo \"" + curr + "\" >> " + script;
             // run_program() parsing & translation

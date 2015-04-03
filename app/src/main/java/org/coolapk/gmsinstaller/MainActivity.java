@@ -156,6 +156,7 @@ public class MainActivity extends ActionBarActivity {
         onStatusEvent(StatusPresenter.STATUS_INSTALLING);
         Gpack gpack = mPanelPresenter.getWorkingGpack();
         ZipUtils.install(gpack);
+        // TODO fix NPE
         checkInstallStatus(gpack.packageType);
         mPanelPresenter.onInstallFinished();
     }

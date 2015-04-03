@@ -99,10 +99,11 @@ public class ZipUtils {
 
     public static boolean unzipFile(File zipFile, File targetPath) {
         String path = targetPath.getPath();
-        CommandUtils.execCommand(new String[]{
+        CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
                 "busybox rm -rf " + path + "/*",
                 "unzip -o " + zipFile.getPath() + " -d " + path
-        }, true, false);
+        }, true, true);
+        Log.e("", "unzip: " + result.errorMsg + "  suc=" + result.successMsg);
         return targetPath.exists();
     }
 
@@ -110,7 +111,6 @@ public class ZipUtils {
         File storagePath = AppHelper.getExternalFilePath();
         File gappFile = new File(storagePath, gpack.packageName);
         File tmpPath = new File(storagePath, "tmp");
-
         if (!tmpPath.exists()) {
             tmpPath.mkdirs();
         }
@@ -128,7 +128,6 @@ public class ZipUtils {
 
             File flash = new File(tmpPath, "flash.sh");
             if (flash.exists()) {
-//                flash.setExecutable(true, false);
                 CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
                         CommandUtils.CMD_RW_SYSTEM,
                         "busybox mount -o remount,rw /",
@@ -136,11 +135,13 @@ public class ZipUtils {
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
                 }, true, true);
-                Log.e("", "result=" + result.result + " success:" + result.successMsg + " error:" + result
-                        .errorMsg);
+                Log.e("", "error=" + result.errorMsg + "  suce=" + result.successMsg);
+            } else {
+                Log.e("", "!flash.exists()");
             }
         } else {
             // TODO file incomplete
+            Log.e("", "file incomplete");
         }
     }
 

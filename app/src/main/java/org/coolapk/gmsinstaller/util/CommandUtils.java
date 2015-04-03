@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -22,6 +23,7 @@ import java.io.InputStreamReader;
 public class CommandUtils {
 
     public static final String MIN_PKGS = "com.google.android.gms,com.google.android.gsf,com.google.android.gsf.login,com.android.vending";
+    public static final String FALLBACK_MIN_PKGS = "com.google.android.gsf,com.google.android.gsf.login,com.android.vending";
     public static final String EXT_PKGS = "com.android.facelock,com.google.android.googlequicksearchbox";
     public static final String SYSTEM_APP = "/system/app/";
     public static final String SYSTEM_PRIV_APP = "/system/priv-app/";
@@ -126,25 +128,29 @@ public class CommandUtils {
                 .STATUS_EXTENSION_NOT_INSTALLED;
 
         PackageManager packageManager = AppHelper.getAppContext().getPackageManager();
-        int status = notInstall;
         if (packageManager == null) {
-            return status;
+            return notInstall;
         }
 
         String[] packages;
-        packages = isMinimal ? MIN_PKGS.split(",") : EXT_PKGS.split(",");
+        boolean noGms = Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1;
+        packages = isMinimal ? (noGms ? FALLBACK_MIN_PKGS.split(",") : MIN_PKGS.split(","))
+                : EXT_PKGS.split(",");
+        int count = 0;
         for (String pkgName : packages) {
             try {
                 packageManager.getApplicationInfo(pkgName, 0);
-                status++;
+                count++;
+                Log.e("", "get " + pkgName);
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
         }
 
-        if (status > 0 && status < 3) {
+
+        if (count > 0 && count < packages.length) {
             return isMinimal ? StatusPresenter.STATUS_MINIMAL_INSTALL_INCOMPLETE : installed;
-        } else if (status == 3) {
+        } else if (count == packages.length) {
             return installed;
         } else {
             return notInstall;

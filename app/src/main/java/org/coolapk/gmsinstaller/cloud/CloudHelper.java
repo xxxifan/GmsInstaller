@@ -25,10 +25,14 @@ import de.greenrobot.event.EventBus;
 public class CloudHelper {
     public static final int PACKAGE_TYPE_MINIMAL = 1;
     public static final int PACKAGE_TYPE_EXTENSION = 2;
-//    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
+    //    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
     private static final String CLOUD_DOMAIN = "http://192.168.1.100/downloads/";
 
     public static List<Gpack> getProperPackages(List<Gpack> packs) {
+        if (packs == null || packs.size() == 0) {
+            return null;
+        }
+
         int sdkLevel = Build.VERSION.SDK_INT;
         if (sdkLevel == 15 || sdkLevel == 22) {
             sdkLevel--;
@@ -38,7 +42,7 @@ public class CloudHelper {
         for (Gpack pack : packs) {
             if (pack.sdkLevel == sdkLevel) {
                 // minus 1 to match list position
-                newPacks.add(pack.packageType - 1, pack);
+                newPacks.add(newPacks.size() == 0 ? 0 : pack.packageType - 1, pack);
             }
         }
 

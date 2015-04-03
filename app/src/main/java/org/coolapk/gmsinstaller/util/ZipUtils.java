@@ -1,5 +1,7 @@
 package org.coolapk.gmsinstaller.util;
 
+import android.util.Log;
+
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.model.Gpack;
 
@@ -100,7 +102,7 @@ public class ZipUtils {
         CommandUtils.execCommand(new String[]{
                 "busybox rm -rf " + path + "/*",
                 "unzip -o " + zipFile.getPath() + " -d " + path
-        }, false, false);
+        }, true, false);
         return targetPath.exists();
     }
 
@@ -126,16 +128,16 @@ public class ZipUtils {
 
             File flash = new File(tmpPath, "flash.sh");
             if (flash.exists()) {
-                flash.setExecutable(true, false);
-//                CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
-//                        CommandUtils.CMD_RW_SYSTEM,
-//                        "busybox mount -o remount,rw /",
-//                        "sh " + flash.getPath(),
-//                        "busybox mount -o remount,ro /",
-//                        CommandUtils.CMD_RO_SYSTEM
-//                }, true, true);
-//                Log.e("", "result=" + result.result + " success:" + result.successMsg + " error:" + result
-//                        .errorMsg);
+//                flash.setExecutable(true, false);
+                CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
+                        CommandUtils.CMD_RW_SYSTEM,
+                        "busybox mount -o remount,rw /",
+                        "sh " + flash.getPath(),
+                        "busybox mount -o remount,ro /",
+                        CommandUtils.CMD_RO_SYSTEM
+                }, true, true);
+                Log.e("", "result=" + result.result + " success:" + result.successMsg + " error:" + result
+                        .errorMsg);
             }
         } else {
             // TODO file incomplete

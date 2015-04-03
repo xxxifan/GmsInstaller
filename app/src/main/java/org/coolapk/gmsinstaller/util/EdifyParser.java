@@ -50,7 +50,7 @@ public class EdifyParser {
     private static String interpreterAlgorithm(String curr, String outputPath) {
         String script = outputPath + "/flash.sh";
         // delete all ");"
-        curr = curr.replaceAll("delete\\([\\s+]\"", " ");
+        curr = curr.replaceAll("\\s+", " ");
         curr = curr.replaceAll("assert\\(", "");
 
         // symlink() parsing & translation
@@ -136,8 +136,16 @@ public class EdifyParser {
             Log.v("Recovery Emulator", "chown -R " + array[0] + ":" + array[1] + " " + array[3]);
             curr = "echo \"" + "chown -R " + array[0].trim() + ":" + array[1] + " " + array[3] + "\" >> " +
                     script + " && ";
-            Log.v("Recovery Emulator", "chmod -R " + array[2] + " " + array[3]);
-            curr += "echo \"" + "chmod -R " + array[2] + " " + array[3] + "\" >> " + script;
+            if (array.length == 5) {
+                Log.v("Recovery Emulator", "chmod -R " + array[3] + " " + array[4]);
+                curr += "echo \"" + "chmod -R " + array[3] + " " + array[4] + "\" >> " + script + " && ";
+
+                Log.v("Recovery Emulator", "chmod " + array[2] + " " + array[4]);
+                curr += "echo \"" + "chmod " + array[2] + " " + array[4] + "\" >> " + script;
+            } else {
+                Log.v("Recovery Emulator", "chmod -R " + array[2] + " " + array[3]);
+                curr += "echo \"" + "chmod -R " + array[2] + " " + array[3] + "\" >> " + script;
+            }
         } else if (curr.contains("set_metadata_recursive")) {
             curr = curr.replaceAll("\\)", "");
             curr = curr.replaceAll(";", "");
@@ -156,12 +164,12 @@ public class EdifyParser {
             curr += "echo \"" + "chmod " + array[8] + " " + array[0].trim() + "\" >> " + script;
             // delete() parsing & translation
         } else if (curr.contains("delete(\"") || curr.contains("delete( \"")) {
-            curr = curr.replaceAll(",", "");
+            curr = curr.replaceAll(",", " ");
             curr = curr.replaceAll("\"", "");
             curr = curr.replaceAll("\\)", "");
             curr = curr.replaceAll(";", "");
-            curr = curr.replaceAll("delete\\(", "busybox rm -f ");
-            curr = curr.replaceAll("delete\\( ", "busybox rm -f ");
+            curr = curr.replaceAll("delete\\(", "busybox rm -f ").trim();
+            curr = curr.replaceAll("delete\\( ", "busybox rm -f ").trim();
             Log.v("Recovery Emulator", curr);
             curr = "echo \"" + curr + "\" >> " + script;
 

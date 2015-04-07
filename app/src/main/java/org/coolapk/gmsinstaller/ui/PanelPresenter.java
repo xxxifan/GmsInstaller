@@ -167,6 +167,28 @@ public class PanelPresenter implements View.OnClickListener {
     }
 
     private void onInstallClick(final Gpack gpack) {
+        mWorkingIndex = mDisplayIndex;
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                String packageName = gpack.packageName;
+                File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
+                if (targetFile.exists() && checkDownload(gpack, targetFile)) {
+                    Log.e("", "INSTALL");
+                    EventBus.getDefault().post(new MainActivity.InstallEvent());
+                    mInstallBtn.setTag(0);
+                } else {
+                    // start download
+                    Intent data = new Intent();
+                    data.putExtra("path", targetFile.getPath());
+                    CloudHelper.downloadPackage(packageName, data);
+                    Log.e("", "downloadPackage");
+                    mInstallBtn.setTag(0);
+                }
+                return null;
+            }
+        }.execute();
         if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
             // TODO alert already installed
             Log.e("", "alert already installed");
@@ -176,28 +198,7 @@ public class PanelPresenter implements View.OnClickListener {
                 Log.e("", "please framework first");
             } else {
                 // prepare to work :)
-                mWorkingIndex = mDisplayIndex;
 
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        String packageName = gpack.packageName;
-                        File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
-                        if (targetFile.exists() && checkDownload(gpack, targetFile)) {
-                            Log.e("", "INSTALL");
-                            EventBus.getDefault().post(new MainActivity.InstallEvent());
-                            mInstallBtn.setTag(0);
-                        } else {
-                            // start download
-                            Intent data = new Intent();
-                            data.putExtra("path", targetFile.getPath());
-                            CloudHelper.downloadPackage(packageName, data);
-                            Log.e("", "downloadPackage");
-                            mInstallBtn.setTag(0);
-                        }
-                        return null;
-                    }
-                }.execute();
             }
         }
     }

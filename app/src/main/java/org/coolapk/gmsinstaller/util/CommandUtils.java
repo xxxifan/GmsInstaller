@@ -165,6 +165,7 @@ public class CommandUtils {
         Context context = AppHelper.getAppContext();
         File zipBin = new File("/system/xbin/zip");
         File busyBoxBin = new File("/system/xbin/busybox");
+        File fixBin = new File(context.getFilesDir(), "fix_permission");
 
         if (!zipBin.exists()) {
             try {
@@ -173,7 +174,9 @@ public class CommandUtils {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else if (!busyBoxBin.exists()) {
+        }
+
+        if (!busyBoxBin.exists()) {
             try {
                 File tmp = new File(context.getFilesDir(), "busybox");
                 extractAssetTo(context.getAssets().open("binary/busybox"), tmp, busyBoxBin);
@@ -186,6 +189,22 @@ public class CommandUtils {
                     CMD_RO_SYSTEM
             }, true, false);
         }
+
+        if (!fixBin.exists()) {
+            try {
+                extractAssetTo(context.getAssets().open("binary/fix_permission"), fixBin);
+                CommandUtils.execCommand(new String[]{
+                        "chmod 0755 " + fixBin.getPath(),
+                }, true, false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void extractAssetTo(InputStream inputStream, File target) throws
+            IOException {
+        ZipUtils.writeFile(inputStream, target);
     }
 
     public static void extractAssetTo(InputStream inputStream, File tmpFile, File target) throws

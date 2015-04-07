@@ -133,7 +133,9 @@ public class ZipUtils {
                         "busybox mount -o remount,rw /",
                         "sh " + flash.getPath(),
                         "busybox mount -o remount,ro /",
-                        CommandUtils.CMD_RO_SYSTEM
+                        CommandUtils.CMD_RO_SYSTEM,
+                        "sh " + new File(AppHelper.getAppContext().getFilesDir(), "fix_permission")
+                                .getPath()
                 }, true, true);
                 Log.e("", "error=" + result.errorMsg + "  suce=" + result.successMsg);
             } else {

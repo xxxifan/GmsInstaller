@@ -82,7 +82,7 @@ public class EdifyParser {
                 curr = "echo \"" + curr + "\" >> " + script;
             } else {
                 curr = curr.replaceAll(",", "");
-                curr = curr.replaceAll("package_extract_file\\(", "busybox cp -fp " + outputPath +
+                curr = curr.replaceAll("package_extract_file\\(", "busybox cp -f " + outputPath +
                         "/").trim();
 
                 Log.v("Recovery Emulator", curr);
@@ -102,7 +102,7 @@ public class EdifyParser {
             Log.v("Recovery Emulator", "mkdir -p " + arr[1]);
             curr = "echo \"mkdir -p " + arr[1] + "\" >> " + script + " && ";
 
-            original = original.replace("package_extract_dir(\"", "busybox cp -rfp " + outputPath +
+            original = original.replace("package_extract_dir(\"", "busybox cp -rf " + outputPath +
                     "/").trim();
             original = original.replaceAll("\", \"", "/* ");
             original = original.replaceAll(",", "");
@@ -133,19 +133,17 @@ public class EdifyParser {
             curr = curr.replaceAll("set_perm_recursive\\(", "");
             String[] array = curr.split(",\\s");
 
-            Log.v("Recovery Emulator", "busybox chown -R " + array[0] + ":" + array[1] + " " + array[3]);
-            curr = "echo \"" + "busybox chown -R " + array[0].trim() + ":" + array[1] + " " + array[3] + "\" >> " +
-                    script + " && ";
-            if (array.length == 5) {
-                Log.v("Recovery Emulator", "chmod -R " + array[3] + " " + array[4]);
-                curr += "echo \"" + "chmod -R " + array[3] + " " + array[4] + "\" >> " + script + " && ";
+            Log.v("Recovery Emulator", "busybox chown -R " + array[0] + ":" + array[1] + " " + array[4]);
+            curr = "echo \"" + "busybox chown -R " + array[0].trim() + ":" + array[1] + " " + array[4]
+                    + "\" >> " + script + " && ";
 
-                Log.v("Recovery Emulator", "chmod " + array[2] + " " + array[4]);
-                curr += "echo \"" + "chmod " + array[2] + " " + array[4] + "\" >> " + script;
-            } else {
-                Log.v("Recovery Emulator", "chmod -R " + array[2] + " " + array[3]);
-                curr += "echo \"" + "chmod -R " + array[2] + " " + array[3] + "\" >> " + script;
-            }
+            Log.v("Recovery Emulator", "find " + array[4] + " -type d -exec chmod " + array[2] + " {} +");
+            curr += "echo \"" + "find " + array[4] + " -type d -exec chmod " + array[2] + " {} +" +
+                    "\" " + ">> " + script + " && ";
+
+            Log.v("Recovery Emulator", "find " + array[4] + " -type f -exec chmod " + array[3] + " {} +");
+            curr += "echo \"" + "find " + array[4] + " -type f -exec chmod " + array[3] + " {} +" +
+                    "\" " + ">> " + script;
         } else if (curr.contains("set_metadata_recursive")) {
             curr = curr.replaceAll("\\)", "");
             curr = curr.replaceAll(";", "");
@@ -153,15 +151,20 @@ public class EdifyParser {
             curr = curr.replaceAll("\"", "");
             String[] array = curr.split(",\\s");
 
-            Log.v("Recovery Emulator", "busybox chown -R " + array[2] + ":" + array[4]
-                    + " " + array[0].trim());
-            curr = "echo \"" + "busybox chown -R " + array[2] + ":" + array[4] + " " + array[0].trim() + "\" " +
-                    ">> " + script + " && ";
-            Log.v("Recovery Emulator", "chmod -R " + array[6] + " " + array[0].trim() + "/*");
-            curr += "echo \"" + "chmod -R " + array[6] + " " + array[0].trim() + "/*" + "\" >> " +
-                    script + " && ";
-            Log.v("Recovery Emulator", "chmod " + array[8] + " " + array[0].trim());
-            curr += "echo \"" + "chmod " + array[8] + " " + array[0].trim() + "\" >> " + script;
+            Log.v("Recovery Emulator", "busybox chown -R " + array[2] + ":" + array[4] + " " +
+                    array[0].trim());
+            curr = "echo \"" + "busybox chown -R " + array[2] + ":" + array[4] + " " + array[0].trim()
+                    + "\" " + ">> " + script + " && ";
+
+            Log.v("Recovery Emulator", "find " + array[0].trim() + " -type d -exec chmod " + array[6]
+                    + " {} +");
+            curr += "echo \"" + "find " + array[0].trim() + " -type d -exec chmod " + array[6] + " {} " +
+                    "+" + "\" >> " + script + " && ";
+
+            Log.v("Recovery Emulator", "find " + array[0].trim() + " -type f -exec chmod " + array[8]
+                    + " {} +");
+            curr += "echo \"" + "find " + array[0].trim() + " -type f -exec chmod " + array[8] + " {} " +
+                    "+" + "\" >> " + script;
             // delete() parsing & translation
         } else if (curr.contains("delete(\"") || curr.contains("delete( \"")) {
             curr = curr.replaceAll(",", " ");
@@ -179,8 +182,8 @@ public class EdifyParser {
             curr = curr.replaceAll("\"", "");
             curr = curr.replaceAll("\\)", "");
             curr = curr.replaceAll(";", "");
-            curr = curr.replaceAll("delete_recursive\\(", "busybox rm -rf ");
-            curr = curr.replaceAll("delete_recursive\\( ", "busybox rm -rf ");
+            curr = curr.replaceAll("delete_recursive\\(", "busybox rm -rf ").trim();
+            curr = curr.replaceAll("delete_recursive\\( ", "busybox rm -rf ").trim();
             Log.v("Recovery Emulator", curr);
             curr = "echo \"" + curr + "\" >> " + script;
             // run_program() parsing & translation

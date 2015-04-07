@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
 
         int toolbarHeight = ViewUtils.dp2px(56);
         int diff = childHeight - scrollView.getMeasuredHeight();
-        if (diff < toolbarHeight) {
+        if (diff > 0 && diff < toolbarHeight) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 diff += ViewUtils.dp2px(8);
             }

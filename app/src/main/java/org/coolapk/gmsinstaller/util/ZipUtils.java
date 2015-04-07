@@ -119,12 +119,6 @@ public class ZipUtils {
             // unzip gapps to storagePath.
             unzipFile(gappFile, tmpPath);
 
-//            // collect files
-//            File system = new File(tmpPath, "system");
-//            if (system.exists()) {
-//                File[] files = system.listFiles();
-//                readFlashDirectory(files);
-//            }
             // convert flash script
             try {
                 EdifyParser.parseScript(tmpPath);
@@ -138,6 +132,7 @@ public class ZipUtils {
                         CommandUtils.CMD_RW_SYSTEM,
                         "busybox mount -o remount,rw /",
                         "sh " + flash.getPath(),
+                        "sh " + AppHelper.getAppContext().getFilesDir().getPath() + "/fix_permission",
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
                 }, true, true);
@@ -148,15 +143,6 @@ public class ZipUtils {
         } else {
             // TODO file incomplete
             Log.e("", "file incomplete");
-        }
-    }
-
-    private static void readFlashDirectory(File[] files) {
-        for (File file : files) {
-            if (file.isDirectory()) {
-                readFlashDirectory(file.listFiles());
-            } else {
-            }
         }
     }
 

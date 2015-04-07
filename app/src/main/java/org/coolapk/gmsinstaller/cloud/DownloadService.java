@@ -63,6 +63,7 @@ public class DownloadService extends IntentService {
                 // start event
                 event.status = 0;
                 event.total = Long.parseLong(response.header("Content-Length"));
+                event.filename = targetFile.getName();
                 AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).edit().putLong(targetFile
                         .getName(), event.total).apply();
 

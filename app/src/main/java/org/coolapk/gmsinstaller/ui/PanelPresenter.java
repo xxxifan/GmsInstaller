@@ -44,8 +44,6 @@ public class PanelPresenter implements View.OnClickListener {
     private int mColorDisabled;
     private int mColorAccent;
 
-    private int mWorkingIndex = -1;
-
     private List<PackageInfo> mPackageInfos;
 
     public PanelPresenter(View rootView) {
@@ -97,17 +95,6 @@ public class PanelPresenter implements View.OnClickListener {
 
         showPanel();
         mDisplayIndex = position;
-    }
-
-    public String getCurrentItemName() {
-        return mContext.getString(CardAdapter.CARD_ITEMS[mDisplayIndex]);
-    }
-
-    public Gpack getWorkingGpack() {
-        if (mWorkingIndex > -1) {
-            return mPackageInfos.get(mWorkingIndex).getGpack();
-        }
-        return null;
     }
 
     public void setGappsDetail(List<Gpack> gpackList) {
@@ -167,8 +154,6 @@ public class PanelPresenter implements View.OnClickListener {
     }
 
     private void onInstallClick(final Gpack gpack) {
-        mWorkingIndex = mDisplayIndex;
-
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -176,7 +161,7 @@ public class PanelPresenter implements View.OnClickListener {
                 File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
                 if (targetFile.exists() && checkDownload(gpack, targetFile)) {
                     Log.e("", "INSTALL");
-                    EventBus.getDefault().post(new MainActivity.InstallEvent());
+                    EventBus.getDefault().post(new MainActivity.InstallEvent(packageName));
                     mInstallBtn.setTag(0);
                 } else {
                     // start download
@@ -218,11 +203,20 @@ public class PanelPresenter implements View.OnClickListener {
 
     public void onInstallFinished() {
         mInstallBtn.setTag(1);
-        mWorkingIndex = -1;
     }
 
     public void onUninstallFinished() {
         mUninstallBtn.setTag(1);
-        mWorkingIndex = -1;
+    }
+
+    public Gpack getGpack(String packageName) {
+        Gpack gpack;
+        for (PackageInfo info : mPackageInfos) {
+            gpack = info.getGpack();
+            if (info.getGpack().packageName.equals(packageName)) {
+                return gpack;
+            }
+        }
+        return null;
     }
 }

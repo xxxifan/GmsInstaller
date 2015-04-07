@@ -154,9 +154,8 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         onStatusEvent(StatusPresenter.STATUS_INSTALLING);
-        Gpack gpack = mPanelPresenter.getWorkingGpack();
-        ZipUtils.install(gpack);
-        // TODO fix NPE
+        ZipUtils.install(mPanelPresenter.getGpack(event.filename));
+        // TODO check install
         mPanelPresenter.onInstallFinished();
     }
 
@@ -183,10 +182,11 @@ public class MainActivity extends ActionBarActivity {
             mStatusPresenter.setStatusText(getString(R.string.title_downloading), getString(R.string
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {
-            postEvent(new InstallEvent());
+            postEvent(new InstallEvent(event.filename));
         } else if (event.status < 0) {
             mStatusPresenter.setStatusText(getString(R.string.msg_download_failed));
             onStatusEvent(StatusPresenter.STATUS_DOWNLOADING_FAILED);
+            mPanelPresenter.onInstallFinished();
         }
     }
 
@@ -290,6 +290,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public static class InstallEvent {
+        public String filename;
+        public InstallEvent() {
+        }
+
+        public InstallEvent(String filename) {
+            this.filename = filename;
+        }
     }
 
     private class InstallClickListener implements View.OnClickListener {

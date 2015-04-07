@@ -9,4 +9,5 @@ public class DownloadEvent {
     public long total;
     public long downloaded;
     public int lastProgress;
+    public String filename;
 }

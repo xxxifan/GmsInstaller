@@ -1,0 +1,58 @@
+#!/bin/sh
+
+busybox chown -R 0:0 /system/app
+chmod 0755 /system/app
+find /system/app -type d -exec chmod 0755 {} +
+find /system/app -type f -exec chmod 0644 {} +
+
+if [ -d "/system/priv-app" ];then
+    busybox chown -R 0:0 /system/priv-app
+    chmod 0755 /system/priv-app
+    find /system/priv-app -type d -exec chmod 0755 {} +
+    find /system/priv-app -type f -exec chmod 0644 {} +
+fi
+
+busybox chown -R 0:0 /system/framework
+chmod 0755 /system/framework
+find /system/framework -type d -exec chmod 0755 {} +
+find /system/framework -type f -exec chmod 0644 {} +
+
+busybox chown -R 0:0 /system/lib
+chmod 0755 /system/lib
+find /system/lib -type d -exec chmod 0755 {} +
+find /system/lib -type f -exec chmod 0644 {} +
+
+busybox chown -R 0:0 /system/tts
+chmod 0755 /system/tts
+find /system/tts -type d -exec chmod 0755 {} +
+find /system/tts -type f -exec chmod 0644 {} +
+
+busybox chown -R 0:0 /system/usr/srec/en-US
+chmod 0755 /system/usr/srec/en-US
+find /system/usr/srec/en-US -type d -exec chmod 0755 {} +
+find /system/usr/srec/en-US -type f -exec chmod 0644 {} +
+
+busybox chown -R 0:0 /system/etc/permissions
+chmod 0755 /system/etc/permissions
+find /system/etc/permissions -type d -exec chmod 0755 {} +
+find /system/etc/permissions -type f -exec chmod 0755 {} +
+
+busybox chown -R 0:0 /system/etc/preferred-apps
+chmod 0755 /system/etc/preferred-apps
+find /system/etc/preferred-apps -type d -exec chmod 0755 {} +
+find /system/etc/preferred-apps -type f -exec chmod 0755 {} +
+
+busybox chown -R 0:0 /system/vendor/pittpatt
+chmod 0755 /system/vendor/pittpatt
+find /system/vendor/pittpatt -type d -exec chmod 0755 {} +
+find /system/vendor/pittpatt -type f -exec chmod 0755 {} +
+busybox chown -R 0:2000 /system/vendor/pittpatt
+
+busybox chown -R 0:0 /system/addon.d
+find /system/addon.d -type d -exec chmod 0755 {} +
+find /system/addon.d -type f -exec chmod 0755 {} +
+
+busybox chown -R 0:0 /system/etc/sysconfig
+find /system/etc/sysconfig -type d -exec chmod 0755 {} +
+find /system/etc/sysconfig -type f -exec chmod 0644 {} +
+chmod 0644 /system/etc/g.prop

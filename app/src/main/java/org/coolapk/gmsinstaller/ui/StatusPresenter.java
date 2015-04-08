@@ -31,13 +31,11 @@ public class StatusPresenter {
     public static final int STATUS_MINIMAL_INSTALL_INCOMPLETE = 3;
     public static final int STATUS_UPDATE_AVAILABLE = 4;
     public static final int STATUS_DOWNLOAD_CANCELED = 5;
+    public static final int STATUS_INSTALL_FINISHED = 6;
     // working status
     public static final int STATUS_INSTALLING = 11;
-    public static final int STATUS_CHECKING_UPDATES = 12;
     public static final int STATUS_CHECKING_ROOT = 13;
     public static final int STATUS_DOWNLOADING = 14;
-
-
 
     private static final int ICON_STATE_WARN = -1;
     private static final int ICON_STATE_LOADING = 0;
@@ -131,10 +129,6 @@ public class StatusPresenter {
                 setStatusText(R.string.msg_installing);
                 setStatusIconState(ICON_STATE_LOADING);
                 break;
-            case STATUS_CHECKING_UPDATES:
-                setStatusText(R.string.msg_checking_updates);
-                setStatusIconState(ICON_STATE_LOADING);
-                break;
             case STATUS_CHECKING_ROOT:
                 setStatusText(R.string.msg_check_root);
                 setStatusIconState(ICON_STATE_LOADING);
@@ -150,6 +144,10 @@ public class StatusPresenter {
             case STATUS_DOWNLOADING_FAILED:
                 setStatusText(R.string.msg_download_failed);
                 setStatusIconState(ICON_STATE_WARN);
+                break;
+            case STATUS_INSTALL_FINISHED:
+                setStatusText(R.string.btn_done);
+                setStatusIconState(ICON_STATE_DONE);
                 break;
         }
     }

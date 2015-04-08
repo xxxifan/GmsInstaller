@@ -4,10 +4,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -21,11 +22,6 @@ import org.coolapk.gmsinstaller.util.ViewUtils;
 import org.coolapk.gmsinstaller.util.ZipUtils;
 import org.coolapk.gmsinstaller.widget.ScrollView;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -34,6 +30,8 @@ public class MainActivity extends ActionBarActivity {
 
     private StatusPresenter mStatusPresenter;
     private PanelPresenter mPanelPresenter;
+    private MaterialDialog mDialog;
+
     private String[] mGapps;
     private boolean mIsServiceRunning = false;
 
@@ -115,8 +113,8 @@ public class MainActivity extends ActionBarActivity {
     public void onEventBackgroundThread(CheckDataEvent event) {
         CommandUtils.initEnvironment();
 
-        // update to checking updates state
-        onEventBackgroundThread(new CheckUpdateEvent());
+        // checking updates state
+        postEvent(new CheckUpdateEvent());
 
         onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
         boolean hasRoot = CommandUtils.checkRootPermission();
@@ -128,10 +126,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onEventBackgroundThread(CheckUpdateEvent event) {
-        if (!event.noEvent) {
-            onStatusEvent(StatusPresenter.STATUS_CHECKING_UPDATES);
-        }
-
         List<Gpack> gpacks = CloudHelper.getGpackList();
         mPanelPresenter.setGappsDetail(gpacks);
 
@@ -155,8 +149,23 @@ public class MainActivity extends ActionBarActivity {
         });
         onStatusEvent(StatusPresenter.STATUS_INSTALLING);
         ZipUtils.install(mPanelPresenter.getGpack(event.filename));
-        // TODO check install
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDialog = new MaterialDialog.Builder(MainActivity.this)
+                        .title(R.string.btn_install_finished)
+                        .content(R.string.msg_install_finished)
+                        .positiveText(R.string.btn_reboot)
+                        .negativeText(R.string.btn_cancel)
+                        .callback(new RebootDialogCallback())
+                        .build();
+                mDialog.show();
+            }
+        });
+
         mPanelPresenter.onInstallFinished();
+        onStatusEvent(StatusPresenter.STATUS_INSTALL_FINISHED);
     }
 
     public void onEventMainThread(PanelDisplayEvent event) {
@@ -230,104 +239,30 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void unpackGapps() {
-        File dataPath = getFilesDir();
-        File flagFile = new File(dataPath, ".extract");
-        if (!dataPath.exists()) {
-            dataPath.mkdirs();
-        }
-
-        // cache gapp list
-//        try {
-//            mGapps = getAssets().list(Gpack.MIN_FOLDER);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        if (!flagFile.exists()) {
-            try {
-                int count;
-                for (String gapp : mGapps) {
-                    File targetPath = new File(getFilesDir(), gapp);
-                    if (targetPath.exists()) {
-                        continue;
-                    }
-
-//                    InputStream is = getAssets().open(Gpack.MIN_FOLDER + File.separator + gapp);
-                    InputStream is = getAssets().open(File.separator + gapp);
-                    byte[] buffer = new byte[is.available()];
-                    count = is.read(buffer);
-
-                    FileOutputStream outputStream = new FileOutputStream(targetPath);
-                    outputStream.write(buffer, 0, count);
-                    outputStream.flush();
-                    outputStream.close();
-                    is.close();
-                    CommandUtils.chmod("0755", targetPath.getPath());
-                }
-
-                // create flag file
-                flagFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static class PanelDisplayEvent {
         public int position;
     }
 
     public static class CheckUpdateEvent {
-        public boolean noEvent;
-
-        public CheckUpdateEvent(boolean bool) {
-            noEvent = bool;
-        }
-
-        public CheckUpdateEvent() {
-        }
     }
 
     public static class InstallEvent {
         public String filename;
-        public InstallEvent() {
-        }
 
         public InstallEvent(String filename) {
             this.filename = filename;
         }
     }
 
-    private class InstallClickListener implements View.OnClickListener {
+    private class RebootDialogCallback extends MaterialDialog.ButtonCallback {
+        @Override
+        public void onPositive(MaterialDialog dialog) {
+            CommandUtils.execCommand("reboot", true, false);
+        }
 
         @Override
-        public void onClick(View v) {
-            if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_MINIMAL_INSTALLED) {
-                // TODO installed confirm
-            }
-            boolean isFormerSdk = CommandUtils.isFormerSdk();
-            String systemFolder = isFormerSdk ? CommandUtils.SYSTEM_APP : CommandUtils.SYSTEM_PRIV_APP;
-            List<String> commands = new ArrayList<>();
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                commands.add("setenforce 0");
-            }
-            commands.add("mount -o remount,rw /system");
-            for (String gapp : mGapps) {
-                commands.add("cat " + getFilesDir() + File.separator + gapp + " > " + systemFolder +
-                        gapp);
-                commands.add("chmod 0644 " + systemFolder + gapp);
-            }
-            commands.add("mount -o remount,ro /system");
-            if (!isFormerSdk) {
-                commands.add("pm clear com.google.android.gms");
-            }
-
-//            Utils.execCommand(command.toArray(new String[command.size()]), true, false);
-            for (String cmd : commands) {
-                Log.e("", cmd);
-            }
+        public void onNegative(MaterialDialog dialog) {
+            dialog.dismiss();
         }
     }
 

@@ -25,8 +25,12 @@
     <string name="btn_collapse">收起</string>
     <string name="btn_more">更多</string>
     <string name="btn_open_file">选择文件</string>
+    <string name="btn_ok">确定</string>
     <string name="btn_check">查看</string>
     <string name="btn_cancel">取消</string>
+    <string name="btn_done">完成</string>
+    <string name="btn_reboot">重启</string>
+    <string name="btn_install_finished">安装完成</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>
@@ -43,6 +47,10 @@
     <string name="msg_start_download">开始下载</string>
     <string name="msg_download_failed">下载失败</string>
     <string name="msg_download_canceled">下载已取消</string>
+    <string name="msg_install_finished">看起来安装已经成功了，系统需要重启一次使变更生效，是否继续？</string>
+    <string name="msg_framework_need">您的谷歌基本框架尚未安装，请先安装基本服务框架</string>
+    <string name="msg_already_installed">您已安装当前服务包，是否继续？</string>
+    <string name="msg_error_interrupt">发生错误，安装已取消，您的手机不会受到任何更改</string>
 
     <string-array name="gapps_description">
         <item>基本服务框架\nPlay商店\n联系人同步\n日历同步</item>

@@ -7,7 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
@@ -83,7 +85,7 @@ public class PanelPresenter implements View.OnClickListener {
             mPackageSizeText.setText(R.string.title_no_info);
             mPackageDetailsText.setText(R.string.title_no_info);
             toggleBtnState(mInstallBtn, false);
-            EventBus.getDefault().post(new MainActivity.CheckUpdateEvent(true));
+            EventBus.getDefault().post(new MainActivity.CheckUpdateEvent());
         } else {
             mUpdateTimeText.setText(pack.updateTime);
             mPackageSizeText.setText(ZipUtils.getFormatSize(Long.parseLong(pack.packageSize)));
@@ -105,9 +107,7 @@ public class PanelPresenter implements View.OnClickListener {
                 for (int i = 0; i < list.size(); i++) {
                     mPackageInfos.get(i).setGpack(list.get(i));
                 }
-                if (isPanelExpanded()) {
-                    display(mDisplayIndex);
-                }
+                display(mDisplayIndex);
             }
         }
     }
@@ -142,7 +142,7 @@ public class PanelPresenter implements View.OnClickListener {
     public void onClick(View v) {
         if (v == mInstallBtn) {
             if (mInstallBtn.getTag() == 1) {
-                onInstallClick(mPackageInfos.get(mDisplayIndex).getGpack());
+                onInstallClick();
             }
         } else if (v == mUninstallBtn) {
             if (mUninstallBtn.getTag() == 1) {
@@ -153,10 +153,45 @@ public class PanelPresenter implements View.OnClickListener {
         collapsePanel();
     }
 
-    private void onInstallClick(final Gpack gpack) {
+    private void onInstallClick() {
+        if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
+            MaterialDialog.ButtonCallback buttonCallback = new MaterialDialog.ButtonCallback() {
+                @Override
+                public void onPositive(MaterialDialog dialog) {
+                    startInstallTask();
+                }
+            };
+
+            new MaterialDialog.Builder(mContext)
+                    .content(R.string.msg_already_installed)
+                    .positiveText(R.string.btn_ok)
+                    .negativeText(R.string.btn_cancel)
+                    .callback(buttonCallback)
+                    .build()
+                    .show();
+        } else {
+            if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
+                new MaterialDialog.Builder(mContext)
+                        .content(R.string.msg_framework_need)
+                        .positiveText(R.string.btn_ok)
+                        .build()
+                        .show();
+            } else {
+                // start to work :)
+                startInstallTask();
+            }
+        }
+    }
+
+    private void startInstallTask() {
         new AsyncTask<Void, Void, Void>() {
-            @Override
             protected Void doInBackground(Void... params) {
+                if (mDisplayIndex < 0) {
+                    Toast.makeText(mContext, R.string.msg_error_interrupt, Toast.LENGTH_SHORT).show();
+                    return null;
+                }
+
+                Gpack gpack = mPackageInfos.get(mDisplayIndex).getGpack();
                 String packageName = gpack.packageName;
                 File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
                 if (targetFile.exists() && checkDownload(gpack, targetFile)) {
@@ -174,18 +209,6 @@ public class PanelPresenter implements View.OnClickListener {
                 return null;
             }
         }.execute();
-        if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
-            // TODO alert already installed
-            Log.e("", "alert already installed");
-        } else {
-            if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
-                // TODO please framework first!
-                Log.e("", "please framework first");
-            } else {
-                // prepare to work :)
-
-            }
-        }
     }
 
     private boolean checkDownload(Gpack gpack, File file) {

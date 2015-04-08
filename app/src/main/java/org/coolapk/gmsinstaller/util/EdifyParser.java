@@ -201,21 +201,7 @@ public class EdifyParser {
             }
 
             // mount() / unmount() parsing & translation
-        } else if (curr.contains("mount(")) {
-            if (curr.contains("/system")) {
-                if (curr.contains("unmount(")) {
-                    // Log.v("Recovery Emulator",
-                    // "busybox mount -o ro,remount -t auto /system");
-                    // cmd.su.runWaitFor("echo \""+"busybox mount -o ro,remount -t auto /system");
-
-                } else {
-
-                    Log.v("Recovery Emulator",
-                            "busybox mount -o rw,remount -t auto /system");
-                    curr = "echo \"" + "busybox " + CommandUtils.CMD_RW_SYSTEM + "\" >> " + script;
-                }
-            }
-
+//        } else if (curr.contains("mount(")) {
             // write_raw_image() parsing & translation
         } else if (curr.contains("write_raw_image(")) {
             curr = curr.replaceAll("write_raw_image\\(", "dd if=");

@@ -141,6 +141,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onEventBackgroundThread(InstallEvent event) {
+        if (mStatusPresenter.getStatus() == StatusPresenter.STATUS_INSTALLING) {
+            return;
+        }
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -153,6 +157,8 @@ public class MainActivity extends ActionBarActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mPanelPresenter.onInstallFinished();
+                onStatusEvent(StatusPresenter.STATUS_INSTALL_FINISHED);
                 mDialog = new MaterialDialog.Builder(MainActivity.this)
                         .title(R.string.btn_install_finished)
                         .content(R.string.msg_install_finished)
@@ -163,9 +169,6 @@ public class MainActivity extends ActionBarActivity {
                 mDialog.show();
             }
         });
-
-        mPanelPresenter.onInstallFinished();
-        onStatusEvent(StatusPresenter.STATUS_INSTALL_FINISHED);
     }
 
     public void onEventMainThread(PanelDisplayEvent event) {

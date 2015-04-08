@@ -173,21 +173,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onEventMainThread(DownloadEvent event) {
-        if (event.status == 2) {
-            if (event.progress == 0) {
-                // first run
-                onStatusEvent(StatusPresenter.STATUS_DOWNLOADING);
-                mStatusPresenter.setupCancelBtn(true, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        CloudHelper.cancelDownloads();
-                        onStatusEvent(StatusPresenter.STATUS_DOWNLOAD_CANCELED);
-                        v.setVisibility(View.GONE);
-                        mPanelPresenter.onInstallFinished();
-                    }
-                });
-            }
-
+        if (event.status == 0) {
+            onStatusEvent(StatusPresenter.STATUS_DOWNLOADING);
+            mStatusPresenter.setupCancelBtn(true, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CloudHelper.cancelDownloads();
+                    onStatusEvent(StatusPresenter.STATUS_DOWNLOAD_CANCELED);
+                    v.setVisibility(View.GONE);
+                    mPanelPresenter.onInstallFinished();
+                }
+            });
+        } else if (event.status == 2) {
             mStatusPresenter.setStatusText(getString(R.string.title_downloading), getString(R.string
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {

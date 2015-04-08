@@ -2,11 +2,13 @@ package org.coolapk.gmsinstaller.cloud;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 
@@ -14,15 +16,20 @@ import java.io.File;
 import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
+import okio.Buffer;
 import okio.BufferedSink;
 import okio.BufferedSource;
+import okio.ForwardingSource;
 import okio.Okio;
+import okio.Source;
 
 /**
  * Created by xifan on 15-4-1.
  */
 public class DownloadService extends IntentService {
     private boolean mShutDown = false;
+    private EventBus mEventBus;
+    private DownloadEvent mDownloadEvent;
 
     public DownloadService() {
         super("DownloadService");
@@ -30,7 +37,8 @@ public class DownloadService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        EventBus.getDefault().register(this);
+        mEventBus = EventBus.getDefault();
+        mEventBus.register(this);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -40,10 +48,13 @@ public class DownloadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.e("", "onIntent " + intent.toString());
         String url = intent.getStringExtra("url");
         String path = intent.getStringExtra("path");
         File targetFile = new File(path);
+
+        // prepare event
+        mDownloadEvent = new DownloadEvent();
+        mDownloadEvent.filename = targetFile.getName();
 
         // build download header
         Request.Builder requestBuilder = new Request.Builder().url(url);
@@ -51,64 +62,57 @@ public class DownloadService extends IntentService {
             long downloaded = targetFile.length();
             requestBuilder.addHeader("Ranges", "bytes=" + downloaded + "-");
         }
+
         Request request = requestBuilder.build();
 
-        // prepare eventBus
-        EventBus eventBus = EventBus.getDefault();
-        DownloadEvent event = new DownloadEvent();
+        // add progress interceptor
+        OkHttpClient client = new OkHttpClient();
+        client.networkInterceptors().add(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Response originalResponse = chain.proceed(chain.request());
+                return originalResponse.newBuilder()
+                        .body(new ProgressResponseBody(originalResponse.body()))
+                        .build();
+            }
+        });
 
         try {
-            Response response = new OkHttpClient().newCall(request).execute();
+            Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                // start event
-                event.status = 0;
-                event.total = Long.parseLong(response.header("Content-Length"));
-                event.filename = targetFile.getName();
-                AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).edit().putLong(targetFile
-                        .getName(), event.total).apply();
+                // post start
+                mDownloadEvent.status = 0;
+                mDownloadEvent.total = response.body().contentLength();
+                AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).edit().putLong(mDownloadEvent
+                        .filename, mDownloadEvent.total).apply();
+                mEventBus.post(mDownloadEvent);
 
-                eventBus.post(event);
-
+                // read data
                 BufferedSource source = response.body().source();
                 BufferedSink sink = Okio.buffer(Okio.sink(new File(path)));
-                long readBytes, downloaded = 0l;
                 int bufferSize = 8 * 1024;
-                Log.e("","bufferSize");
-                while ((readBytes = source.read(sink.buffer(), bufferSize)) > 0) {
-                    downloaded += readBytes;
+                while (source.read(sink.buffer(), bufferSize) > 0) {
                     sink.emit();
-
                     if (mShutDown) {
                         mShutDown = false;
                         sink.close();
                         source.close();
                         return;
                     }
-
-                    if (downloaded > 0) {
-                        event.status = 2;
-                        event.progress = (int) ((float) downloaded / event.total * 100);
-                        event.downloaded = downloaded;
-                        if (event.progress > event.lastProgress + 1) { // every 2 steps to update UI
-                            Log.e("","loop");
-                            eventBus.post(event);
-                            event.lastProgress = event.progress;
-                        }
-                    }
                 }
                 sink.close();
                 source.close();
 
                 // end event
-                event.status = 1;
-                eventBus.post(event);
+                mDownloadEvent.status = 1;
+                mEventBus.post(mDownloadEvent);
             } else {
-                event.status = -response.code();
-                eventBus.post(event);
+                mDownloadEvent.status = -response.code();
+                mEventBus.post(mDownloadEvent);
             }
         } catch (IOException e) {
-            event.status = -1;
-            eventBus.post(event);
+            mDownloadEvent.status = -1;
+            mEventBus.post(mDownloadEvent);
             e.printStackTrace();
         }
     }
@@ -116,10 +120,59 @@ public class DownloadService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+        if (mEventBus != null) {
+            mEventBus.unregister(this);
+        }
+    }
+
+    private class ProgressResponseBody extends ResponseBody {
+        private ResponseBody responseBody;
+
+        public ProgressResponseBody(ResponseBody responseBody) {
+            this.responseBody = responseBody;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return responseBody.contentType();
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return responseBody.contentLength();
+        }
+
+
+        @Override
+        public BufferedSource source() throws IOException {
+            return Okio.buffer(dispatchProgress(responseBody.source()));
+        }
+
+        private Source dispatchProgress(Source source) {
+            return new ForwardingSource(source) {
+                private long totalBytes = 0L;
+
+                @Override
+                public long read(Buffer sink, long byteCount) throws IOException {
+                    long read = super.read(sink, byteCount);
+                    totalBytes += read != -1 ? read : 0;
+
+                    // dispatch event
+                    mDownloadEvent.progress = 100 * totalBytes / mDownloadEvent.total;
+                    if (mDownloadEvent.progress > mDownloadEvent.lastProgress + 1) { // every 2 steps to update UI
+                        mDownloadEvent.status = 2;
+                        mDownloadEvent.downloaded = totalBytes;
+
+                        mEventBus.post(mDownloadEvent);
+                        mDownloadEvent.lastProgress = mDownloadEvent.progress;
+                    }
+
+                    return read;
+                }
+            };
+        }
     }
 
     public static class StopEvent {
-
     }
 }

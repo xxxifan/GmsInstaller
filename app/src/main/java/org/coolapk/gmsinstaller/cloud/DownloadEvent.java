@@ -5,9 +5,9 @@ package org.coolapk.gmsinstaller.cloud;
  */
 public class DownloadEvent {
     public int status;
-    public int progress;
+    public long progress;
     public long total;
     public long downloaded;
-    public int lastProgress;
+    public long lastProgress;
     public String filename;
 }

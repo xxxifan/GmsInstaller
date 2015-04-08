@@ -85,7 +85,6 @@ public class PanelPresenter implements View.OnClickListener {
             mPackageSizeText.setText(R.string.title_no_info);
             mPackageDetailsText.setText(R.string.title_no_info);
             toggleBtnState(mInstallBtn, false);
-            EventBus.getDefault().post(new MainActivity.CheckUpdateEvent());
         } else {
             mUpdateTimeText.setText(pack.updateTime);
             mPackageSizeText.setText(ZipUtils.getFormatSize(Long.parseLong(pack.packageSize)));
@@ -97,6 +96,11 @@ public class PanelPresenter implements View.OnClickListener {
 
         showPanel();
         mDisplayIndex = position;
+
+        // delay check update
+        if (pack == null) {
+            EventBus.getDefault().post(new MainActivity.CheckUpdateEvent());
+        }
     }
 
     public void setGappsDetail(List<Gpack> gpackList) {
@@ -107,7 +111,10 @@ public class PanelPresenter implements View.OnClickListener {
                 for (int i = 0; i < list.size(); i++) {
                     mPackageInfos.get(i).setGpack(list.get(i));
                 }
-                display(mDisplayIndex);
+
+                if (isPanelExpanded()) {
+                    display(mDisplayIndex);
+                }
             }
         }
     }

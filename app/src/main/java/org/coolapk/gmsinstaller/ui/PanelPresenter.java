@@ -28,6 +28,12 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+
+import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_EXTENSION_INSTALLED;
+import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_EXTENSION_NOT_INSTALLED;
+import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_MINIMAL_INSTALLED;
+import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED;
+
 /**
  * Created by BobPeng on 2015/3/27.
  */
@@ -122,15 +128,19 @@ public class PanelPresenter implements View.OnClickListener {
     }
 
     public void setInstallStatus(boolean installed) {
-        if (mWorkingIndex > -1) {
-            setInstallStatus(mWorkingIndex, installed);
-        }
+        setInstallStatus(mWorkingIndex, installed);
     }
 
     public void setInstallStatus(int position, boolean installed) {
-        mPackageInfos.get(position).setInstallState(installed);
-        MainActivity.StatusEvent event = new MainActivity.StatusEvent(position + 1);
-        EventBus.getDefault().post(event);
+        if (position > -1) {
+            mPackageInfos.get(position).setInstallState(installed);
+
+            int status = position == 0 ?
+                    (installed ? STATUS_MINIMAL_INSTALLED : STATUS_MINIMAL_NOT_INSTALLED)
+                    : (installed ? STATUS_EXTENSION_INSTALLED : STATUS_EXTENSION_NOT_INSTALLED);
+            MainActivity.StatusEvent event = new MainActivity.StatusEvent(status);
+            EventBus.getDefault().post(event);
+        }
     }
 
     public boolean isPanelExpanded() {

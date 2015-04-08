@@ -114,12 +114,12 @@ public class MainActivity extends ActionBarActivity {
         // checking updates state
         postEvent(new CheckUpdateEvent());
 
-        onStatusEvent(StatusPresenter.STATUS_CHECKING_ROOT);
+        postEvent(new StatusEvent(StatusPresenter.STATUS_CHECKING_ROOT));
         boolean hasRoot = CommandUtils.checkRootPermission();
         if (hasRoot) {
             checkInstallStatus();
         } else {
-            onStatusEvent(StatusPresenter.STATUS_NO_ROOT);
+            postEvent(new StatusEvent(StatusPresenter.STATUS_NO_ROOT));
         }
     }
 
@@ -147,16 +147,17 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void run() {
                 mStatusPresenter.setupCancelBtn(false, null);
+                onEventMainThread(new StatusEvent(StatusPresenter.STATUS_INSTALLING));
             }
         });
-        onStatusEvent(StatusPresenter.STATUS_INSTALLING);
 
+        // start install
         final boolean result = ZipUtils.install(mPanelPresenter.getGpack(event.filename));
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                onStatusEvent(StatusPresenter.STATUS_INSTALL_FINISHED);
+                onEventMainThread(new StatusEvent(StatusPresenter.STATUS_INSTALL_FINISHED));
                 mPanelPresenter.setInstallStatus(result);
                 mPanelPresenter.onInstallFinished();
 
@@ -178,12 +179,12 @@ public class MainActivity extends ActionBarActivity {
 
     public void onEventMainThread(DownloadEvent event) {
         if (event.status == 0) {
-            onStatusEvent(StatusPresenter.STATUS_DOWNLOADING);
+            postEvent(new StatusEvent(StatusPresenter.STATUS_DOWNLOADING));
             mStatusPresenter.setupCancelBtn(true, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     CloudHelper.cancelDownloads();
-                    onStatusEvent(StatusPresenter.STATUS_DOWNLOAD_CANCELED);
+                    postEvent(new StatusEvent(StatusPresenter.STATUS_DOWNLOAD_CANCELED));
                     v.setVisibility(View.GONE);
                     mPanelPresenter.onInstallFinished();
                 }
@@ -195,13 +196,13 @@ public class MainActivity extends ActionBarActivity {
             postEvent(new InstallEvent(event.filename));
         } else if (event.status < 0) {
             mStatusPresenter.setStatusText(getString(R.string.msg_download_failed));
-            onStatusEvent(StatusPresenter.STATUS_DOWNLOADING_FAILED);
+            postEvent(new StatusEvent(StatusPresenter.STATUS_DOWNLOADING_FAILED));
             mPanelPresenter.onInstallFinished();
         }
     }
 
     public void onEventMainThread(StatusEvent event) {
-        onStatusEvent(event.status);
+        mStatusPresenter.setStatus(event.status);
     }
 
     private boolean checkInstallStatus() {
@@ -210,25 +211,15 @@ public class MainActivity extends ActionBarActivity {
 
     private boolean checkInstallStatus(int type) {
         int status = CommandUtils.checkPackageInstalled(type);
-        onStatusEvent(status); // primary check item will show status
+        postEvent(new StatusEvent(status)); // primary check item will show status
+
         boolean isInstalled = status > 0;
         mPanelPresenter.setInstallStatus(type - 1, isInstalled);
 
         // check another item
-        int nextItem = type == CloudHelper.PACKAGE_TYPE_MINIMAL ? CloudHelper
-                .PACKAGE_TYPE_EXTENSION : CloudHelper.PACKAGE_TYPE_MINIMAL;
-        mPanelPresenter.setInstallStatus(nextItem - 1, CommandUtils.checkPackageInstalled(nextItem) > 0);
-
+        int nextItem = type == CloudHelper.PACKAGE_TYPE_MINIMAL ? 0 : 1;
+        mPanelPresenter.setInstallStatus(nextItem, CommandUtils.checkPackageInstalled(nextItem) > 0);
         return isInstalled;
-    }
-
-    private void onStatusEvent(final int status) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mStatusPresenter.setStatus(status);
-            }
-        });
     }
 
     @Override
@@ -259,6 +250,14 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    public static class StatusEvent {
+        public int status;
+
+        public StatusEvent(int status) {
+            this.status = status;
+        }
+    }
+
     private class RebootDialogCallback extends MaterialDialog.ButtonCallback {
         @Override
         public void onPositive(MaterialDialog dialog) {
@@ -272,14 +271,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public class CheckDataEvent {
-    }
-
-    public static class StatusEvent {
-        public int status;
-
-        public StatusEvent(int status) {
-            this.status = status;
-        }
     }
 
 }

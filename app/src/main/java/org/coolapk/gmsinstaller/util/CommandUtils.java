@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -141,7 +140,6 @@ public class CommandUtils {
             try {
                 packageManager.getApplicationInfo(pkgName, 0);
                 count++;
-                Log.e("", "get " + pkgName);
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }

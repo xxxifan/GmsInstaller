@@ -30,9 +30,7 @@ public class MainActivity extends ActionBarActivity {
 
     private StatusPresenter mStatusPresenter;
     private PanelPresenter mPanelPresenter;
-    private MaterialDialog mDialog;
 
-    private String[] mGapps;
     private boolean mIsServiceRunning = false;
 
     @Override
@@ -152,21 +150,24 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         onStatusEvent(StatusPresenter.STATUS_INSTALLING);
-        ZipUtils.install(mPanelPresenter.getGpack(event.filename));
+
+        final boolean result = ZipUtils.install(mPanelPresenter.getGpack(event.filename));
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mPanelPresenter.onInstallFinished();
                 onStatusEvent(StatusPresenter.STATUS_INSTALL_FINISHED);
-                mDialog = new MaterialDialog.Builder(MainActivity.this)
+                mPanelPresenter.setInstallStatus(result);
+                mPanelPresenter.onInstallFinished();
+
+                new MaterialDialog.Builder(MainActivity.this)
                         .title(R.string.btn_install_finished)
                         .content(R.string.msg_install_finished)
                         .positiveText(R.string.btn_reboot)
                         .negativeText(R.string.btn_cancel)
                         .callback(new RebootDialogCallback())
-                        .build();
-                mDialog.show();
+                        .build()
+                        .show();
             }
         });
     }
@@ -197,6 +198,10 @@ public class MainActivity extends ActionBarActivity {
             onStatusEvent(StatusPresenter.STATUS_DOWNLOADING_FAILED);
             mPanelPresenter.onInstallFinished();
         }
+    }
+
+    public void onEventMainThread(StatusEvent event) {
+        onStatusEvent(event.status);
     }
 
     private boolean checkInstallStatus() {
@@ -267,6 +272,14 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public class CheckDataEvent {
+    }
+
+    public static class StatusEvent {
+        public int status;
+
+        public StatusEvent(int status) {
+            this.status = status;
+        }
     }
 
 }

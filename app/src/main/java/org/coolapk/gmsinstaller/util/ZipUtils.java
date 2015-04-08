@@ -107,7 +107,7 @@ public class ZipUtils {
         return targetPath.exists();
     }
 
-    public static void install(Gpack gpack) {
+    public static boolean install(Gpack gpack) {
         File storagePath = AppHelper.getExternalFilePath();
         File gappFile = new File(storagePath, gpack.packageName);
         File tmpPath = new File(storagePath, "tmp");
@@ -128,21 +128,20 @@ public class ZipUtils {
 
             File flash = new File(tmpPath, "flash.sh");
             if (flash.exists()) {
-                CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
+                CommandUtils.execCommand(new String[]{
                         CommandUtils.CMD_RW_SYSTEM,
                         "busybox mount -o remount,rw /",
                         "sh " + flash.getPath(),
                         "sh " + AppHelper.getAppContext().getFilesDir().getPath() + "/fix_permission",
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
-                }, true, true);
-                Log.e("", "error=" + result.errorMsg + "  suce=" + result.successMsg);
+                }, true, false);
+                return true;
             } else {
-                Log.e("", "!flash.exists()");
+                return false;
             }
         } else {
-            // TODO file incomplete
-            Log.e("", "file incomplete");
+            return false;
         }
     }
 

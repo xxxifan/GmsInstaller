@@ -46,6 +46,8 @@ public class PanelPresenter implements View.OnClickListener {
     private int mColorDisabled;
     private int mColorAccent;
 
+    private int mWorkingIndex = -1;
+
     private List<PackageInfo> mPackageInfos;
 
     public PanelPresenter(View rootView) {
@@ -119,8 +121,16 @@ public class PanelPresenter implements View.OnClickListener {
         }
     }
 
+    public void setInstallStatus(boolean installed) {
+        if (mWorkingIndex > -1) {
+            setInstallStatus(mWorkingIndex, installed);
+        }
+    }
+
     public void setInstallStatus(int position, boolean installed) {
         mPackageInfos.get(position).setInstallState(installed);
+        MainActivity.StatusEvent event = new MainActivity.StatusEvent(position + 1);
+        EventBus.getDefault().post(event);
     }
 
     public boolean isPanelExpanded() {
@@ -197,6 +207,7 @@ public class PanelPresenter implements View.OnClickListener {
                     Toast.makeText(mContext, R.string.msg_error_interrupt, Toast.LENGTH_SHORT).show();
                     return null;
                 }
+                mWorkingIndex = mDisplayIndex;
 
                 Gpack gpack = mPackageInfos.get(mDisplayIndex).getGpack();
                 String packageName = gpack.packageName;
@@ -233,10 +244,12 @@ public class PanelPresenter implements View.OnClickListener {
 
     public void onInstallFinished() {
         mInstallBtn.setTag(1);
+        mWorkingIndex = -1;
     }
 
     public void onUninstallFinished() {
         mUninstallBtn.setTag(1);
+        mWorkingIndex = -1;
     }
 
     public Gpack getGpack(String packageName) {

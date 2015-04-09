@@ -8,6 +8,7 @@ import org.coolapk.gmsinstaller.model.Gpack;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
@@ -99,11 +100,10 @@ public class ZipUtils {
 
     public static boolean unzipFile(File zipFile, File targetPath) {
         String path = targetPath.getPath();
-        CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
+        CommandUtils.execCommand(new String[]{
                 "busybox rm -rf " + path + "/*",
                 "unzip -o " + zipFile.getPath() + " -d " + path
-        }, true, true);
-        Log.e("", "unzip: " + result.errorMsg + "  suc=" + result.successMsg);
+        }, true, false);
         return targetPath.exists();
     }
 
@@ -128,14 +128,38 @@ public class ZipUtils {
 
             File flash = new File(tmpPath, "flash.sh");
             if (flash.exists()) {
-                CommandUtils.execCommand(new String[]{
+                CommandUtils.CommandResult result = CommandUtils.execCommand(new String[]{
                         CommandUtils.CMD_RW_SYSTEM,
                         "busybox mount -o remount,rw /",
                         "sh " + flash.getPath(),
                         "sh " + AppHelper.getAppContext().getFilesDir().getPath() + "/fix_permission",
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
-                }, true, false);
+                }, true, true);
+
+                // debug
+                File logFile = new File(storagePath, "install.log");
+                String resultStr = "Installing file " + gpack.packageName + ", md5sum = " + gpack.md5;
+                resultStr += "\n===============================\n";
+                resultStr += "successMsg: " + result.successMsg + "\n\nerrorMsg: " + result.errorMsg;
+                byte[] data = resultStr.getBytes();
+                try {
+                    FileOutputStream outputStream = new FileOutputStream(logFile);
+                    outputStream.write(data, 0, data.length);
+                    outputStream.flush();
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (logFile.exists()) {
+                    Log.e("", "log file created\nat " + storagePath.getPath());
+                } else {
+                    Log.e("", "log file cannot created\nat " + storagePath.getPath());
+                }
+
+                CommandUtils.execCommand("echo \"test\" > " + storagePath.getPath() + "/test", true, false);
+
                 return true;
             } else {
                 return false;

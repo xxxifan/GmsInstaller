@@ -81,8 +81,6 @@ public class StatusPresenter {
             }
         });
         recyclerView.setAdapter(mAdapter);
-
-        setStatus(STATUS_INIT);
     }
 
     public int getStatus() {

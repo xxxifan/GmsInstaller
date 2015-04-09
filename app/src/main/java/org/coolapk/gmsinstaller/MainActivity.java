@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -42,7 +43,7 @@ public class MainActivity extends ActionBarActivity {
     private StatusPresenter mStatusUi;
     private PanelPresenter mPanelUi;
     private ChooserPresenter mChooserUi;
-    private ScrollView mScroView;
+    private ScrollView mScrollView;
 
     private boolean mIsServiceRunning = false;
 
@@ -100,23 +101,31 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // correct bottom height to scroll more smoother
         correctBottomHeight();
+
+        getMenuInflater().inflate(R.menu.menu_main,menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     private void correctBottomHeight() {
-        mScroView = (ScrollView) findViewById(R.id.main_scroller);
-        int count = mScroView.getChildCount();
+        mScrollView = (ScrollView) findViewById(R.id.main_scroller);
+        int count = mScrollView.getChildCount();
         int childHeight = 0;
         for (int i = 0; i < count; i++) {
-            childHeight += mScroView.getChildAt(i).getMeasuredHeight();
+            childHeight += mScrollView.getChildAt(i).getMeasuredHeight();
         }
 
         int toolbarHeight = ViewUtils.dp2px(56);
-        int diff = childHeight - mScroView.getMeasuredHeight();
+        int diff = childHeight - mScrollView.getMeasuredHeight();
         if (diff > 0 && diff < toolbarHeight) {
             diff = toolbarHeight - diff;
             findViewById(R.id.sliding_main).setPadding(0, 0, 0, diff);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        return super.onOptionsItemSelected(item);
     }
 
     public void postEvent(Object event) {
@@ -166,8 +175,8 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void run() {
                 mStatusUi.setupCancelBtn(false, null);
-                if (mScroView.getScrollY() > 0) {
-                    mScroView.smoothScrollTo(0, ViewUtils.dp2px(56));
+                if (mScrollView.getScrollY() > 0) {
+                    mScrollView.smoothScrollTo(0, ViewUtils.dp2px(56));
                 }
                 onEventMainThread(new StatusEvent(STATUS_INSTALLING));
             }

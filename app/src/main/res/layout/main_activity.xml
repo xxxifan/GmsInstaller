@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:gravity="bottom"
     app:umanoPanelHeight="0dp">
 
@@ -14,6 +13,7 @@
         android:id="@+id/main_scroller"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
         android:overScrollMode="never"
         android:scrollbars="none">
 

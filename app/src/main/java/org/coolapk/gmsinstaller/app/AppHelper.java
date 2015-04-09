@@ -19,8 +19,9 @@ import java.util.Locale;
 public class AppHelper {
 
     public static final String PREFERENCE_DOWNLOAD_FILES = "download_files";
-    private static final String SDCARD_ZERO_FOLDER = "/storage/emulated/0/";
-    private static final String SDCARD_LEGACY_FOLDER = "/storage/emulated/legacy/";
+
+    public static final String LC_APP_ID = "wfxfxudtklqk2hd9trqpt3bv1w7hr3fpg59z77qa5aq83z5k";
+    public static final String LC_APP_KEY = "jzze3zj1354wrclpm7d34vlvcwuxvx2rb9wr4wka6q3x7vjr";
 
     private static File sExternalFile;
 

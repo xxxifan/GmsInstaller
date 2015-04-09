@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">谷歌框架安装器</string>
     <string name="app_mark">酷安出品</string>
-    <string name="action_settings">设置</string>
+    <string name="action_feedback">反馈</string>
+    <string name="action_about">关于</string>
 
     <string name="title_install_status">当前状态</string>
     <string name="title_gapps">谷歌服务</string>
@@ -19,6 +20,8 @@
     <string name="title_install_finished">安装完成</string>
     <string name="title_install_failed">安装失败</string>
     <string name="title_choose_file">选择文件</string>
+    <string name="title_gapps_browse">前往酷市场下载谷歌系列以及更多好玩儿的应用</string>
+    <string name="title_alert">提示</string>
 
 
     <string name="btn_install">立即安装</string>
@@ -33,6 +36,7 @@
     <string name="btn_cancel">取消</string>
     <string name="btn_done">完成</string>
     <string name="btn_reboot">重启</string>
+    <string name="btn_go_market">前往酷市场</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>

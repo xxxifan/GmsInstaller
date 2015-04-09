@@ -1,6 +1,7 @@
 package org.coolapk.gmsinstaller;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +11,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.feedback.FeedbackAgent;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -58,6 +61,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void initView() {
+        // keep it before toolbar setup
+        mScrollView = (ScrollView) findViewById(R.id.main_scroller);
         setupToolbar();
         View root = getWindow().getDecorView();
         mStatusUi = new StatusPresenter(root);
@@ -69,6 +74,12 @@ public class MainActivity extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(getResources().getColor(R.color.primary_text_disabled_material_light));
         setSupportActionBar(toolbar);
+
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mScrollView.smoothScrollTo(0, ViewUtils.dp2px(56));
+            }
+        });
     }
 
     @Override
@@ -84,6 +95,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        AVAnalytics.onPause(this);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mChooserUi.onActivityResult(requestCode, resultCode, data);
@@ -92,6 +109,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AVAnalytics.onResume(this);
         if (!mIsServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
             postEvent(new CheckDataEvent());
         }
@@ -102,12 +120,11 @@ public class MainActivity extends ActionBarActivity {
         // correct bottom height to scroll more smoother
         correctBottomHeight();
 
-        getMenuInflater().inflate(R.menu.menu_main,menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     private void correctBottomHeight() {
-        mScrollView = (ScrollView) findViewById(R.id.main_scroller);
         int count = mScrollView.getChildCount();
         int childHeight = 0;
         for (int i = 0; i < count; i++) {
@@ -118,6 +135,11 @@ public class MainActivity extends ActionBarActivity {
         int diff = childHeight - mScrollView.getMeasuredHeight();
         if (diff > 0 && diff < toolbarHeight) {
             diff = toolbarHeight - diff;
+            // fix extra status bar height
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                diff -= ViewUtils.dp2px(24);
+            }
+
             findViewById(R.id.sliding_main).setPadding(0, 0, 0, diff);
         }
     }
@@ -125,6 +147,11 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        switch (id) {
+            case R.id.action_feedback:
+                new FeedbackAgent(this).startDefaultThreadActivity();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

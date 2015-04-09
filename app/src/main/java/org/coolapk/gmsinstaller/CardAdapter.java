@@ -51,8 +51,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             holder.actionBtn.setText(mContext.getString(R.string.btn_not_installed));
             holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.pink));
         } else {
-            holder.actionBtn.setText(mContext.getString(R.string.btn_check));
-            holder.actionBtn.setTextColor(mContext.getResources().getColor(R.color.pink));
+            holder.actionBtn.setText(null);
         }
     }
 

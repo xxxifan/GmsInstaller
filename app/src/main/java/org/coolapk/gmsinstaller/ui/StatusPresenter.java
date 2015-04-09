@@ -1,12 +1,15 @@
 package org.coolapk.gmsinstaller.ui;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.coolapk.gmsinstaller.CardAdapter;
 import org.coolapk.gmsinstaller.CardItemDecoration;
@@ -74,8 +77,29 @@ public class StatusPresenter extends UiPresenter {
                     event.position = position;
                     postEvent(event);
                 } else {
-                    // view gapps in coolapk
-                    Toast.makeText(getContext(), "Check it in coolmarket", Toast.LENGTH_SHORT).show();
+                    MaterialDialog.ButtonCallback callback = new MaterialDialog.ButtonCallback() {
+                        public void onPositive(MaterialDialog dialog) {
+                            super.onPositive(dialog);
+                            try {
+                                Intent intent = getContext().getPackageManager()
+                                        .getLaunchIntentForPackage("com.coolapk.market");
+                                getContext().startActivity(intent);
+                            } catch (Exception e) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse("http://www.coolapk.com"));
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                getContext().startActivity(intent);
+                            }
+                        }
+                    };
+                    new MaterialDialog.Builder(getContext())
+                            .title(R.string.title_alert)
+                            .content(R.string.title_gapps_browse)
+                            .positiveText(R.string.btn_go_market)
+                            .negativeText(R.string.btn_cancel)
+                            .callback(callback)
+                            .build()
+                            .show();
                 }
             }
         });

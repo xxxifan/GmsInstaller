@@ -69,6 +69,22 @@ public class CloudHelper {
         return null;
     }
 
+    /**
+     * @param type package type
+     * @return package position in ui list with this type
+     */
+    public static int getTypePosition(int type) {
+        return type == PACKAGE_TYPE_MINIMAL ? 0 : 1;
+    }
+
+    /**
+     * @param position package position in ui list
+     * @return package type in ui list with this position.
+     */
+    public static int getPositionType(int position) {
+        return position + 1;
+    }
+
     public static void downloadPackage(String packageName, Intent data) {
         Context context = AppHelper.getContext();
         Intent intent = new Intent(context, DownloadService.class);

@@ -119,7 +119,7 @@ public class CommandUtils {
                 errorMsg == null ? null : errorMsg.toString());
     }
 
-    public static int checkPackageInstalled(int type) {
+    public static int checkPackageInstall(int type) {
         boolean isMinimal = type == CloudHelper.PACKAGE_TYPE_MINIMAL;
         int installed = isMinimal ? StatusPresenter.STATUS_MINIMAL_INSTALLED : StatusPresenter
                 .STATUS_EXTENSION_INSTALLED;

@@ -248,16 +248,16 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private boolean checkInstallStatus(int type) {
-        int status = CommandUtils.checkPackageInstalled(type);
+        int status = CommandUtils.checkPackageInstall(type);
         postEvent(new StatusEvent(status)); // primary check item will show status
 
         boolean isInstalled = status > 0;
-        mPanelUi.setInstallStatus(type - 1, isInstalled);
+        mPanelUi.setInstallStatus(CloudHelper.getTypePosition(type), isInstalled);
 
         // check another item
-        int nextPosition = type == 0 ? 1 : 0;
-        mPanelUi.setInstallStatus(nextPosition, CommandUtils.checkPackageInstalled
-                (nextPosition + 1) > 0);
+        int nextPosition = CloudHelper.getTypePosition(type) == 0 ? 1 : 0;
+        mPanelUi.setInstallStatus(nextPosition, CommandUtils.checkPackageInstall(CloudHelper
+                .getPositionType(nextPosition)) > 0);
         return isInstalled;
     }
 

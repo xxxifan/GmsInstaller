@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    app:umanoAnchorPoint="0.68"
     app:umanoPanelHeight="0dp">
 
     <!-- Main part -->
@@ -37,8 +36,9 @@
 
     <!-- Slide part -->
     <LinearLayout
+        android:id="@+id/sliding_part"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="vertical">
 
@@ -103,27 +103,21 @@
                 android:id="@+id/package_detail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="2dp"
+                android:text="@string/gapps_minimal" />
 
         </LinearLayout>
 
-        <Button
+        <TextView
             android:id="@+id/package_install_btn"
-            style="?android:borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
             android:gravity="left|center_vertical"
+            android:minHeight="48dp"
+            android:padding="12dp"
             android:text="@string/btn_install"
-            android:textColor="?colorAccent"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/package_uninstall_btn"
-            style="?android:borderlessButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left|center_vertical"
-            android:text="@string/btn_uninstall"
             android:textColor="?colorAccent"
             android:textSize="16sp" />
     </LinearLayout>

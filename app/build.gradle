@@ -23,7 +23,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:cardview-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
-    compile 'com.afollestad:material-dialogs:0.7.0.1'
+    compile 'com.afollestad:material-dialogs:0.7.1.0'
     compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'org.apmem.tools:layouts:1.8@aar'
 

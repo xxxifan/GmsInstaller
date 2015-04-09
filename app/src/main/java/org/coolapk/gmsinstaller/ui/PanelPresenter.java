@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,14 +39,14 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     private TextView mUpdateTimeText;
     private TextView mPackageSizeText;
     private TextView mPackageDetailsText;
-    private Button mInstallBtn;
-    private Button mUninstallBtn;
+    private TextView mInstallBtn;
 
     private int mDisplayIndex;
     private int mColorDisabled;
     private int mColorAccent;
 
     private int mWorkingIndex = -1;
+    private boolean mFirstInit = true;
 
     private List<PackageInfo> mPackageInfos;
 
@@ -72,13 +71,11 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
         mUpdateTimeText = (TextView) rootView.findViewById(R.id.update_time);
         mPackageSizeText = (TextView) rootView.findViewById(R.id.package_size);
         mPackageDetailsText = (TextView) rootView.findViewById(R.id.package_detail);
-        mInstallBtn = (Button) rootView.findViewById(R.id.package_install_btn);
-        mUninstallBtn = (Button) rootView.findViewById(R.id.package_uninstall_btn);
+        mInstallBtn = (TextView) rootView.findViewById(R.id.package_install_btn);
 
+        mPanel.setPanelState(PanelState.HIDDEN);
         mInstallBtn.setOnClickListener(this);
-        mUninstallBtn.setOnClickListener(this);
         mInstallBtn.setTag(1);
-        mUninstallBtn.setTag(1);
     }
 
     public void display(int position) {
@@ -96,8 +93,6 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
             mPackageDetailsText.setText(packageInfo.getPackageDescription());
             toggleBtnState(mInstallBtn, true);
         }
-
-        toggleBtnState(mUninstallBtn, packageInfo.isInstalled());
 
         showPanel();
         mDisplayIndex = position;
@@ -149,10 +144,10 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     }
 
     public void showPanel() {
-        mPanel.setPanelState(PanelState.ANCHORED);
+        mPanel.setPanelState(PanelState.EXPANDED);
     }
 
-    private void toggleBtnState(Button btn, boolean on) {
+    private void toggleBtnState(TextView btn, boolean on) {
         if (on) {
             btn.setEnabled(true);
             btn.setTextColor(mColorAccent);
@@ -168,13 +163,8 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
             if (mInstallBtn.getTag() == 1) {
                 onInstallClick();
             }
-        } else if (v == mUninstallBtn) {
-            if (mUninstallBtn.getTag() == 1) {
-
-            }
-            // TODO uninstall confirm
+            collapsePanel();
         }
-        collapsePanel();
     }
 
     private void onInstallClick() {
@@ -250,11 +240,6 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
 
     public void onInstallFinished() {
         mInstallBtn.setTag(1);
-        mWorkingIndex = -1;
-    }
-
-    public void onUninstallFinished() {
-        mUninstallBtn.setTag(1);
         mWorkingIndex = -1;
     }
 

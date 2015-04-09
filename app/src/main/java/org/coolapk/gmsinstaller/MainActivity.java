@@ -1,7 +1,6 @@
 package org.coolapk.gmsinstaller;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -43,6 +42,7 @@ public class MainActivity extends ActionBarActivity {
     private StatusPresenter mStatusUi;
     private PanelPresenter mPanelUi;
     private ChooserPresenter mChooserUi;
+    private ScrollView mScroView;
 
     private boolean mIsServiceRunning = false;
 
@@ -104,19 +104,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void correctBottomHeight() {
-        ScrollView scrollView = (ScrollView) findViewById(R.id.main_scroller);
-        int count = scrollView.getChildCount();
+        mScroView = (ScrollView) findViewById(R.id.main_scroller);
+        int count = mScroView.getChildCount();
         int childHeight = 0;
         for (int i = 0; i < count; i++) {
-            childHeight += scrollView.getChildAt(i).getMeasuredHeight();
+            childHeight += mScroView.getChildAt(i).getMeasuredHeight();
         }
 
         int toolbarHeight = ViewUtils.dp2px(56);
-        int diff = childHeight - scrollView.getMeasuredHeight();
+        int diff = childHeight - mScroView.getMeasuredHeight();
         if (diff > 0 && diff < toolbarHeight) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                diff += ViewUtils.dp2px(8);
-            }
+            diff = toolbarHeight - diff;
             findViewById(R.id.sliding_main).setPadding(0, 0, 0, diff);
         }
     }
@@ -168,6 +166,9 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void run() {
                 mStatusUi.setupCancelBtn(false, null);
+                if (mScroView.getScrollY() > 0) {
+                    mScroView.smoothScrollTo(0, ViewUtils.dp2px(56));
+                }
                 onEventMainThread(new StatusEvent(STATUS_INSTALLING));
             }
         });

@@ -6,7 +6,7 @@ package org.coolapk.gmsinstaller.model;
 public class Gpack {
     public String packageName;
     public int packageType;
-    public String packageSize;
+    public long packageSize;
     public int sdkLevel;
     public String updateTime;
     public String md5;

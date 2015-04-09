@@ -1,5 +1,6 @@
 package org.coolapk.gmsinstaller;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -15,6 +16,7 @@ import org.coolapk.gmsinstaller.cloud.CloudHelper;
 import org.coolapk.gmsinstaller.cloud.DownloadEvent;
 import org.coolapk.gmsinstaller.cloud.DownloadService;
 import org.coolapk.gmsinstaller.model.Gpack;
+import org.coolapk.gmsinstaller.ui.ChooserPresenter;
 import org.coolapk.gmsinstaller.ui.PanelPresenter;
 import org.coolapk.gmsinstaller.ui.StatusPresenter;
 import org.coolapk.gmsinstaller.util.CommandUtils;
@@ -38,8 +40,9 @@ import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_NO_ROOT;
 
 public class MainActivity extends ActionBarActivity {
 
-    private StatusPresenter mStatusPresenter;
-    private PanelPresenter mPanelPresenter;
+    private StatusPresenter mStatusUi;
+    private PanelPresenter mPanelUi;
+    private ChooserPresenter mChooserUi;
 
     private boolean mIsServiceRunning = false;
 
@@ -56,8 +59,9 @@ public class MainActivity extends ActionBarActivity {
     private void initView() {
         setupToolbar();
         View root = getWindow().getDecorView();
-        mStatusPresenter = new StatusPresenter(root);
-        mPanelPresenter = new PanelPresenter(root);
+        mStatusUi = new StatusPresenter(root);
+        mPanelUi = new PanelPresenter(root);
+        mChooserUi = new ChooserPresenter(root);
     }
 
     private void setupToolbar() {
@@ -79,9 +83,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mChooserUi.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        if (!mIsServiceRunning && mStatusPresenter.getStatus() == STATUS_INIT) {
+        if (!mIsServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
             postEvent(new CheckDataEvent());
         }
     }
@@ -136,7 +146,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void onEventBackgroundThread(CheckUpdateEvent event) {
         List<Gpack> gpacks = CloudHelper.getGpackList();
-        mPanelPresenter.setGappsDetail(gpacks);
+        mPanelUi.setGappsDetail(gpacks);
 
         if (gpacks == null) {
             runOnUiThread(new Runnable() {
@@ -150,27 +160,35 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onEventBackgroundThread(InstallEvent event) {
-        if (mStatusPresenter.getStatus() == STATUS_INSTALLING) {
+        if (mStatusUi.getStatus() == STATUS_INSTALLING) {
             return;
         }
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mStatusPresenter.setupCancelBtn(false, null);
+                mStatusUi.setupCancelBtn(false, null);
                 onEventMainThread(new StatusEvent(STATUS_INSTALLING));
             }
         });
 
+        final boolean result;
+
         // start install
-        final boolean result = ZipUtils.install(mPanelPresenter.getGpack(event.filename));
+        if (event.isLocal) {
+            result = ZipUtils.install(mChooserUi.getWorkingGpack(), true);
+        } else {
+            result = ZipUtils.install(mPanelUi.getGpack(event.filename), false);
+        }
+
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 onEventMainThread(new StatusEvent(STATUS_INSTALL_FINISHED));
-                mPanelPresenter.setInstallStatus(result);
-                mPanelPresenter.onInstallFinished();
+                mPanelUi.setInstallStatus(result);
+                mPanelUi.onInstallFinished();
+                mChooserUi.clearWorkingFile();
 
                 if (result) {
                     new MaterialDialog.Builder(MainActivity.this)
@@ -194,35 +212,35 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void onEventMainThread(PanelDisplayEvent event) {
-        mPanelPresenter.display(event.position);
+        mPanelUi.display(event.position);
     }
 
     public void onEventMainThread(DownloadEvent event) {
         if (event.status == 0) {
             postEvent(new StatusEvent(STATUS_DOWNLOADING));
-            mStatusPresenter.setupCancelBtn(true, new View.OnClickListener() {
+            mStatusUi.setupCancelBtn(true, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     CloudHelper.cancelDownloads();
                     postEvent(new StatusEvent(STATUS_DOWNLOAD_CANCELED));
                     v.setVisibility(View.GONE);
-                    mPanelPresenter.onInstallFinished();
+                    mPanelUi.onInstallFinished();
                 }
             });
         } else if (event.status == 2) {
-            mStatusPresenter.setStatusText(getString(R.string.title_downloading), getString(R.string
+            mStatusUi.setStatusText(getString(R.string.title_downloading), getString(R.string
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {
             postEvent(new InstallEvent(event.filename));
         } else if (event.status < 0) {
-            mStatusPresenter.setStatusText(getString(R.string.msg_download_failed));
+            mStatusUi.setStatusText(getString(R.string.msg_download_failed));
             postEvent(new StatusEvent(STATUS_DOWNLOADING_FAILED));
-            mPanelPresenter.onInstallFinished();
+            mPanelUi.onInstallFinished();
         }
     }
 
     public void onEventMainThread(StatusEvent event) {
-        mStatusPresenter.setStatus(event.status);
+        mStatusUi.setStatus(event.status);
     }
 
     private boolean checkInstallStatus() {
@@ -234,21 +252,21 @@ public class MainActivity extends ActionBarActivity {
         postEvent(new StatusEvent(status)); // primary check item will show status
 
         boolean isInstalled = status > 0;
-        mPanelPresenter.setInstallStatus(type - 1, isInstalled);
+        mPanelUi.setInstallStatus(type - 1, isInstalled);
 
         // check another item
         int nextPosition = type == 0 ? 1 : 0;
-        mPanelPresenter.setInstallStatus(nextPosition, CommandUtils.checkPackageInstalled
+        mPanelUi.setInstallStatus(nextPosition, CommandUtils.checkPackageInstalled
                 (nextPosition + 1) > 0);
         return isInstalled;
     }
 
     @Override
     public void onBackPressed() {
-        if (mPanelPresenter.isPanelExpanded()) {
-            mPanelPresenter.collapsePanel();
+        if (mPanelUi.isPanelExpanded()) {
+            mPanelUi.collapsePanel();
         } else {
-            if (mStatusPresenter.getStatus() > 10) {
+            if (mStatusUi.getStatus() > 10) {
                 moveTaskToBack(false);
             } else {
                 super.onBackPressed();
@@ -265,6 +283,7 @@ public class MainActivity extends ActionBarActivity {
 
     public static class InstallEvent {
         public String filename;
+        public boolean isLocal;
 
         public InstallEvent(String filename) {
             this.filename = filename;

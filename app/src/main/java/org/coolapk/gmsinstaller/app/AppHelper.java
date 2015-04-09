@@ -32,33 +32,37 @@ public class AppHelper {
         return AppApplication.getInstance();
     }
 
-    public static Context getAppContext() {
+    public static Context getContext() {
         return AppApplication.getInstance();
     }
 
     public static SharedPreferences getPrefs() {
-        return PreferenceManager.getDefaultSharedPreferences(getAppContext());
+        return PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
     public static SharedPreferences getPrefs(String name) {
-        return getAppContext().getSharedPreferences(name, Context.MODE_PRIVATE);
+        return getContext().getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 
     public static File getExternalFilePath() {
         if (sExternalFile == null) {
-            Context context = getAppContext();
-            sExternalFile = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ?
-                    context.getExternalFilesDir(null) : context.getFilesDir();
-            if (sExternalFile.getPath().contains(SDCARD_ZERO_FOLDER)) {
-                sExternalFile = new File(sExternalFile.getPath().replace(SDCARD_ZERO_FOLDER,
-                        SDCARD_LEGACY_FOLDER));
+            Context context = getContext();
+            File externalFileDir = new File("/sdcard/Android/data/" + context.getPackageName() +
+                    "/files");
+
+            if (!externalFileDir.exists()) {
+                externalFileDir.mkdirs();
+                externalFileDir.setReadable(true, false);
+                externalFileDir.setExecutable(true, false);
             }
+            sExternalFile = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ?
+                    externalFileDir : context.getFilesDir();
         }
         return sExternalFile;
     }
 
     public static boolean isServiceRunning(String className) {
-        ActivityManager activityManager = (ActivityManager) AppHelper.getAppContext().getSystemService
+        ActivityManager activityManager = (ActivityManager) AppHelper.getContext().getSystemService
                 (Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningServiceInfo> serviceList = activityManager.getRunningServices(30);
         if (serviceList == null || serviceList.size() <= 0) {

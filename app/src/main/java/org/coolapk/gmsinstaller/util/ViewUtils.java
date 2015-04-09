@@ -10,7 +10,7 @@ public class ViewUtils {
 
     public static int dp2px(int dp) {
         if (DISPLAY_DENSITY == 0f) {
-            DISPLAY_DENSITY = AppHelper.getAppContext().getResources().getDisplayMetrics().density;
+            DISPLAY_DENSITY = AppHelper.getContext().getResources().getDisplayMetrics().density;
         }
         return (int) (dp * DISPLAY_DENSITY);
     }

@@ -1,6 +1,5 @@
 package org.coolapk.gmsinstaller.ui;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -15,12 +14,10 @@ import org.coolapk.gmsinstaller.CardLayoutManager;
 import org.coolapk.gmsinstaller.MainActivity;
 import org.coolapk.gmsinstaller.R;
 
-import de.greenrobot.event.EventBus;
-
 /**
  * Created by BobPeng on 2015/3/26.
  */
-public class StatusPresenter {
+public class StatusPresenter extends UiPresenter {
     public static final int STATUS_DOWNLOADING_FAILED = -13;
     public static final int STATUS_NO_ROOT = -12;
     public static final int STATUS_EXTENSION_NOT_INSTALLED = -2;
@@ -48,35 +45,37 @@ public class StatusPresenter {
     private TextView mSubStatusText;
     private Button mCancelBtn;
     private CardAdapter mAdapter;
-    private Context mContext;
 
     private int mStatus = STATUS_INIT;
     private int mIconState = ICON_STATE_LOADING;
 
     public StatusPresenter(View root) {
-        mContext = root.getContext();
+        super(root);
+    }
 
-        mStatusProgress = (ProgressBar) root.findViewById(R.id.status_loading);
-        mStatusIcon = (ImageView) root.findViewById(R.id.status_icon);
-        mStatusText = (TextView) root.findViewById(R.id.status_text);
-        mSubStatusText = (TextView) root.findViewById(R.id.status_sub_text);
-        mCancelBtn = (Button) root.findViewById(R.id.status_cancel_btn);
+    @Override
+    protected void initView(View rootView) {
+        mStatusProgress = (ProgressBar) rootView.findViewById(R.id.status_loading);
+        mStatusIcon = (ImageView) rootView.findViewById(R.id.status_icon);
+        mStatusText = (TextView) rootView.findViewById(R.id.status_text);
+        mSubStatusText = (TextView) rootView.findViewById(R.id.status_sub_text);
+        mCancelBtn = (Button) rootView.findViewById(R.id.status_cancel_btn);
 
-        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.main_list);
-        recyclerView.addItemDecoration(new CardItemDecoration(mContext));
-        recyclerView.setLayoutManager(new CardLayoutManager(mContext));
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.main_list);
+        recyclerView.addItemDecoration(new CardItemDecoration(getContext()));
+        recyclerView.setLayoutManager(new CardLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        mAdapter = new CardAdapter(mContext);
+        mAdapter = new CardAdapter(getContext());
         mAdapter.setOnItemClickListener(new CardAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 if (position < 2) {
                     MainActivity.PanelDisplayEvent event = new MainActivity.PanelDisplayEvent();
                     event.position = position;
-                    EventBus.getDefault().post(event);
+                    postEvent(event);
                 } else {
                     // view gapps in coolapk
-                    Toast.makeText(mContext, "Check it in coolmarket", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Check it in coolmarket", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -177,7 +176,7 @@ public class StatusPresenter {
     }
 
     public void setStatusText(int resId) {
-        setStatusText(mContext.getString(resId));
+        setStatusText(getContext().getString(resId));
     }
 
     public void setStatusText(String statusText) {
@@ -188,7 +187,7 @@ public class StatusPresenter {
     }
 
     public void setStatusText(int statusTextRes, int subStatusTextRes) {
-        setStatusText(mContext.getString(statusTextRes), mContext.getString(subStatusTextRes));
+        setStatusText(getContext().getString(statusTextRes), getContext().getString(subStatusTextRes));
     }
 
     public void setStatusText(String statusText, String subStatusText) {

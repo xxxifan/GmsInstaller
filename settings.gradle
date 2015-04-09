@@ -1,1 +1,1 @@
-include ':app', ':aFileChooser'
+include ':app'

@@ -107,7 +107,7 @@ public class ZipUtils {
         return targetPath.exists();
     }
 
-    public static boolean install(Gpack gpack) {
+    public static boolean install(Gpack gpack, boolean isLocal) {
         File storagePath = AppHelper.getExternalFilePath();
         File gappFile = new File(storagePath, gpack.packageName);
         File tmpPath = new File(storagePath, "tmp");
@@ -115,7 +115,7 @@ public class ZipUtils {
             tmpPath.mkdirs();
         }
 
-        if (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5)) {
+        if (isLocal || (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5))) {
             // unzip gapps to storagePath.
             unzipFile(gappFile, tmpPath);
 
@@ -132,7 +132,7 @@ public class ZipUtils {
                         CommandUtils.CMD_RW_SYSTEM,
                         "busybox mount -o remount,rw /",
                         "sh " + flash.getPath(),
-                        "sh " + AppHelper.getAppContext().getFilesDir().getPath() + "/fix_permission",
+                        "sh " + AppHelper.getContext().getFilesDir().getPath() + "/fix_permission",
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
                 }, true, true);

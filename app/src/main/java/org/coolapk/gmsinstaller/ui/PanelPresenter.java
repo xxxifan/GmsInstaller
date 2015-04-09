@@ -1,6 +1,5 @@
 package org.coolapk.gmsinstaller.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -26,8 +25,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-
 
 import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_EXTENSION_INSTALLED;
 import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_EXTENSION_NOT_INSTALLED;
@@ -37,9 +34,7 @@ import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_MINIMAL_NOT_INS
 /**
  * Created by BobPeng on 2015/3/27.
  */
-public class PanelPresenter implements View.OnClickListener {
-    private Context mContext;
-
+public class PanelPresenter extends UiPresenter implements View.OnClickListener {
     private SlidingUpPanelLayout mPanel;
     private TextView mSlidingTitle;
     private TextView mUpdateTimeText;
@@ -57,9 +52,21 @@ public class PanelPresenter implements View.OnClickListener {
     private List<PackageInfo> mPackageInfos;
 
     public PanelPresenter(View rootView) {
-        mContext = rootView.getContext();
+        super(rootView);
         mPackageInfos = new ArrayList<>();
+        mColorDisabled = getContext().getResources().getColor(R.color.diabled_text);
+        mColorAccent = getContext().getResources().getColor(R.color.pink);
 
+        String[] descriptions = getContext().getResources().getStringArray(R.array.gapps_description);
+        for (String descriptor : descriptions) {
+            PackageInfo info = new PackageInfo();
+            info.setPackageDescription(descriptor);
+            mPackageInfos.add(info);
+        }
+    }
+
+    @Override
+    protected void initView(View rootView) {
         mPanel = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_up_panel);
         mSlidingTitle = (TextView) rootView.findViewById(R.id.sliding_title);
         mUpdateTimeText = (TextView) rootView.findViewById(R.id.update_time);
@@ -68,20 +75,10 @@ public class PanelPresenter implements View.OnClickListener {
         mInstallBtn = (Button) rootView.findViewById(R.id.package_install_btn);
         mUninstallBtn = (Button) rootView.findViewById(R.id.package_uninstall_btn);
 
-        String[] descriptions = mContext.getResources().getStringArray(R.array.gapps_description);
-        for (String descriptor : descriptions) {
-            PackageInfo info = new PackageInfo();
-            info.setPackageDescription(descriptor);
-            mPackageInfos.add(info);
-        }
-
         mInstallBtn.setOnClickListener(this);
         mUninstallBtn.setOnClickListener(this);
         mInstallBtn.setTag(1);
         mUninstallBtn.setTag(1);
-
-        mColorDisabled = mContext.getResources().getColor(R.color.diabled_text);
-        mColorAccent = mContext.getResources().getColor(R.color.pink);
     }
 
     public void display(int position) {
@@ -95,7 +92,7 @@ public class PanelPresenter implements View.OnClickListener {
             toggleBtnState(mInstallBtn, false);
         } else {
             mUpdateTimeText.setText(pack.updateTime);
-            mPackageSizeText.setText(ZipUtils.getFormatSize(Long.parseLong(pack.packageSize)));
+            mPackageSizeText.setText(ZipUtils.getFormatSize(pack.packageSize));
             mPackageDetailsText.setText(packageInfo.getPackageDescription());
             toggleBtnState(mInstallBtn, true);
         }
@@ -107,7 +104,7 @@ public class PanelPresenter implements View.OnClickListener {
 
         // delay check update
         if (pack == null) {
-            EventBus.getDefault().post(new MainActivity.CheckUpdateEvent());
+            postEvent(new MainActivity.CheckUpdateEvent());
         }
     }
 
@@ -139,7 +136,7 @@ public class PanelPresenter implements View.OnClickListener {
                     (installed ? STATUS_MINIMAL_INSTALLED : STATUS_MINIMAL_NOT_INSTALLED)
                     : (installed ? STATUS_EXTENSION_INSTALLED : STATUS_EXTENSION_NOT_INSTALLED);
             MainActivity.StatusEvent event = new MainActivity.StatusEvent(status);
-            EventBus.getDefault().post(event);
+            postEvent(event);
         }
     }
 
@@ -189,7 +186,7 @@ public class PanelPresenter implements View.OnClickListener {
                 }
             };
 
-            new MaterialDialog.Builder(mContext)
+            new MaterialDialog.Builder(getContext())
                     .content(R.string.msg_already_installed)
                     .positiveText(R.string.btn_ok)
                     .negativeText(R.string.btn_cancel)
@@ -198,7 +195,7 @@ public class PanelPresenter implements View.OnClickListener {
                     .show();
         } else {
             if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
-                new MaterialDialog.Builder(mContext)
+                new MaterialDialog.Builder(getContext())
                         .content(R.string.msg_framework_need)
                         .positiveText(R.string.btn_ok)
                         .build()
@@ -214,7 +211,7 @@ public class PanelPresenter implements View.OnClickListener {
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... params) {
                 if (mDisplayIndex < 0) {
-                    Toast.makeText(mContext, R.string.msg_error_interrupt, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.msg_error_interrupt, Toast.LENGTH_SHORT).show();
                     return null;
                 }
                 mWorkingIndex = mDisplayIndex;
@@ -224,7 +221,7 @@ public class PanelPresenter implements View.OnClickListener {
                 File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
                 if (targetFile.exists() && checkDownload(gpack, targetFile)) {
                     Log.e("", "INSTALL");
-                    EventBus.getDefault().post(new MainActivity.InstallEvent(packageName));
+                    postEvent(new MainActivity.InstallEvent(packageName));
                     mInstallBtn.setTag(0);
                 } else {
                     // start download
@@ -240,8 +237,7 @@ public class PanelPresenter implements View.OnClickListener {
     }
 
     private boolean checkDownload(Gpack gpack, File file) {
-        if (ZipUtils.getFileMd5(file).equals(gpack.md5) && file.length() == Long.parseLong(gpack
-                .packageSize)) {
+        if (ZipUtils.getFileMd5(file).equals(gpack.md5) && file.length() == gpack.packageSize) {
             return true;
         } else if (AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).getLong(gpack
                 .packageName, 0l) == 0l) {

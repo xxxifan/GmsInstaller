@@ -126,7 +126,7 @@ public class CommandUtils {
         int notInstall = isMinimal ? StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED : StatusPresenter
                 .STATUS_EXTENSION_NOT_INSTALLED;
 
-        PackageManager packageManager = AppHelper.getAppContext().getPackageManager();
+        PackageManager packageManager = AppHelper.getContext().getPackageManager();
         if (packageManager == null) {
             return notInstall;
         }
@@ -160,7 +160,7 @@ public class CommandUtils {
     }
 
     public static void initEnvironment() {
-        Context context = AppHelper.getAppContext();
+        Context context = AppHelper.getContext();
         File zipBin = new File("/system/xbin/zip");
         File busyBoxBin = new File("/system/xbin/busybox");
         File fixBin = new File(context.getFilesDir(), "fix_permission");

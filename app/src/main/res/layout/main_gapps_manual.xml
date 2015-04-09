@@ -36,31 +36,41 @@
                 android:layout_height="wrap_content"
                 android:text="@string/title_flash_zip_summary" />
 
+            <TextView
+                android:id="@+id/flash_selected_file_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/primary_text_disabled_material_light" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
+                android:gravity="right"
                 android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/flash_selected_file_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/flash_select_btn"
-                    android:textColor="@color/primary_text_disabled_material_light" />
 
                 <TextView
                     android:id="@+id/flash_select_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
                     android:background="?selectableItemBackground"
                     android:clickable="true"
                     android:padding="8dp"
                     android:text="@string/btn_open_file"
                     android:textColor="?colorAccent" />
+
+                <TextView
+                    android:id="@+id/flash_confirm_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/flash_select_btn"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:padding="8dp"
+                    android:text="@string/btn_install"
+                    android:textColor="?colorAccent"
+                    android:visibility="gone" />
             </RelativeLayout>
         </LinearLayout>
 

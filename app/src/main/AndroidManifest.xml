@@ -16,23 +16,25 @@
         android:name=".app.AppApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        android:label="@string/app_name">
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.avos.avoscloud.feedback.ThreadActivity" />
+
+        <activity
+            android:name="lecho.lib.filechooser.FilechooserActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <service
             android:name=".cloud.DownloadService"
             android:exported="false" />
-        <meta-data
-            android:name="leancloud"
-            android:value="alpha" />
+
     </application>
 
 </manifest>

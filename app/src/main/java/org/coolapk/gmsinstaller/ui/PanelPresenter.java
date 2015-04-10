@@ -208,7 +208,7 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
 
                 Gpack gpack = mPackageInfos.get(mDisplayIndex).getGpack();
                 String packageName = gpack.packageName;
-                File targetFile = new File(AppHelper.getExternalFilePath(), packageName);
+                File targetFile = new File(AppHelper.getAppExternalPath(), packageName);
                 if (targetFile.exists() && checkDownload(gpack, targetFile)) {
                     Log.e("", "INSTALL");
                     postEvent(new MainActivity.InstallEvent(packageName));

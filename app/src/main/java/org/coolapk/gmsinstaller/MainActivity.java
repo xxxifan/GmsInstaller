@@ -11,8 +11,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.avos.avoscloud.AVAnalytics;
-import com.avos.avoscloud.feedback.FeedbackAgent;
+import com.pgyersdk.feedback.PgyFeedback;
+import com.pgyersdk.update.PgyUpdateManager;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -58,6 +58,8 @@ public class MainActivity extends ActionBarActivity {
         initView();
         setTitle(R.string.app_mark);
         mIsServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
+
+        PgyUpdateManager.register(this, AppHelper.PGY_APP_ID);
     }
 
     private void initView() {
@@ -72,7 +74,6 @@ public class MainActivity extends ActionBarActivity {
 
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitleTextColor(getResources().getColor(R.color.primary_text_disabled_material_light));
         setSupportActionBar(toolbar);
 
         toolbar.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +98,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        AVAnalytics.onPause(this);
     }
 
     @Override
@@ -109,7 +109,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        AVAnalytics.onResume(this);
         if (!mIsServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
             postEvent(new CheckDataEvent());
         }
@@ -149,7 +148,7 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_feedback:
-                new FeedbackAgent(this).startDefaultThreadActivity();
+                PgyFeedback.getInstance().show(MainActivity.this, AppHelper.PGY_APP_ID);
                 break;
         }
         return super.onOptionsItemSelected(item);

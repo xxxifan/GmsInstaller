@@ -67,8 +67,6 @@
                     android:layout_toRightOf="@id/flash_select_btn"
                     android:background="?selectableItemBackground"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
                     android:padding="8dp"
                     android:text="@string/btn_install"
                     android:textColor="?colorAccent"

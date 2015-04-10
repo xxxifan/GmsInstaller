@@ -20,8 +20,7 @@ public class AppHelper {
 
     public static final String PREFERENCE_DOWNLOAD_FILES = "download_files";
 
-    public static final String LC_APP_ID = "wfxfxudtklqk2hd9trqpt3bv1w7hr3fpg59z77qa5aq83z5k";
-    public static final String LC_APP_KEY = "jzze3zj1354wrclpm7d34vlvcwuxvx2rb9wr4wka6q3x7vjr";
+    public static final String PGY_APP_ID = "c4d927551b1c370da85407c65815c839";
 
     private static File sExternalFile;
 
@@ -45,7 +44,7 @@ public class AppHelper {
         return getContext().getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 
-    public static File getExternalFilePath() {
+    public static File getAppExternalPath() {
         if (sExternalFile == null) {
             Context context = getContext();
             File externalFileDir = new File("/sdcard/Android/data/" + context.getPackageName() +

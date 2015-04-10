@@ -3,7 +3,6 @@ package org.coolapk.gmsinstaller.util;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +15,12 @@ import okio.Okio;
  * Rewritten by xxxifan
  */
 public class EdifyParser {
-    private static final String SCRIPTER_PATH = "/META-INF/com/google/android/updater-script";
+    private static final String SCRIPT_PATH = "/META-INF/com/google/android/updater-script";
 
-    public static void parseScript(File targetPath) throws FileNotFoundException {
-        File scriptFile = new File(targetPath, SCRIPTER_PATH);
+    public static void parseScript(File targetPath) {
+        File scriptFile = new File(targetPath, SCRIPT_PATH);
         if (!scriptFile.exists()) {
-            throw new FileNotFoundException("Script file doesn't exist!");
+            throw new IllegalStateException("Script file doesn't exist!");
         }
 
         try {

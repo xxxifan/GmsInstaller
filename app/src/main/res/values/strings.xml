@@ -59,6 +59,8 @@
     <string name="msg_error_interrupt">发生错误，安装已取消，您的手机不会受到任何更改</string>
     <string name="msg_install_failed">很抱歉安装没有成功，向我们反馈一下吧</string>
     <string name="msg_choose_file_failed">无法获取选择的文件信息，请重试</string>
+    <string name="msg_open_chooser_failed">无法选择文件，请确保您的系统安装了文件管理器</string>
+    <string name="msg_choose_valid_zip">请选择正确的zip格式的文件</string>
 
     <string name="gapps_minimal">基本服务框架\nPlay商店\n联系人同步\n日历同步</string>
     <string name="gapps_extension">人脸解锁\nGoogle搜索\nGoogle Ears\nGoogle TTS</string>

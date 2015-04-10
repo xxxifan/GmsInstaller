@@ -104,11 +104,13 @@ public class ZipUtils {
                 "busybox rm -rf " + path + "/*",
                 "unzip -o " + zipFile.getPath() + " -d " + path
         }, true, false);
-        return targetPath.exists();
+        Log.e("","extract " + zipFile.getPath() + " to " + path);
+        String[] list = targetPath.list();
+        return list != null && list.length > 0;
     }
 
     public static boolean install(Gpack gpack, boolean isLocal) {
-        File storagePath = AppHelper.getExternalFilePath();
+        File storagePath = AppHelper.getAppExternalPath();
         File gappFile = new File(storagePath, gpack.packageName);
         File tmpPath = new File(storagePath, "tmp");
         if (!tmpPath.exists()) {
@@ -117,14 +119,12 @@ public class ZipUtils {
 
         if (isLocal || (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5))) {
             // unzip gapps to storagePath.
-            unzipFile(gappFile, tmpPath);
-
-            // convert flash script
-            try {
-                EdifyParser.parseScript(tmpPath);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            boolean extracted =  unzipFile(gappFile, tmpPath);
+            if (!extracted) {
+                throw new IllegalStateException("extract zip failed");
             }
+            // convert flash script
+            EdifyParser.parseScript(tmpPath);
 
             File flash = new File(tmpPath, "flash.sh");
             if (flash.exists()) {
@@ -151,21 +151,19 @@ public class ZipUtils {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 if (logFile.exists()) {
                     Log.e("", "log file created\nat " + storagePath.getPath());
                 } else {
                     Log.e("", "log file cannot created\nat " + storagePath.getPath());
                 }
 
-                CommandUtils.execCommand("echo \"test\" > " + storagePath.getPath() + "/test", true, false);
-
                 return true;
             } else {
-                return false;
+                throw new IllegalArgumentException("flash file doesn't exists");
             }
         } else {
-            return false;
+            throw new IllegalArgumentException("file md5sum is not match or gapps zip not exist");
+//            return false;
         }
     }
 

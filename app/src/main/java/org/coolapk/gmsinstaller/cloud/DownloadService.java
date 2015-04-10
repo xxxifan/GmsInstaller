@@ -159,13 +159,10 @@ public class DownloadService extends IntentService {
 
                     // dispatch event
                     mDownloadEvent.progress = 100 * totalBytes / mDownloadEvent.total;
-                    if (mDownloadEvent.progress > mDownloadEvent.lastProgress + 1) { // every 2 steps to update UI
-                        mDownloadEvent.status = 2;
-                        mDownloadEvent.downloaded = totalBytes;
+                    mDownloadEvent.status = 2;
+                    mDownloadEvent.downloaded = totalBytes;
 
-                        mEventBus.post(mDownloadEvent);
-                        mDownloadEvent.lastProgress = mDownloadEvent.progress;
-                    }
+                    mEventBus.post(mDownloadEvent);
 
                     return read;
                 }

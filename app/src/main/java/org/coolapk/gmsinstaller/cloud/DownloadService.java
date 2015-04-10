@@ -2,6 +2,7 @@ package org.coolapk.gmsinstaller.cloud;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
@@ -103,6 +104,7 @@ public class DownloadService extends IntentService {
                 sink.close();
                 source.close();
 
+                Log.e("","post end event");
                 // end event
                 mDownloadEvent.status = 1;
                 mEventBus.post(mDownloadEvent);
@@ -157,12 +159,14 @@ public class DownloadService extends IntentService {
                     long read = super.read(sink, byteCount);
                     totalBytes += read != -1 ? read : 0;
 
-                    // dispatch event
+                    // progress event
                     mDownloadEvent.progress = 100 * totalBytes / mDownloadEvent.total;
-                    mDownloadEvent.status = 2;
-                    mDownloadEvent.downloaded = totalBytes;
-
-                    mEventBus.post(mDownloadEvent);
+                    if (mDownloadEvent.progress > mDownloadEvent.lastProgress) {
+                        mDownloadEvent.status = 2;
+                        mDownloadEvent.downloaded = totalBytes;
+                        mDownloadEvent.lastProgress = mDownloadEvent.progress;
+                        mEventBus.post(mDownloadEvent);
+                    }
 
                     return read;
                 }

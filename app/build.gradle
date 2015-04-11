@@ -7,8 +7,8 @@ android {
         applicationId "org.coolapk.gmsinstaller"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 15041110
-        versionName "1.0.0-alpha2"
+        versionCode 15041211
+        versionName "1.0.0-alpha3"
     }
     buildTypes {
         release {

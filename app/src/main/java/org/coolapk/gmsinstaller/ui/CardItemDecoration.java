@@ -1,4 +1,4 @@
-package org.coolapk.gmsinstaller;
+package org.coolapk.gmsinstaller.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;

@@ -7,7 +7,7 @@ import android.text.TextUtils;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
-import org.coolapk.gmsinstaller.ui.StatusPresenter;
+import org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

@@ -1,4 +1,4 @@
-package org.coolapk.gmsinstaller;
+package org.coolapk.gmsinstaller.ui;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;

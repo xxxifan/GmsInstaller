@@ -1,4 +1,4 @@
-package org.coolapk.gmsinstaller.ui;
+package org.coolapk.gmsinstaller.ui.main.presenter;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -11,11 +11,12 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import org.coolapk.gmsinstaller.CardAdapter;
-import org.coolapk.gmsinstaller.CardItemDecoration;
-import org.coolapk.gmsinstaller.CardLayoutManager;
-import org.coolapk.gmsinstaller.MainActivity;
 import org.coolapk.gmsinstaller.R;
+import org.coolapk.gmsinstaller.ui.CardAdapter;
+import org.coolapk.gmsinstaller.ui.CardItemDecoration;
+import org.coolapk.gmsinstaller.ui.CardLayoutManager;
+import org.coolapk.gmsinstaller.ui.UiPresenter;
+import org.coolapk.gmsinstaller.ui.main.MainActivity;
 
 /**
  * Created by BobPeng on 2015/3/26.

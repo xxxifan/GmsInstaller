@@ -1,4 +1,4 @@
-package org.coolapk.gmsinstaller.ui;
+package org.coolapk.gmsinstaller.ui.main.presenter;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -11,24 +11,19 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 
-import org.coolapk.gmsinstaller.CardAdapter;
-import org.coolapk.gmsinstaller.MainActivity;
 import org.coolapk.gmsinstaller.R;
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
 import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.model.PackageInfo;
+import org.coolapk.gmsinstaller.ui.CardAdapter;
+import org.coolapk.gmsinstaller.ui.UiPresenter;
+import org.coolapk.gmsinstaller.ui.main.MainActivity;
 import org.coolapk.gmsinstaller.util.ZipUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_EXTENSION_INSTALLED;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_EXTENSION_NOT_INSTALLED;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_MINIMAL_INSTALLED;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED;
 
 /**
  * Created by BobPeng on 2015/3/27.
@@ -127,8 +122,8 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
             mPackageInfos.get(position).setInstallState(installed);
 
             int status = position == 0 ?
-                    (installed ? STATUS_MINIMAL_INSTALLED : STATUS_MINIMAL_NOT_INSTALLED)
-                    : (installed ? STATUS_EXTENSION_INSTALLED : STATUS_EXTENSION_NOT_INSTALLED);
+                    (installed ? StatusPresenter.STATUS_MINIMAL_INSTALLED : StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED)
+                    : (installed ? StatusPresenter.STATUS_EXTENSION_INSTALLED : StatusPresenter.STATUS_EXTENSION_NOT_INSTALLED);
             MainActivity.StatusEvent event = new MainActivity.StatusEvent(status);
             postEvent(event);
         }

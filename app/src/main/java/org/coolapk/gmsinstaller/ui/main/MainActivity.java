@@ -1,25 +1,34 @@
-package org.coolapk.gmsinstaller;
+package org.coolapk.gmsinstaller.ui.main;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.feedback.Comment;
+import com.avos.avoscloud.feedback.FeedbackAgent;
+import com.avos.avoscloud.feedback.FeedbackThread;
+import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.coolapk.gmsinstaller.R;
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
 import org.coolapk.gmsinstaller.cloud.DownloadEvent;
 import org.coolapk.gmsinstaller.cloud.DownloadService;
 import org.coolapk.gmsinstaller.model.Gpack;
-import org.coolapk.gmsinstaller.ui.ChooserPresenter;
-import org.coolapk.gmsinstaller.ui.PanelPresenter;
-import org.coolapk.gmsinstaller.ui.StatusPresenter;
+import org.coolapk.gmsinstaller.ui.main.presenter.ChooserPresenter;
+import org.coolapk.gmsinstaller.ui.main.presenter.PanelPresenter;
+import org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter;
 import org.coolapk.gmsinstaller.util.CommandUtils;
 import org.coolapk.gmsinstaller.util.ViewUtils;
 import org.coolapk.gmsinstaller.util.ZipUtils;
@@ -30,14 +39,14 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_CHECKING_ROOT;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_DOWNLOADING;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_DOWNLOADING_FAILED;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_DOWNLOAD_CANCELED;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_INIT;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_INSTALLING;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_INSTALL_FINISHED;
-import static org.coolapk.gmsinstaller.ui.StatusPresenter.STATUS_NO_ROOT;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_CHECKING_ROOT;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOADING;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOADING_FAILED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOAD_CANCELED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_INIT;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_INSTALLING;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_INSTALL_FINISHED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_NO_ROOT;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -92,17 +101,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        mChooserUi.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         if (!mIsDlServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
@@ -110,6 +108,12 @@ public class MainActivity extends ActionBarActivity {
         } else if (mIsDlServiceRunning) {
             postEvent(new DownloadService.ProgressUpdateEvent());
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mChooserUi.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -146,6 +150,15 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_feedback:
+                new MaterialDialog.Builder(this)
+                        .title(R.string.action_feedback)
+                        .customView(R.layout.view_feedback, true)
+                        .positiveText(R.string.avoscloud_feedback_send_text)
+                        .dismissListener(new FeedBackDismissListener())
+                        .showListener(new FeedbackDisplayListener())
+                        .callback(new FeedbackDialogCallback())
+                        .build()
+                        .show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -342,6 +355,102 @@ public class MainActivity extends ActionBarActivity {
             dialog.dismiss();
         }
     }
+
+    private class FeedBackDismissListener implements MaterialDialog.OnDismissListener {
+
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            View view = ((MaterialDialog) dialog).getCustomView();
+            if (view == null) {
+                return;
+            }
+
+            String contact = ((MaterialEditText) view.findViewById(R.id.feedback_contact)).getText()
+                    .toString();
+            String feedback = ((MaterialEditText) view.findViewById(R.id.feedback_detail)).getText()
+                    .toString();
+            if (!TextUtils.isEmpty(contact)) {
+                AppHelper.getPrefs().edit().putString("contact", contact).apply();
+            }
+
+            if (!TextUtils.isEmpty(feedback)) {
+                AppHelper.getPrefs().edit().putString("feedback", feedback).apply();
+            } else {
+                AppHelper.getPrefs().edit().remove("feedback").apply();
+            }
+        }
+    }
+
+    private class FeedbackDialogCallback extends MaterialDialog.ButtonCallback {
+        @Override
+        public void onPositive(MaterialDialog dialog) {
+            Context context = dialog.getContext();
+            View view = dialog.getCustomView();
+            if (view == null) {
+                return;
+            }
+            MaterialEditText contactEdit = (MaterialEditText) view.findViewById(R.id.feedback_contact);
+            MaterialEditText feedbackEdit = (MaterialEditText) view.findViewById(R.id.feedback_detail);
+
+            String contact = contactEdit.getText().toString();
+            String feedback = feedbackEdit.getText().toString();
+            if (TextUtils.isEmpty(contact)) {
+                Toast.makeText(context, R.string.msg_contact_cannot_be_empty, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (TextUtils.isEmpty(feedback)) {
+                Toast.makeText(context, R.string.msg_feedback_cannot_be_empty, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // clear content
+            feedbackEdit.setText("");
+
+            // start feedback thread
+            FeedbackThread thread = new FeedbackAgent(context).getDefaultThread();
+            thread.setContact(contact);
+            thread.add(new Comment(feedback));
+            thread.sync(new FeedbackThread.SyncCallback() {
+                @Override
+                public void onCommentsSend(List<Comment> list, AVException e) {
+                    if (e == null) {
+                        Toast.makeText(AppHelper.getContext(), R.string.msg_feedback_success, Toast
+                                .LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(AppHelper.getContext(), e.getLocalizedMessage(), Toast
+                                .LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCommentsFetch(List<Comment> list, AVException e) {
+                }
+            });
+
+        }
+    }
+
+    private class FeedbackDisplayListener implements DialogInterface.OnShowListener {
+
+        @Override
+        public void onShow(DialogInterface dialog) {
+            View view = ((MaterialDialog) dialog).getCustomView();
+            if (view == null) {
+                return;
+            }
+
+            String contact = AppHelper.getPrefs().getString("contact", "");
+            String feedback = AppHelper.getPrefs().getString("feedback", "");
+
+            if (!TextUtils.isEmpty(contact)) {
+                ((MaterialEditText) view.findViewById(R.id.feedback_contact)).setText(contact);
+            }
+            if (!TextUtils.isEmpty(feedback)) {
+                ((MaterialEditText) view.findViewById(R.id.feedback_detail)).setText(feedback);
+            }
+        }
+    }
+
 
     public class CheckDataEvent {
     }

@@ -16,19 +16,35 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions{
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    // ui libraries
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:cardview-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
-    compile 'com.afollestad:material-dialogs:0.7.1.0'
+    compile 'com.afollestad:material-dialogs:0.7.1.2'
     compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'org.apmem.tools:layouts:1.8@aar'
+    compile 'com.rengwuxian.materialedittext:library:2.0.3'
+    compile project(':FileChooser')
+
+    // tools
     compile 'com.squareup.okio:okio:1.3.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'de.greenrobot:eventbus:2.4.0'
-    compile project(':FileChooser')
+
+    // leancloud
+    compile 'cn.leancloud.android:avoscloud-sdk:v3.1.1'
+    compile 'cn.leancloud.android:avoscloud-statistics:v3.1.1@aar'
+    compile 'cn.leancloud.android:avoscloud-feedback:v3.1.1@aar'
 }

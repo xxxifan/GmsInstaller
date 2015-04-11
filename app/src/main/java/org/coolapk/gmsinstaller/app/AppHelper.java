@@ -19,8 +19,8 @@ import java.util.Locale;
 public class AppHelper {
 
     public static final String PREFERENCE_DOWNLOAD_FILES = "download_files";
-
-    public static final String PGY_APP_ID = "c4d927551b1c370da85407c65815c839";
+    public static final String LC_APP_ID = "wfxfxudtklqk2hd9trqpt3bv1w7hr3fpg59z77qa5aq83z5k";
+    public static final String LC_APP_KEY = "jzze3zj1354wrclpm7d34vlvcwuxvx2rb9wr4wka6q3x7vjr";
 
     private static File sExternalFile;
 

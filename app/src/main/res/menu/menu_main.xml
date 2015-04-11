@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="org.coolapk.gmsinstaller.MainActivity">
+    tools:context="org.coolapk.gmsinstaller.ui.main.MainActivity">
     <item
         android:id="@+id/action_feedback"
         android:orderInCategory="100"

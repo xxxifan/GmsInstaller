@@ -1,4 +1,4 @@
-package org.coolapk.gmsinstaller.ui;
+package org.coolapk.gmsinstaller.ui.main.presenter;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -7,9 +7,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.coolapk.gmsinstaller.MainActivity;
 import org.coolapk.gmsinstaller.R;
 import org.coolapk.gmsinstaller.model.Gpack;
+import org.coolapk.gmsinstaller.ui.UiPresenter;
+import org.coolapk.gmsinstaller.ui.main.MainActivity;
 
 import java.io.File;
 

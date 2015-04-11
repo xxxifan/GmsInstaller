@@ -166,7 +166,7 @@ public class EdifyParser {
                     "+" + "\" >> " + script;
             // delete() parsing & translation
         } else if (curr.contains("delete(\"") || curr.contains("delete( \"")) {
-            curr = curr.replaceAll(",", " ");
+            curr = curr.replaceAll(",", "");
             curr = curr.replaceAll("\"", "");
             curr = curr.replaceAll("\\)", "");
             curr = curr.replaceAll(";", "");

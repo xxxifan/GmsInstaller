@@ -8,7 +8,6 @@ import org.coolapk.gmsinstaller.model.Gpack;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
@@ -24,6 +23,8 @@ import okio.Okio;
  * Created by BobPeng on 2015/3/23.
  */
 public class ZipUtils {
+    private static final String TAG = "ZipUtils";
+
     private static final String DECIMAL_FORMAT = "##0.0#";
     private static final String[] UNIT = {" B", " KB", " MB", " GB"};
 
@@ -102,9 +103,8 @@ public class ZipUtils {
         String path = targetPath.getPath();
         CommandUtils.execCommand(new String[]{
                 "busybox rm -rf " + path + "/*",
-                "unzip -o " + zipFile.getPath() + " -d " + path
+                "busybox unzip -o " + zipFile.getPath() + " -d " + path
         }, true, false);
-        Log.e("","extract " + zipFile.getPath() + " to " + path);
         String[] list = targetPath.list();
         return list != null && list.length > 0;
     }
@@ -119,7 +119,7 @@ public class ZipUtils {
 
         if (isLocal || (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5))) {
             // unzip gapps to storagePath.
-            boolean extracted =  unzipFile(gappFile, tmpPath);
+            boolean extracted = unzipFile(gappFile, tmpPath);
             if (!extracted) {
                 throw new IllegalStateException("extract zip failed");
             }
@@ -136,34 +136,15 @@ public class ZipUtils {
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
                 }, true, true);
-
-                // debug
-                File logFile = new File(storagePath, "install.log");
-                String resultStr = "Installing file " + gpack.packageName + ", md5sum = " + gpack.md5;
-                resultStr += "\n===============================\n";
-                resultStr += "successMsg: " + result.successMsg + "\n\nerrorMsg: " + result.errorMsg;
-                byte[] data = resultStr.getBytes();
-                try {
-                    FileOutputStream outputStream = new FileOutputStream(logFile);
-                    outputStream.write(data, 0, data.length);
-                    outputStream.flush();
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (logFile.exists()) {
-                    Log.e("", "log file created\nat " + storagePath.getPath());
-                } else {
-                    Log.e("", "log file cannot created\nat " + storagePath.getPath());
-                }
-
+                Log.e(TAG,result.successMsg+" \nerror: " + result.errorMsg);
                 return true;
             } else {
-                throw new IllegalArgumentException("flash file doesn't exists");
+                Log.e(TAG, "flash file doesn't exists");
+                return false;
             }
         } else {
-            throw new IllegalArgumentException("file md5sum is not match or gapps zip not exist");
-//            return false;
+            Log.e(TAG, "file md5sum is not match or gapps zip not exist");
+            return false;
         }
     }
 

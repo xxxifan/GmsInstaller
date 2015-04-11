@@ -27,14 +27,16 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:indeterminate="true"
-                android:padding="8dp" />
+                android:padding="8dp"
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/status_icon"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_done_ring"
-                android:tint="@color/green" />
+                android:tint="@color/green"
+                android:visibility="gone" />
         </FrameLayout>
 
         <RelativeLayout
@@ -65,8 +67,8 @@
                 android:layout_height="wrap_content"
                 android:minWidth="36dp"
                 android:layout_alignParentRight="true"
-                android:visibility="gone"
-                android:text="@string/btn_cancel" />
+                android:text="@string/btn_cancel"
+                android:visibility="gone" />
         </RelativeLayout>
     </LinearLayout>
 

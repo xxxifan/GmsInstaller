@@ -2,7 +2,6 @@ package org.coolapk.gmsinstaller.cloud;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
@@ -38,13 +37,25 @@ public class DownloadService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mEventBus = EventBus.getDefault();
-        mEventBus.register(this);
+        getEventBus().register(this);
         return super.onStartCommand(intent, flags, startId);
     }
 
     public void onEvent(StopEvent event) {
         mShutDown = true;
+    }
+
+    public void onEvent(ProgressUpdateEvent event) {
+        if (mDownloadEvent != null) {
+            getEventBus().post(mDownloadEvent);
+        }
+    }
+
+    private EventBus getEventBus() {
+        if (mEventBus == null) {
+            mEventBus = EventBus.getDefault();
+        }
+        return mEventBus;
     }
 
     @Override
@@ -86,7 +97,7 @@ public class DownloadService extends IntentService {
                 mDownloadEvent.total = response.body().contentLength();
                 AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).edit().putLong(mDownloadEvent
                         .filename, mDownloadEvent.total).apply();
-                mEventBus.post(mDownloadEvent);
+                getEventBus().post(mDownloadEvent);
 
                 // read data
                 BufferedSource source = response.body().source();
@@ -104,17 +115,16 @@ public class DownloadService extends IntentService {
                 sink.close();
                 source.close();
 
-                Log.e("","post end event");
                 // end event
                 mDownloadEvent.status = 1;
-                mEventBus.post(mDownloadEvent);
+                getEventBus().post(mDownloadEvent);
             } else {
                 mDownloadEvent.status = -response.code();
-                mEventBus.post(mDownloadEvent);
+                getEventBus().post(mDownloadEvent);
             }
         } catch (IOException e) {
             mDownloadEvent.status = -1;
-            mEventBus.post(mDownloadEvent);
+            getEventBus().post(mDownloadEvent);
             e.printStackTrace();
         }
     }
@@ -122,9 +132,13 @@ public class DownloadService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mEventBus != null) {
-            mEventBus.unregister(this);
-        }
+        getEventBus().unregister(this);
+    }
+
+    public static class StopEvent {
+    }
+
+    public static class ProgressUpdateEvent {
     }
 
     private class ProgressResponseBody extends ResponseBody {
@@ -165,15 +179,12 @@ public class DownloadService extends IntentService {
                         mDownloadEvent.status = 2;
                         mDownloadEvent.downloaded = totalBytes;
                         mDownloadEvent.lastProgress = mDownloadEvent.progress;
-                        mEventBus.post(mDownloadEvent);
+                        getEventBus().post(mDownloadEvent);
                     }
 
                     return read;
                 }
             };
         }
-    }
-
-    public static class StopEvent {
     }
 }

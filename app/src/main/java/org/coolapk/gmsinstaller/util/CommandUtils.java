@@ -161,18 +161,9 @@ public class CommandUtils {
 
     public static void initEnvironment() {
         Context context = AppHelper.getContext();
-        File zipBin = new File("/system/xbin/zip");
         File busyBoxBin = new File("/system/xbin/busybox");
+        File applet = new File("/system/xbin/find");
         File fixBin = new File(context.getFilesDir(), "fix_permission");
-
-        if (!zipBin.exists()) {
-            try {
-                File tmp = new File(context.getFilesDir(), "zip");
-                extractAssetTo(context.getAssets().open("binary/zip"), tmp, zipBin);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
         if (!busyBoxBin.exists()) {
             try {
@@ -181,6 +172,14 @@ public class CommandUtils {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            CommandUtils.execCommand(new String[]{
+                    CMD_RW_SYSTEM,
+                    "/system/xbin/busybox --install -s " + "/system/xbin",
+                    CMD_RO_SYSTEM
+            }, true, false);
+        }
+
+        if (!applet.exists()) {
             CommandUtils.execCommand(new String[]{
                     CMD_RW_SYSTEM,
                     "/system/xbin/busybox --install -s " + "/system/xbin",

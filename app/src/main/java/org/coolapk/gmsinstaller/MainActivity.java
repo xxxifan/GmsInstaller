@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.pgyersdk.feedback.PgyFeedback;
 import com.pgyersdk.update.PgyUpdateManager;
+import com.pgyersdk.update.UpdateManagerListener;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -48,7 +49,7 @@ public class MainActivity extends ActionBarActivity {
     private ChooserPresenter mChooserUi;
     private ScrollView mScrollView;
 
-    private boolean mIsServiceRunning = false;
+    private boolean mIsDlServiceRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +58,18 @@ public class MainActivity extends ActionBarActivity {
 
         initView();
         setTitle(R.string.app_mark);
-        mIsServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
+        mIsDlServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
+        PgyUpdateManager.register(this, AppHelper.PGY_APP_ID, new UpdateManagerListener() {
+            @Override
+            public void onNoUpdateAvailable() {
 
-        PgyUpdateManager.register(this, AppHelper.PGY_APP_ID);
+            }
+
+            @Override
+            public void onUpdateAvailable(String s) {
+                Toast.makeText(MainActivity.this, "update: " + s, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initView() {
@@ -109,8 +119,10 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mIsServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
+        if (!mIsDlServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
             postEvent(new CheckDataEvent());
+        } else if (mIsDlServiceRunning) {
+            postEvent(new DownloadService.ProgressUpdateEvent());
         }
     }
 

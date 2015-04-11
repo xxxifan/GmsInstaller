@@ -46,7 +46,6 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     private int mColorAccent;
 
     private int mWorkingIndex = -1;
-    private boolean mFirstInit = true;
 
     private List<PackageInfo> mPackageInfos;
 
@@ -206,11 +205,10 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
                 }
                 mWorkingIndex = mDisplayIndex;
 
-                Gpack gpack = mPackageInfos.get(mDisplayIndex).getGpack();
+                Gpack gpack = mPackageInfos.get(mWorkingIndex).getGpack();
                 String packageName = gpack.packageName;
                 File targetFile = new File(AppHelper.getAppExternalPath(), packageName);
                 if (targetFile.exists() && checkDownload(gpack, targetFile)) {
-                    Log.e("", "INSTALL");
                     postEvent(new MainActivity.InstallEvent(packageName));
                     mInstallBtn.setTag(0);
                 } else {
@@ -218,7 +216,6 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
                     Intent data = new Intent();
                     data.putExtra("path", targetFile.getPath());
                     CloudHelper.downloadPackage(packageName, data);
-                    Log.e("", "downloadPackage");
                     mInstallBtn.setTag(0);
                 }
                 return null;
@@ -227,7 +224,9 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     }
 
     private boolean checkDownload(Gpack gpack, File file) {
-        if (ZipUtils.getFileMd5(file).equals(gpack.md5) && file.length() == gpack.packageSize) {
+        boolean md5 = ZipUtils.getFileMd5(file).equals(gpack.md5);
+        boolean length = file.length() == gpack.packageSize;
+        if (md5 && length) {
             return true;
         } else if (AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).getLong(gpack
                 .packageName, 0l) == 0l) {

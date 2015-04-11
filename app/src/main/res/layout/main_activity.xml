@@ -119,6 +119,7 @@
             android:minHeight="48dp"
             android:padding="12dp"
             android:text="@string/btn_install"
+            android:layout_marginBottom="8dp"
             android:textColor="?colorAccent"
             android:textSize="16sp" />
     </LinearLayout>

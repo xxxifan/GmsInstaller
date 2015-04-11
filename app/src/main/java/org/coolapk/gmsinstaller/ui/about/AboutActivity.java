@@ -83,7 +83,7 @@ public class AboutActivity extends ActionBarActivity implements View.OnClickList
             protected void onPostExecute(AppInfo info) {
                 super.onPostExecute(info);
                 if (info != null) {
-                    ViewUtils.showUpdateDialog(AboutActivity.this, info);
+                    ViewUtils.showUpdateDialog(AboutActivity.this, info, false);
                 } else {
                     Toast.makeText(AboutActivity.this, R.string.msg_no_app_update, Toast
                             .LENGTH_SHORT).show();

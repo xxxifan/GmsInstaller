@@ -46,6 +46,7 @@
     <string name="btn_download">下载</string>
     <string name="btn_close">关闭</string>
     <string name="btn_share">分享</string>
+    <string name="btn_ignore">忽略</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>

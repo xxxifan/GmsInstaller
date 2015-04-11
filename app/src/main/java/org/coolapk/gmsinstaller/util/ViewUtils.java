@@ -24,7 +24,7 @@ public class ViewUtils {
         return (int) (dp * DISPLAY_DENSITY);
     }
 
-    public static void showUpdateDialog(Context context, AppInfo info) {
+    public static void showUpdateDialog(Context context, AppInfo info, boolean showIgnore) {
         View view = View.inflate(context, R.layout.view_update, null);
         TextView version = (TextView) view.findViewById(R.id.update_version_name);
         TextView description = (TextView) view.findViewById(R.id.update_version_description);
@@ -35,8 +35,8 @@ public class ViewUtils {
                 .title(R.string.title_update_available)
                 .customView(view, true)
                 .positiveText(R.string.btn_download)
-                .negativeText(R.string.btn_close)
-                .callback(new UpdateDialogCallback(info))
+                .negativeText(showIgnore ? R.string.btn_ignore : R.string.btn_close)
+                .callback(new UpdateDialogCallback(info, showIgnore))
                 .build()
                 .show();
     }

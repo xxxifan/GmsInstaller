@@ -24,6 +24,8 @@ public class AppHelper {
     public static final String LC_APP_ID = "wfxfxudtklqk2hd9trqpt3bv1w7hr3fpg59z77qa5aq83z5k";
     public static final String LC_APP_KEY = "jzze3zj1354wrclpm7d34vlvcwuxvx2rb9wr4wka6q3x7vjr";
 
+    public static final String KEY_IGNORE_UPDATE = "key_ignore_update";
+
     private static File sExternalFile;
 
     public static int getOsVersion() {
@@ -109,5 +111,12 @@ public class AppHelper {
     public static String getSimpleTimestamp() {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMDD", Locale.getDefault());
         return format.format(Calendar.getInstance().getTime());
+    }
+
+    /**
+     * compare specified timestamp with current timestamp
+     */
+    public static boolean compareTimestamp(long timestamp) {
+        return Long.parseLong(getSimpleTimestamp()) > timestamp;
     }
 }

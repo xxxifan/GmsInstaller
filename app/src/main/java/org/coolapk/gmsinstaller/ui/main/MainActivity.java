@@ -173,7 +173,7 @@ public class MainActivity extends ActionBarActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ViewUtils.showUpdateDialog(MainActivity.this, info);
+                ViewUtils.showUpdateDialog(MainActivity.this, info, true);
             }
         });
     }
@@ -200,15 +200,11 @@ public class MainActivity extends ActionBarActivity {
         mPanelUi.setGappsDetail(gpacks);
 
         // check app update
-        AppInfo info = CloudHelper.checkAppUpdate();
-        if (info != null && Long.parseLong(info.version) > AppHelper.getAppVersionCode()) {
-            showUpdateDialog(info);
-        }
+        boolean noUpdateError = checkAppUpdate();
 
         // tip error
-        if (gpacks == null || info == null) {
+        if (gpacks == null || !noUpdateError) {
             runOnUiThread(new Runnable() {
-                @Override
                 public void run() {
                     Toast.makeText(MainActivity.this, R.string.msg_check_update_failed, Toast
                             .LENGTH_SHORT).show();
@@ -335,6 +331,20 @@ public class MainActivity extends ActionBarActivity {
         mPanelUi.setInstallStatus(nextPosition, isInstalled);
 
         return isInstalled;
+    }
+
+    private boolean checkAppUpdate() {
+        if (AppHelper.compareTimestamp(AppHelper.getPrefs().getLong(AppHelper.KEY_IGNORE_UPDATE, 0))) {
+            AppInfo info = CloudHelper.checkAppUpdate();
+            if (info == null) {
+                return false;
+            } else if (Long.parseLong(info.version) > AppHelper.getAppVersionCode()) {
+                showUpdateDialog(info);
+            }
+        }
+
+        // return true if no error
+        return true;
     }
 
     @Override

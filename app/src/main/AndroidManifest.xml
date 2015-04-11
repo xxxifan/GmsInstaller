@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.coolapk.gmsinstaller" >
+<manifest
+    package="org.coolapk.gmsinstaller"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,20 +16,20 @@
         android:name=".app.AppApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="leancloud"
             android:value="alpha" />
 
-        <activity
-            android:name=".ui.main.MainActivity"
-            android:theme="@style/AppTheme" >
+        <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.about.AboutActivity" />
         <activity
             android:name="lecho.lib.filechooser.FilechooserActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
@@ -37,10 +38,6 @@
             android:name=".cloud.DownloadService"
             android:exported="false" />
 
-        <activity
-            android:name=".ui.feedback.FeedbackActivity"
-            android:label="@string/title_activity_feedback" >
-        </activity>
     </application>
 
 </manifest>

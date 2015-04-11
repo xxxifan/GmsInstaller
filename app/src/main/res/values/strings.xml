@@ -3,6 +3,7 @@
     <string name="app_mark">酷安出品</string>
     <string name="action_feedback">反馈</string>
     <string name="action_about">关于</string>
+    <string name="title_activity_about">关于</string>
 
     <string name="title_install_status">当前状态</string>
     <string name="title_gapps">谷歌服务</string>
@@ -26,6 +27,7 @@
     <string name="title_contact_input_short">联系方式</string>
     <string name="title_feedback_input">反馈内容</string>
     <string name="title_update_available">发现新版本</string>
+    <string name="title_check_update">检查更新</string>
 
 
     <string name="btn_install">立即安装</string>
@@ -43,6 +45,7 @@
     <string name="btn_go_market">前往酷市场</string>
     <string name="btn_download">下载</string>
     <string name="btn_close">关闭</string>
+    <string name="btn_share">分享</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>
@@ -70,8 +73,16 @@
     <string name="msg_contact_cannot_be_empty">联系方式不能为空</string>
     <string name="msg_feedback_cannot_be_empty">请输入反馈内容</string>
     <string name="msg_feedback_success">感谢您的反馈！</string>
+    <string name="msg_no_app_update">您使用的已经是最新版本了</string>
+    <string name="msg_like1">喜欢本应用，嗯？</string>
+    <string name="msg_like2">还不分享给朋友，嗯？</string>
+    <string name="msg_like3">还要我动手，嗯？</string>
+    <string name="msg_like4">还点，嗯？要我承包你？</string>
+    <string name="msg_thanks_to_open_source_social">本应用的诞生离不开开源世界\n感谢以下开源库的支持</string>
 
 
+    <string name="share_text">跟大家分享一款应用，由 @酷安网 出品[谷歌框架安装器]，如题大家懂的，需要ROOT，下载 http://fir.im/gmsinstaller</string>
+    <string name="open_source_lst">Android support library\nAndroguide/FlashGordon\nafollestad/material-dialogs\numano/AndroidSlidingUpPanel\nrengwuxian/MaterialEditText\nlecho/filechooser\nsquare/okhttp\nsquare/okio\ngreenrobot/EventBus\nGson</string>
     <string name="gapps_minimal">基本服务框架\nPlay商店\n联系人同步\n日历同步</string>
     <string name="gapps_extension">人脸解锁\nGoogle搜索\nGoogle Ears\nGoogle TTS</string>
 
@@ -79,8 +90,5 @@
         <item>@string/gapps_minimal</item>
         <item>@string/gapps_extension</item>
     </string-array>
-    <string name="title_activity_feedback">FeedbackActivity</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
 </resources>

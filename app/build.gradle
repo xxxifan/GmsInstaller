@@ -33,7 +33,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.0.0'
     compile 'com.afollestad:material-dialogs:0.7.1.2'
     compile 'com.sothree.slidinguppanel:library:3.0.0'
-    compile 'org.apmem.tools:layouts:1.8@aar'
     compile 'com.rengwuxian.materialedittext:library:2.0.3'
     compile project(':FileChooser')
 

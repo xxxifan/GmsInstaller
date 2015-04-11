@@ -105,7 +105,6 @@
     <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="avoscloud-feedback-v3.1.1" level="project" />
     <orderEntry type="library" exported="" name="library-2.4.0" level="project" />
-    <orderEntry type="library" exported="" name="layouts-1.8" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="httpmime-4.2.4" level="project" />
   </component>

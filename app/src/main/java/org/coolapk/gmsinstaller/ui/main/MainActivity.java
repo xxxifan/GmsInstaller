@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -20,6 +19,7 @@ import org.coolapk.gmsinstaller.cloud.DownloadEvent;
 import org.coolapk.gmsinstaller.cloud.DownloadService;
 import org.coolapk.gmsinstaller.model.AppInfo;
 import org.coolapk.gmsinstaller.model.Gpack;
+import org.coolapk.gmsinstaller.ui.about.AboutActivity;
 import org.coolapk.gmsinstaller.ui.feedback.FeedBackDismissListener;
 import org.coolapk.gmsinstaller.ui.feedback.FeedbackDialogCallback;
 import org.coolapk.gmsinstaller.ui.feedback.FeedbackDisplayListener;
@@ -146,6 +146,9 @@ public class MainActivity extends ActionBarActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
             case R.id.action_feedback:
                 showFeedbackDialog();
                 break;
@@ -170,20 +173,7 @@ public class MainActivity extends ActionBarActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                View view = View.inflate(MainActivity.this, R.layout.view_update, null);
-                TextView version = (TextView) view.findViewById(R.id.update_version_name);
-                TextView description = (TextView) view.findViewById(R.id.update_version_description);
-
-                version.setText(info.versionShort + "(" + info.version + ")");
-                description.setText(info.changelog);
-                new MaterialDialog.Builder(MainActivity.this)
-                        .title(R.string.title_update_available)
-                        .customView(view, true)
-                        .positiveText(R.string.btn_download)
-                        .negativeText(R.string.btn_close)
-                        .callback(new UpdateDialogCallback(info))
-                        .build()
-                        .show();
+                ViewUtils.showUpdateDialog(MainActivity.this, info);
             }
         });
     }
@@ -384,20 +374,6 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onPositive(MaterialDialog dialog) {
             CommandUtils.execCommand("reboot", true, false);
-        }
-    }
-
-    private class UpdateDialogCallback extends MaterialDialog.ButtonCallback {
-        private AppInfo appInfo;
-
-        public UpdateDialogCallback(AppInfo appInfo) {
-            this.appInfo = appInfo;
-        }
-
-        @Override
-        public void onPositive(MaterialDialog dialog) {
-            CloudHelper.downloadUpdate(dialog.getContext(), appInfo.installUrl, appInfo
-                    .versionShort + "-" + appInfo.version);
         }
     }
 

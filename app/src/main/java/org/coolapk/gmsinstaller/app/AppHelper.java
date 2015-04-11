@@ -31,13 +31,30 @@ public class AppHelper {
     }
 
     public static int getAppVersionCode() {
+        PackageInfo packageInfo = getAppPackageInfo();
+        if (packageInfo != null) {
+            return packageInfo.versionCode;
+        } else {
+            return -1;
+        }
+    }
+
+    public static String getAppVersionName() {
+        PackageInfo packageInfo = getAppPackageInfo();
+        if (packageInfo != null) {
+            return packageInfo.versionName;
+        } else {
+            return "";
+        }
+    }
+
+    public static PackageInfo getAppPackageInfo() {
         try {
             PackageManager packageManager = getContext().getPackageManager();
-            PackageInfo packInfo = packageManager.getPackageInfo(getContext().getPackageName(), 0);
-            return packInfo.versionCode;
+            return packageManager.getPackageInfo(getContext().getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            return -1;
+            return null;
         }
     }
 

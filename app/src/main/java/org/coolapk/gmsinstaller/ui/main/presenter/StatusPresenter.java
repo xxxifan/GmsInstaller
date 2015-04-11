@@ -18,6 +18,8 @@ import org.coolapk.gmsinstaller.ui.CardLayoutManager;
 import org.coolapk.gmsinstaller.ui.UiPresenter;
 import org.coolapk.gmsinstaller.ui.main.MainActivity;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Created by BobPeng on 2015/3/26.
  */
@@ -78,34 +80,24 @@ public class StatusPresenter extends UiPresenter {
                     event.position = position;
                     postEvent(event);
                 } else {
-                    MaterialDialog.ButtonCallback callback = new MaterialDialog.ButtonCallback() {
-                        public void onPositive(MaterialDialog dialog) {
-                            super.onPositive(dialog);
-                            try {
-                                Intent intent = getContext().getPackageManager()
-                                        .getLaunchIntentForPackage("com.coolapk.market");
-                                getContext().startActivity(intent);
-                            } catch (Exception e) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("http://www.coolapk.com"));
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                getContext().startActivity(intent);
-                            }
-                        }
-                    };
-                    new MaterialDialog.Builder(getContext())
-                            .title(R.string.title_alert)
-                            .content(R.string.title_gapps_browse)
-                            .positiveText(R.string.btn_go_market)
-                            .negativeText(R.string.btn_cancel)
-                            .callback(callback)
-                            .build()
-                            .show();
+                    onGappsItemClick();
                 }
             }
         });
         recyclerView.setAdapter(mAdapter);
     }
+
+    private void onGappsItemClick() {
+        new MaterialDialog.Builder(getContext())
+                .title(R.string.title_alert)
+                .content(R.string.title_gapps_browse)
+                .positiveText(R.string.btn_go_market)
+                .negativeText(R.string.btn_cancel)
+                .callback(new JumpButtonCallback())
+                .build()
+                .show();
+    }
+
 
     public int getStatus() {
         return mStatus;
@@ -126,22 +118,27 @@ public class StatusPresenter extends UiPresenter {
                 setStatusText(R.string.msg_min_gapps_not_installed);
                 setStatusIconState(ICON_STATE_WARN);
                 mAdapter.setInstallStatus(0, false);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_MINIMAL_INSTALLED:
                 setStatusText(R.string.msg_min_gapps_installed);
                 setStatusIconState(ICON_STATE_DONE);
                 mAdapter.setInstallStatus(0, true);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_EXTENSION_NOT_INSTALLED:
                 mAdapter.setInstallStatus(1, false);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_EXTENSION_INSTALLED:
                 mAdapter.setInstallStatus(1, true);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_MINIMAL_INSTALL_INCOMPLETE:
                 setStatusText(R.string.msg_min_gapps_incomplete);
                 setStatusIconState(ICON_STATE_ALERT);
                 mAdapter.setInstallStatus(0, false);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_UPDATE_AVAILABLE:
                 setStatusText(R.string.msg_gapps_update_available);
@@ -162,14 +159,17 @@ public class StatusPresenter extends UiPresenter {
             case STATUS_DOWNLOAD_CANCELED:
                 setStatusText(R.string.msg_download_canceled);
                 setStatusIconState(ICON_STATE_ALERT);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_DOWNLOADING_FAILED:
                 setStatusText(R.string.msg_download_failed);
                 setStatusIconState(ICON_STATE_WARN);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_INSTALL_FINISHED:
                 setStatusText(R.string.btn_done);
                 setStatusIconState(ICON_STATE_DONE);
+                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
         }
     }
@@ -224,5 +224,21 @@ public class StatusPresenter extends UiPresenter {
     public void setupCancelBtn(boolean visible, View.OnClickListener callback) {
         mCancelBtn.setVisibility(visible ? View.VISIBLE : View.GONE);
         mCancelBtn.setOnClickListener(callback);
+    }
+
+    private class JumpButtonCallback extends MaterialDialog.ButtonCallback {
+        @Override
+        public void onPositive(MaterialDialog dialog) {
+            try {
+                Intent intent = getContext().getPackageManager().getLaunchIntentForPackage
+                        ("com.coolapk.market");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+            } catch (Exception e) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.coolapk.com"));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+            }
+        }
     }
 }

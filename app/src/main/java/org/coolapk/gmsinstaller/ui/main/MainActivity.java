@@ -88,7 +88,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+        EventBus.getDefault().registerSticky(this);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         if (!mIsDlServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
-            postEvent(new CheckDataEvent());
+            postEvent(new InitEvent());
         } else if (mIsDlServiceRunning) {
             postEvent(new DownloadService.ProgressUpdateEvent());
         }
@@ -122,6 +122,20 @@ public class MainActivity extends ActionBarActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.action_feedback:
+                showFeedbackDialog();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void correctBottomHeight() {
         int count = mScrollView.getChildCount();
         int childHeight = 0;
@@ -140,20 +154,6 @@ public class MainActivity extends ActionBarActivity {
 
             findViewById(R.id.sliding_main).setPadding(0, 0, 0, diff);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_about:
-                startActivity(new Intent(this, AboutActivity.class));
-                break;
-            case R.id.action_feedback:
-                showFeedbackDialog();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void showFeedbackDialog() {
@@ -180,6 +180,14 @@ public class MainActivity extends ActionBarActivity {
 
     public void postEvent(Object event) {
         EventBus.getDefault().post(event);
+    }
+
+    public void postStickyEvent(Object event) {
+        EventBus.getDefault().postSticky(event);
+    }
+
+    public <T> void removeSticky(Class<T> event) {
+        EventBus.getDefault().removeStickyEvent(event);
     }
 
     /**
@@ -209,7 +217,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public void onEventBackgroundThread(CheckDataEvent event) {
+    public void onEventBackgroundThread(InitEvent event) {
         postEvent(new StatusEvent(STATUS_INIT));
         CommandUtils.initEnvironment();
 
@@ -219,14 +227,20 @@ public class MainActivity extends ActionBarActivity {
         postEvent(new StatusEvent(STATUS_CHECKING_ROOT));
         boolean hasRoot = CommandUtils.checkRootPermission();
         if (hasRoot) {
-            checkInstallStatus();
+            postStickyEvent(new CheckInstallEvent());
         } else {
-            postEvent(new StatusEvent(STATUS_NO_ROOT));
+            postStickyEvent(new StatusEvent(STATUS_NO_ROOT));
         }
+    }
+
+    public void onEventBackgroundThread(CheckInstallEvent event) {
+        checkInstallStatus(CloudHelper.PACKAGE_TYPE_MINIMAL);
+        removeSticky(CheckInstallEvent.class);
     }
 
     public void onEventBackgroundThread(InstallEvent event) {
         if (mStatusUi.getStatus() == STATUS_INSTALLING) {
+            removeSticky(InstallEvent.class);
             return;
         }
 
@@ -241,15 +255,13 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        final boolean result;
-
         // start install
+        final boolean result;
         if (event.isLocal) {
             result = ZipUtils.install(mChooserUi.getWorkingGpack(), true);
         } else {
             result = ZipUtils.install(mPanelUi.getGpack(event.filename), false);
         }
-
 
         runOnUiThread(new Runnable() {
             @Override
@@ -276,6 +288,7 @@ public class MainActivity extends ActionBarActivity {
                             .build()
                             .show();
                 }
+                removeSticky(InstallEvent.class);
             }
         });
     }
@@ -300,10 +313,10 @@ public class MainActivity extends ActionBarActivity {
             mStatusUi.setStatusText(getString(R.string.title_downloading), getString(R.string
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {
-            postEvent(new InstallEvent(event.filename));
+            postStickyEvent(new InstallEvent(event.filename));
         } else if (event.status < 0) {
             mStatusUi.setStatusText(getString(R.string.msg_download_failed));
-            postEvent(new StatusEvent(STATUS_DOWNLOADING_FAILED));
+            postStickyEvent(new StatusEvent(STATUS_DOWNLOADING_FAILED));
             mPanelUi.onInstallFinished();
         }
     }
@@ -312,21 +325,15 @@ public class MainActivity extends ActionBarActivity {
         mStatusUi.setStatus(event.status);
     }
 
-    private boolean checkInstallStatus() {
-        return checkInstallStatus(CloudHelper.PACKAGE_TYPE_MINIMAL);
-    }
-
     private boolean checkInstallStatus(int type) {
-        int status = CommandUtils.checkPackageInstall(type);
-        postEvent(new StatusEvent(status)); // primary check item will show status
-
-        boolean isInstalled = status > 0;
-        mPanelUi.setInstallStatus(CloudHelper.getTypePosition(type), isInstalled);
+        boolean isInstalled = CommandUtils.checkPackageInstall(type) > 0;
+        mPanelUi.setInstallStatus(mPanelUi.getTypePosition(type), isInstalled);
 
         // check another item
-        int nextPosition = CloudHelper.getTypePosition(type) == 0 ? 1 : 0;
-        mPanelUi.setInstallStatus(nextPosition, CommandUtils.checkPackageInstall(CloudHelper
-                .getPositionType(nextPosition)) > 0);
+        int nextPosition = mPanelUi.getTypePosition(type) == 0 ? 1 : 0;
+        isInstalled = CommandUtils.checkPackageInstall(mPanelUi.getPositionType(nextPosition)) > 0;
+        mPanelUi.setInstallStatus(nextPosition, isInstalled);
+
         return isInstalled;
     }
 
@@ -367,7 +374,10 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public static class CheckDataEvent {
+    public static class InitEvent {
+    }
+
+    public static class CheckInstallEvent {
     }
 
     private class RebootDialogCallback extends MaterialDialog.ButtonCallback {
@@ -376,5 +386,4 @@ public class MainActivity extends ActionBarActivity {
             CommandUtils.execCommand("reboot", true, false);
         }
     }
-
 }

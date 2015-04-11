@@ -47,7 +47,7 @@ public class DownloadService extends IntentService {
 
     public void onEvent(ProgressUpdateEvent event) {
         if (mDownloadEvent != null) {
-            getEventBus().post(mDownloadEvent);
+            getEventBus().postSticky(mDownloadEvent);
         }
     }
 
@@ -97,7 +97,7 @@ public class DownloadService extends IntentService {
                 mDownloadEvent.total = response.body().contentLength();
                 AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).edit().putLong(mDownloadEvent
                         .filename, mDownloadEvent.total).apply();
-                getEventBus().post(mDownloadEvent);
+                getEventBus().postSticky(mDownloadEvent);
 
                 // read data
                 BufferedSource source = response.body().source();
@@ -117,14 +117,14 @@ public class DownloadService extends IntentService {
 
                 // end event
                 mDownloadEvent.status = 1;
-                getEventBus().post(mDownloadEvent);
+                getEventBus().postSticky(mDownloadEvent);
             } else {
                 mDownloadEvent.status = -response.code();
-                getEventBus().post(mDownloadEvent);
+                getEventBus().postSticky(mDownloadEvent);
             }
         } catch (IOException e) {
             mDownloadEvent.status = -1;
-            getEventBus().post(mDownloadEvent);
+            getEventBus().postSticky(mDownloadEvent);
             e.printStackTrace();
         }
     }

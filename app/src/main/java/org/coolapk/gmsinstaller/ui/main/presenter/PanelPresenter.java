@@ -25,6 +25,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_EXTENSION_INSTALLED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_EXTENSION_NOT_INSTALLED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_MINIMAL_INSTALLED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED;
+
 /**
  * Created by BobPeng on 2015/3/27.
  */
@@ -122,11 +128,27 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
             mPackageInfos.get(position).setInstallState(installed);
 
             int status = position == 0 ?
-                    (installed ? StatusPresenter.STATUS_MINIMAL_INSTALLED : StatusPresenter.STATUS_MINIMAL_NOT_INSTALLED)
-                    : (installed ? StatusPresenter.STATUS_EXTENSION_INSTALLED : StatusPresenter.STATUS_EXTENSION_NOT_INSTALLED);
-            MainActivity.StatusEvent event = new MainActivity.StatusEvent(status);
-            postEvent(event);
+                    (installed ? STATUS_MINIMAL_INSTALLED : STATUS_MINIMAL_NOT_INSTALLED)
+                    : (installed ? STATUS_EXTENSION_INSTALLED : STATUS_EXTENSION_NOT_INSTALLED);
+
+            postStickyEvent(new MainActivity.StatusEvent(status));
         }
+    }
+
+    /**
+     * @param type package type
+     * @return package position in ui list with this type
+     */
+    public int getTypePosition(int type) {
+        return type == 1 ? 0 : 1;
+    }
+
+    /**
+     * @param position package position in ui list
+     * @return package type in ui list with this position.
+     */
+    public int getPositionType(int position) {
+        return position + 1;
     }
 
     public boolean isPanelExpanded() {

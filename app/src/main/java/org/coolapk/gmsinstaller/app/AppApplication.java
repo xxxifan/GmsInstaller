@@ -7,6 +7,8 @@ import com.avos.avoscloud.AVOSCloud;
 
 import org.coolapk.gmsinstaller.cloud.DownloadReceiver;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Created by BobPeng on 2015/3/18.
  */
@@ -23,8 +25,12 @@ public class AppApplication extends Application {
         super.onCreate();
         sApplication = this;
 
+        // init LeanCloud service
         AVOSCloud.initialize(this, AppHelper.LC_APP_ID, AppHelper.LC_APP_KEY);
         AVAnalytics.enableCrashReport(this, true);
+
+        // init EventBus
+        EventBus.builder().logNoSubscriberMessages(false).sendNoSubscriberEvent(false).installDefaultEventBus();
     }
 
     public void registerDownloadReceiver() {

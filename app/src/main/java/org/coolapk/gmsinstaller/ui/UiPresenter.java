@@ -29,6 +29,10 @@ public abstract class UiPresenter {
         EventBus.getDefault().post(event);
     }
 
+    protected void postStickyEvent(Object event) {
+        EventBus.getDefault().postSticky(event);
+    }
+
     protected abstract void initView(View rootView);
 
 }

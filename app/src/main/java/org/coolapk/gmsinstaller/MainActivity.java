@@ -11,9 +11,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.pgyersdk.feedback.PgyFeedback;
-import com.pgyersdk.update.PgyUpdateManager;
-import com.pgyersdk.update.UpdateManagerListener;
 
 import org.coolapk.gmsinstaller.app.AppHelper;
 import org.coolapk.gmsinstaller.cloud.CloudHelper;
@@ -59,17 +56,6 @@ public class MainActivity extends ActionBarActivity {
         initView();
         setTitle(R.string.app_mark);
         mIsDlServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
-        PgyUpdateManager.register(this, AppHelper.PGY_APP_ID, new UpdateManagerListener() {
-            @Override
-            public void onNoUpdateAvailable() {
-
-            }
-
-            @Override
-            public void onUpdateAvailable(String s) {
-                Toast.makeText(MainActivity.this, "update: " + s, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void initView() {
@@ -160,7 +146,6 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_feedback:
-                PgyFeedback.getInstance().show(MainActivity.this, AppHelper.PGY_APP_ID);
                 break;
         }
         return super.onOptionsItemSelected(item);

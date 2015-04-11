@@ -116,7 +116,7 @@ public class AboutActivity extends ActionBarActivity implements View.OnClickList
                 intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.btn_share));
                 intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(Intent.createChooser(intent, getTitle()));
+                startActivity(Intent.createChooser(intent, getString(R.string.app_name)));
                 break;
             case 4:
                 Toast.makeText(this, R.string.msg_like4, Toast.LENGTH_SHORT).show();

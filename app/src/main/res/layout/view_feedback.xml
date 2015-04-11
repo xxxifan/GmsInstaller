@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/title_input_contact"
         android:singleLine="true"
+        app:met_clearButton="true"
         app:met_floatingLabel="highlight"
         app:met_floatingLabelText="@string/title_contact_input_short"
         app:met_primaryColor="?colorAccent" />

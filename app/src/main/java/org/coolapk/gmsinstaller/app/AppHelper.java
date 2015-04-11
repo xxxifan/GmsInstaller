@@ -3,6 +3,8 @@ package org.coolapk.gmsinstaller.app;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -26,6 +28,17 @@ public class AppHelper {
 
     public static int getOsVersion() {
         return Build.VERSION.SDK_INT;
+    }
+
+    public static int getAppVersionCode() {
+        try {
+            PackageManager packageManager = getContext().getPackageManager();
+            PackageInfo packInfo = packageManager.getPackageInfo(getContext().getPackageName(), 0);
+            return packInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public static AppApplication getApplication() {

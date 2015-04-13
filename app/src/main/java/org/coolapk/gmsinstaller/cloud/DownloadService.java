@@ -3,6 +3,7 @@ package org.coolapk.gmsinstaller.cloud;
 import android.app.IntentService;
 import android.content.Intent;
 
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -47,7 +48,7 @@ public class DownloadService extends IntentService {
 
     public void onEvent(ProgressUpdateEvent event) {
         if (mDownloadEvent != null) {
-            getEventBus().postSticky(mDownloadEvent);
+            getEventBus().post(mDownloadEvent);
         }
     }
 
@@ -60,7 +61,7 @@ public class DownloadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String url = intent.getStringExtra("url");
+        String url = intent.getStringExtra("url") + "?" + AppHelper.getSimpleTimestamp();
         String path = intent.getStringExtra("path");
         File targetFile = new File(path);
 
@@ -74,7 +75,6 @@ public class DownloadService extends IntentService {
             long downloaded = targetFile.length();
             requestBuilder.addHeader("Ranges", "bytes=" + downloaded + "-");
         }
-
         Request request = requestBuilder.build();
 
         // add progress interceptor
@@ -89,31 +89,31 @@ public class DownloadService extends IntentService {
             }
         });
 
+        BufferedSource source = null;
+        BufferedSink sink = null;
         try {
-            Response response = client.newCall(request).execute();
+            Call call = client.newCall(request);
+            Response response = call.execute();
             if (response.isSuccessful()) {
                 // post start
                 mDownloadEvent.status = 0;
                 mDownloadEvent.total = response.body().contentLength();
                 AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).edit().putLong(mDownloadEvent
                         .filename, mDownloadEvent.total).apply();
-                getEventBus().postSticky(mDownloadEvent);
+                getEventBus().post(mDownloadEvent);
 
                 // read data
-                BufferedSource source = response.body().source();
-                BufferedSink sink = Okio.buffer(Okio.sink(new File(path)));
+                source = response.body().source();
+                sink = Okio.buffer(Okio.sink(new File(path)));
                 int bufferSize = 8 * 1024;
                 while (source.read(sink.buffer(), bufferSize) > 0) {
                     sink.emit();
                     if (mShutDown) {
                         mShutDown = false;
-                        sink.close();
-                        source.close();
+                        call.cancel();
                         return;
                     }
                 }
-                sink.close();
-                source.close();
 
                 // end event
                 mDownloadEvent.status = 1;
@@ -126,6 +126,15 @@ public class DownloadService extends IntentService {
             mDownloadEvent.status = -1;
             getEventBus().postSticky(mDownloadEvent);
             e.printStackTrace();
+        } finally {
+            try {
+                if (sink != null && source != null) {
+                    sink.close();
+                    source.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -157,7 +166,6 @@ public class DownloadService extends IntentService {
         public long contentLength() throws IOException {
             return responseBody.contentLength();
         }
-
 
         @Override
         public BufferedSource source() throws IOException {

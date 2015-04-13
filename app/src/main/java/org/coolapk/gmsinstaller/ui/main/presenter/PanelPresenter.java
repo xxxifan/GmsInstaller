@@ -2,7 +2,6 @@ package org.coolapk.gmsinstaller.ui.main.presenter;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -241,15 +240,15 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     }
 
     private boolean checkDownload(Gpack gpack, File file) {
-        boolean md5 = ZipUtils.getFileMd5(file).equals(gpack.md5);
-        boolean length = file.length() == gpack.packageSize;
-        if (md5 && length) {
+        boolean lengthMatch = file.length() == gpack.packageSize;
+        if (lengthMatch && ZipUtils.getFileMd5(file).equals(gpack.md5)) {
             return true;
-        } else if (AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).getLong(gpack
+        }
+
+        // clear unexpected file
+        if (AppHelper.getPrefs(AppHelper.PREFERENCE_DOWNLOAD_FILES).getLong(gpack
                 .packageName, 0l) == 0l) {
-            // clear unexpected file
             file.delete();
-            Log.e("", "clear unexpected file");
         }
         return false;
     }

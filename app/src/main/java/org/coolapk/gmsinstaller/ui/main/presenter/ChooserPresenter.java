@@ -82,9 +82,13 @@ public class ChooserPresenter extends UiPresenter implements View.OnClickListene
     }
 
     public Gpack getWorkingGpack() {
-        Gpack gpack = new Gpack();
-        gpack.packageName = new File(mWorkingFile).getName();
-        return gpack;
+        if (mWorkingFile != null) {
+            Gpack gpack = new Gpack();
+            gpack.packageName = new File(mWorkingFile).getName();
+            gpack.localPath = mWorkingFile;
+            return gpack;
+        }
+        return null;
     }
 
     public void clearWorkingFile() {

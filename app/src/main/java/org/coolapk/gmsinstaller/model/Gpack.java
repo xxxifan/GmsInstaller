@@ -10,4 +10,5 @@ public class Gpack {
     public int sdkLevel;
     public String updateTime;
     public String md5;
+    public String localPath;
 }

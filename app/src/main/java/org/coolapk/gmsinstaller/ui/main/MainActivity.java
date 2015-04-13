@@ -310,10 +310,12 @@ public class MainActivity extends ActionBarActivity {
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {
             postStickyEvent(new InstallEvent(event.filename));
+            removeSticky(DownloadEvent.class);
         } else if (event.status < 0) {
             mStatusUi.setStatusText(getString(R.string.msg_download_failed));
             postStickyEvent(new StatusEvent(STATUS_DOWNLOADING_FAILED));
             mPanelUi.onInstallFinished();
+            removeSticky(DownloadEvent.class);
         }
     }
 

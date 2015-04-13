@@ -110,6 +110,10 @@ public class ZipUtils {
     }
 
     public static boolean install(Gpack gpack, boolean isLocal) {
+        if (gpack == null) {
+            return false;
+        }
+
         File storagePath = AppHelper.getAppExternalPath();
         File gappFile = new File(storagePath, gpack.packageName);
         File tmpPath = new File(storagePath, "tmp");
@@ -119,9 +123,10 @@ public class ZipUtils {
 
         if (isLocal || (gappFile.exists() && ZipUtils.getFileMd5(gappFile).equals(gpack.md5))) {
             // unzip gapps to storagePath.
-            boolean extracted = unzipFile(gappFile, tmpPath);
+            boolean extracted = unzipFile(isLocal ? new File(gpack.localPath) : gappFile, tmpPath);
             if (!extracted) {
-                throw new IllegalStateException("extract zip failed");
+                Log.e(TAG, "extract zip failed");
+                return false;
             }
             // convert flash script
             EdifyParser.parseScript(tmpPath);
@@ -136,7 +141,7 @@ public class ZipUtils {
                         "busybox mount -o remount,ro /",
                         CommandUtils.CMD_RO_SYSTEM
                 }, true, true);
-                Log.e(TAG,result.successMsg+" \nerror: " + result.errorMsg);
+                Log.e(TAG, result.successMsg + " \nerror: " + result.errorMsg);
                 return true;
             } else {
                 Log.e(TAG, "flash file doesn't exists");

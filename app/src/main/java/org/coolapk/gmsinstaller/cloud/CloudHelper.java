@@ -29,8 +29,8 @@ import de.greenrobot.event.EventBus;
 public class CloudHelper {
     public static final int PACKAGE_TYPE_MINIMAL = 1;
     public static final int PACKAGE_TYPE_EXTENSION = 2;
-    //    private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
-    private static final String CLOUD_DOMAIN = "http://192.168.1.100/downloads/";
+        private static final String CLOUD_DOMAIN = "http://image.coolapk.com/gapps/";
+//    private static final String CLOUD_DOMAIN = "http://192.168.1.100/downloads/";
     private static final String FIR_BASE_URL = "http://fir.im/api/v2/app/version/";
     private static final String FIR_APP_ID = "5528e039fea0cae136001c1a";
     private static final String FIR_TOKEN = "2a7f7140decb11e4bc71d7769ade328c415f806b";

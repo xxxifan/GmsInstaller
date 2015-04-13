@@ -54,7 +54,6 @@ public class MainActivity extends ActionBarActivity {
     private ScrollView mScrollView;
 
     private boolean mIsDlServiceRunning = false;
-    private boolean mNeedConfig = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

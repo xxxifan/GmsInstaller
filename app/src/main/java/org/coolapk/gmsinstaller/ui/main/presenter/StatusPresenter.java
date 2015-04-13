@@ -230,12 +230,14 @@ public class StatusPresenter extends UiPresenter {
         @Override
         public void onPositive(MaterialDialog dialog) {
             try {
-                Intent intent = getContext().getPackageManager().getLaunchIntentForPackage
-                        ("com.coolapk.market");
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setData(Uri.parse("coolmarket://apklist?developer=Google%20Inc."));
                 getContext().startActivity(intent);
             } catch (Exception e) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.coolapk.com"));
+                e.printStackTrace();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.coolapk.com"
+                        + "/apk/search?q=developer:Google%20Inc."));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(intent);
             }

@@ -1,78 +1,78 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
     tools:context="org.coolapk.gmsinstaller.ui.about.AboutActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?colorPrimary">
+        android:orientation="vertical">
 
-        <FrameLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary">
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:paddingBottom="16dp"
-                android:paddingRight="56dp"
-                android:paddingTop="56dp">
+                android:layout_height="wrap_content">
 
-                <ImageView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingBottom="16dp"
+                    android:paddingRight="56dp"
+                    android:paddingTop="56dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/ic_launcher" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/app_name"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/about_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/about_check_update"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:padding="8dp"
+                        android:text="@string/title_check_update"
+                        android:textColor="?colorAccent" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/about_like_btn"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:src="@drawable/ic_launcher" />
+                    android:layout_gravity="top|right"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:padding="32dp"
+                    android:src="@drawable/ic_favorite_grey600_24dp"
+                    android:tint="?colorAccent" />
+            </FrameLayout>
+        </android.support.v7.widget.Toolbar>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/app_name"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/about_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/about_check_update"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground"
-                    android:padding="8dp"
-                    android:text="@string/title_check_update"
-                    android:textColor="?colorAccent" />
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/about_like_btn"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_gravity="top|right"
-                android:background="?selectableItemBackgroundBorderless"
-                android:padding="32dp"
-                android:src="@drawable/ic_favorite_grey600_24dp"
-                android:tint="?colorAccent" />
-        </FrameLayout>
-    </android.support.v7.widget.Toolbar>
-
-    <View
-        android:id="@+id/toolbar_shadow"
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="@drawable/bottom_shadow" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <View
+            android:id="@+id/toolbar_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@drawable/bottom_shadow" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -94,7 +94,6 @@
                 android:lineSpacingMultiplier="1.1"
                 android:text="@string/open_source_lst" />
         </LinearLayout>
-    </ScrollView>
 
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

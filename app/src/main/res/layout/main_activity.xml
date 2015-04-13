@@ -113,13 +113,13 @@
             android:id="@+id/package_install_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:background="?selectableItemBackground"
             android:clickable="true"
             android:gravity="left|center_vertical"
             android:minHeight="48dp"
             android:padding="12dp"
             android:text="@string/btn_install"
-            android:layout_marginBottom="8dp"
             android:textColor="?colorAccent"
             android:textSize="16sp" />
     </LinearLayout>

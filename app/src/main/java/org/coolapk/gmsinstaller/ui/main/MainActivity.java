@@ -1,6 +1,7 @@
 package org.coolapk.gmsinstaller.ui.main;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -53,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
     private ScrollView mScrollView;
 
     private boolean mIsDlServiceRunning = false;
+    private boolean mNeedConfig = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +122,11 @@ public class MainActivity extends ActionBarActivity {
 
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override

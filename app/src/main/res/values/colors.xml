@@ -11,4 +11,5 @@
     <color name="divider">#1E000000</color>
     <color name="black">#000</color>
     <color name="diabled_text">#39000000</color>
+    <color name="yellow">#FFC107</color>
 </resources>

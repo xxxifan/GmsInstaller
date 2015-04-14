@@ -1,6 +1,7 @@
 package org.coolapk.gmsinstaller.ui.main.presenter;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -40,10 +41,10 @@ public class StatusPresenter extends UiPresenter {
     public static final int STATUS_CHECKING_ROOT = 13;
     public static final int STATUS_DOWNLOADING = 14;
 
-    private static final int ICON_STATE_WARN = -1;
+    private static final int ICON_STATE_ERROR = -1;
     private static final int ICON_STATE_LOADING = 0;
     private static final int ICON_STATE_DONE = 1;
-    private static final int ICON_STATE_ALERT = 2;
+    private static final int ICON_STATE_WARN = 2;
 
     private ProgressBar mStatusProgress;
     private ImageView mStatusIcon;
@@ -51,6 +52,8 @@ public class StatusPresenter extends UiPresenter {
     private TextView mSubStatusText;
     private Button mCancelBtn;
     private CardAdapter mAdapter;
+
+    private Resources mRes;
 
     private int mStatus = STATUS_INIT;
     private int mIconState = ICON_STATE_LOADING;
@@ -108,7 +111,7 @@ public class StatusPresenter extends UiPresenter {
         switch (status) {
             case STATUS_NO_ROOT:
                 setStatusText(R.string.msg_no_root);
-                setStatusIconState(ICON_STATE_WARN);
+                setStatusIconState(ICON_STATE_ERROR);
                 break;
             case STATUS_INIT:
                 setStatusText(R.string.msg_loading);
@@ -116,7 +119,7 @@ public class StatusPresenter extends UiPresenter {
                 break;
             case STATUS_MINIMAL_NOT_INSTALLED:
                 setStatusText(R.string.msg_min_gapps_not_installed);
-                setStatusIconState(ICON_STATE_WARN);
+                setStatusIconState(ICON_STATE_ERROR);
                 mAdapter.setInstallStatus(0, false);
                 EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
@@ -136,13 +139,13 @@ public class StatusPresenter extends UiPresenter {
                 break;
             case STATUS_MINIMAL_INSTALL_INCOMPLETE:
                 setStatusText(R.string.msg_min_gapps_incomplete);
-                setStatusIconState(ICON_STATE_ALERT);
+                setStatusIconState(ICON_STATE_WARN);
                 mAdapter.setInstallStatus(0, false);
                 EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_UPDATE_AVAILABLE:
                 setStatusText(R.string.msg_gapps_update_available);
-                setStatusIconState(ICON_STATE_ALERT);
+                setStatusIconState(ICON_STATE_WARN);
                 break;
             case STATUS_INSTALLING:
                 setStatusText(R.string.msg_installing);
@@ -158,12 +161,12 @@ public class StatusPresenter extends UiPresenter {
                 break;
             case STATUS_DOWNLOAD_CANCELED:
                 setStatusText(R.string.msg_download_canceled);
-                setStatusIconState(ICON_STATE_ALERT);
+                setStatusIconState(ICON_STATE_WARN);
                 EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_DOWNLOADING_FAILED:
                 setStatusText(R.string.msg_download_failed);
-                setStatusIconState(ICON_STATE_WARN);
+                setStatusIconState(ICON_STATE_ERROR);
                 EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_INSTALL_FINISHED:
@@ -172,6 +175,13 @@ public class StatusPresenter extends UiPresenter {
                 EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
         }
+    }
+
+    private Resources getRes() {
+        if (mRes == null) {
+            mRes = getContext().getResources();
+        }
+        return mRes;
     }
 
     public void setStatusIconState(int state, int progress) {
@@ -186,13 +196,19 @@ public class StatusPresenter extends UiPresenter {
             mStatusProgress.setVisibility(View.GONE);
             mStatusIcon.setVisibility(View.VISIBLE);
             if (mIconState != state) {
+                mStatusIcon.clearColorFilter();
                 switch (state) {
-                    case ICON_STATE_WARN:
-                        // TODO warning icon
+                    case ICON_STATE_ERROR:
+                        mStatusIcon.setImageDrawable(getRes().getDrawable(R.drawable.ic_error_outline));
+                        mStatusIcon.setColorFilter(getRes().getColor(R.color.pink));
                         break;
-                    case ICON_STATE_ALERT:
+                    case ICON_STATE_WARN:
+                        mStatusIcon.setImageDrawable(getRes().getDrawable(R.drawable.ic_warn_outline));
+                        mStatusIcon.setColorFilter(getRes().getColor(R.color.yellow));
                         break;
                     case ICON_STATE_DONE:
+                        mStatusIcon.setImageDrawable(getRes().getDrawable(R.drawable.ic_done_outline));
+                        mStatusIcon.setColorFilter(getRes().getColor(R.color.green));
                         break;
                 }
             }

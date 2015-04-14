@@ -192,6 +192,9 @@ public class MainActivity extends ActionBarActivity {
         EventBus.getDefault().post(event);
     }
 
+    /**
+     * Sticky event that prevent no receiver exists
+     */
     public void postStickyEvent(Object event) {
         EventBus.getDefault().postSticky(event);
     }
@@ -231,10 +234,8 @@ public class MainActivity extends ActionBarActivity {
         postEvent(new CheckUpdateEvent());
 
         postEvent(new StatusEvent(STATUS_CHECKING_ROOT));
-        boolean hasRoot = CommandUtils.checkRootPermission();
-        if (hasRoot) {
-            postStickyEvent(new CheckInstallEvent());
-        } else {
+        postStickyEvent(new CheckInstallEvent());
+        if (!CommandUtils.checkRootPermission()) {
             postStickyEvent(new StatusEvent(STATUS_NO_ROOT));
         }
     }

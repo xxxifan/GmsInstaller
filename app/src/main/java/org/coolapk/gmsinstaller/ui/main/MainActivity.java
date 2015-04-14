@@ -209,21 +209,19 @@ public class MainActivity extends ActionBarActivity {
 
     public void onEventAsync(CheckUpdateEvent event) {
         // check package info
-        List<Gpack> gpacks = CloudHelper.getGpackList();
-        mPanelUi.setGappsDetail(gpacks);
-
+        final List<Gpack> gpacks = CloudHelper.getGpackList();
         // check app update
-        boolean noUpdateError = checkAppUpdate();
+        final boolean noUpdateError = checkAppUpdate();
 
-        // tip error
-        if (gpacks == null || !noUpdateError) {
-            runOnUiThread(new Runnable() {
-                public void run() {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                mPanelUi.setGappsDetail(gpacks);
+                if (gpacks == null || !noUpdateError) {
                     Toast.makeText(MainActivity.this, R.string.msg_check_update_failed, Toast
                             .LENGTH_SHORT).show();
                 }
-            });
-        }
+            }
+        });
     }
 
     public void onEventBackgroundThread(InitEvent event) {

@@ -101,6 +101,9 @@ public class StatusPresenter extends UiPresenter {
                 .show();
     }
 
+    private void clearStatusEvent() {
+        EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
+    }
 
     public int getStatus() {
         return mStatus;
@@ -112,36 +115,38 @@ public class StatusPresenter extends UiPresenter {
             case STATUS_NO_ROOT:
                 setStatusText(R.string.msg_no_root);
                 setStatusIconState(ICON_STATE_ERROR);
+
+                mAdapter.setItemClickable(false);
                 break;
             case STATUS_INIT:
                 setStatusText(R.string.msg_loading);
                 setStatusIconState(ICON_STATE_LOADING);
+
+                mAdapter.setItemClickable(true);
                 break;
             case STATUS_MINIMAL_NOT_INSTALLED:
                 setStatusText(R.string.msg_min_gapps_not_installed);
                 setStatusIconState(ICON_STATE_ERROR);
+
                 mAdapter.setInstallStatus(0, false);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_MINIMAL_INSTALLED:
                 setStatusText(R.string.msg_min_gapps_installed);
                 setStatusIconState(ICON_STATE_DONE);
+
                 mAdapter.setInstallStatus(0, true);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_EXTENSION_NOT_INSTALLED:
                 mAdapter.setInstallStatus(1, false);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_EXTENSION_INSTALLED:
                 mAdapter.setInstallStatus(1, true);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_MINIMAL_INSTALL_INCOMPLETE:
                 setStatusText(R.string.msg_min_gapps_incomplete);
                 setStatusIconState(ICON_STATE_WARN);
+
                 mAdapter.setInstallStatus(0, false);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_UPDATE_AVAILABLE:
                 setStatusText(R.string.msg_gapps_update_available);
@@ -162,19 +167,19 @@ public class StatusPresenter extends UiPresenter {
             case STATUS_DOWNLOAD_CANCELED:
                 setStatusText(R.string.msg_download_canceled);
                 setStatusIconState(ICON_STATE_WARN);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_DOWNLOADING_FAILED:
                 setStatusText(R.string.msg_download_failed);
                 setStatusIconState(ICON_STATE_ERROR);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
             case STATUS_INSTALL_FINISHED:
                 setStatusText(R.string.btn_done);
                 setStatusIconState(ICON_STATE_DONE);
-                EventBus.getDefault().removeStickyEvent(MainActivity.StatusEvent.class);
                 break;
         }
+
+        // clear sticky status event once it arrives
+        clearStatusEvent();
     }
 
     private Resources getRes() {

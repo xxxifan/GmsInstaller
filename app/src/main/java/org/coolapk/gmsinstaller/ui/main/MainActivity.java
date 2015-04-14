@@ -101,11 +101,15 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mIsDlServiceRunning && mStatusUi.getStatus() == STATUS_INIT) {
+        if (!mIsDlServiceRunning && needInit()) {
             postEvent(new InitEvent());
         } else if (mIsDlServiceRunning) {
             postEvent(new DownloadService.ProgressUpdateEvent());
         }
+    }
+
+    private boolean needInit() {
+        return mStatusUi.getStatus() == STATUS_INIT || mStatusUi.getStatus() == STATUS_NO_ROOT;
     }
 
     @Override

@@ -23,6 +23,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     private Context mContext;
     private List<ItemInfo> mDataList;
+    private boolean mClickable;
 
     private ItemClickListener mItemClickListener;
 
@@ -66,6 +67,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         return mDataList;
     }
 
+    public void setItemClickable(boolean clickable) {
+        mClickable = clickable;
+    }
+
     public void setInstallStatus(int position, boolean status) {
         mDataList.get(position).installStatus = status ? 1 : 0;
         notifyItemChanged(position);
@@ -94,7 +99,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            if (mItemClickListener != null) {
+            if (mItemClickListener != null && mClickable) {
                 mItemClickListener.onItemClick(v, getAdapterPosition());
             }
         }

@@ -84,7 +84,7 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
         if (pack == null) {
             mUpdateTimeText.setText(R.string.title_no_info);
             mPackageSizeText.setText(R.string.title_no_info);
-            mPackageDetailsText.setText(R.string.title_no_info);
+            mPackageDetailsText.setText(getContext().getString(R.string.title_no_info) + "\n\n\n");
             toggleBtnState(mInstallBtn, false);
         } else {
             mUpdateTimeText.setText(pack.updateTime);

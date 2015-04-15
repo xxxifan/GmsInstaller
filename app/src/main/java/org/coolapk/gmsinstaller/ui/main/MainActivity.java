@@ -282,6 +282,7 @@ public class MainActivity extends ActionBarActivity {
                             .content(R.string.msg_install_finished)
                             .positiveText(R.string.btn_reboot)
                             .negativeText(R.string.btn_cancel)
+                            .neutralText(R.string.btn_install_more)
                             .callback(new RebootDialogCallback())
                             .build()
                             .show();
@@ -405,6 +406,27 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onPositive(MaterialDialog dialog) {
             CommandUtils.execCommand("reboot", true, false);
+        }
+
+        @Override
+        public void onNeutral(MaterialDialog dialog) {
+            new MaterialDialog.Builder(MainActivity.this)
+                    .title(R.string.title_alert)
+                    .content(R.string.title_gapps_browse)
+                    .positiveText(R.string.btn_install_coolmarket)
+                    .negativeText(R.string.btn_cancel)
+                    .callback(new GoMarketCallback())
+                    .build()
+                    .show();
+        }
+    }
+
+    private class GoMarketCallback extends MaterialDialog.ButtonCallback {
+        @Override
+        public void onPositive(MaterialDialog dialog) {
+            CloudHelper.downloadApk("http://www.coolapk.com/dl?pn=com.coolapk.market", "Coolmarket.apk");
+            Toast.makeText(dialog.getContext(),getString(R.string.msg_download_coolmarket),Toast
+                    .LENGTH_SHORT).show();
         }
     }
 }

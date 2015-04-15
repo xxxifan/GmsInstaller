@@ -47,6 +47,8 @@
     <string name="btn_close">关闭</string>
     <string name="btn_share">分享</string>
     <string name="btn_ignore">忽略</string>
+    <string name="btn_install_more">安装更多</string>
+    <string name="btn_install_coolmarket">安装酷市场</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>
@@ -80,6 +82,7 @@
     <string name="msg_like3">还要我动手，嗯？</string>
     <string name="msg_like4">还点，嗯？要我承包你？</string>
     <string name="msg_thanks_to_open_source_social">本应用的诞生离不开开源世界\n感谢以下开源库的支持</string>
+    <string name="msg_download_coolmarket">开始下载酷市场&#8230;</string>
 
 
     <string name="share_text">跟大家分享一款应用，由 @酷安网 出品[谷歌框架安装器]，如题大家懂的，需要ROOT，下载 http://fir.im/gmsinstaller</string>

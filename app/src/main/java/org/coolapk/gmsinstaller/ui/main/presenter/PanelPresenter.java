@@ -231,7 +231,7 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
                     // start download
                     Intent data = new Intent();
                     data.putExtra("path", targetFile.getPath());
-                    CloudHelper.downloadPackage(packageName, data);
+                    CloudHelper.downloadPackage(CloudHelper.CLOUD_DOMAIN + packageName, data);
                     mInstallBtn.setTag(0);
                 }
                 return null;

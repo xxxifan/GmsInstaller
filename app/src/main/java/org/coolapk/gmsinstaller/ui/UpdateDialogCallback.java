@@ -20,8 +20,8 @@ public class UpdateDialogCallback extends MaterialDialog.ButtonCallback {
 
     @Override
     public void onPositive(MaterialDialog dialog) {
-        CloudHelper.downloadUpdate(dialog.getContext(), appInfo.installUrl, appInfo.versionShort + "-"
-                + appInfo.version);
+        CloudHelper.downloadApk(appInfo.installUrl, "GmsInstaller-" + appInfo.versionShort + "-" +
+                appInfo.version + ".apk");
     }
 
     @Override

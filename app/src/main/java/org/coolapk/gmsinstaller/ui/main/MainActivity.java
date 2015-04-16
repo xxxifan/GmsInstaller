@@ -139,6 +139,9 @@ public class MainActivity extends ActionBarActivity {
             case R.id.action_about:
                 startActivity(new Intent(this, AboutActivity.class));
                 break;
+            case R.id.action_reboot:
+                showRebootDialog();
+                break;
             case R.id.action_feedback:
                 showFeedbackDialog();
                 break;
@@ -186,6 +189,17 @@ public class MainActivity extends ActionBarActivity {
                 ViewUtils.showUpdateDialog(MainActivity.this, info, true);
             }
         });
+    }
+
+    private void showRebootDialog() {
+        new MaterialDialog.Builder(this)
+                .title(R.string.title_alert)
+                .content(R.string.title_confirm_reboot)
+                .positiveText(R.string.btn_ok)
+                .negativeText(R.string.btn_cancel)
+                .callback(new RebootDialogCallback())
+                .build()
+                .show();
     }
 
     public void postEvent(Object event) {

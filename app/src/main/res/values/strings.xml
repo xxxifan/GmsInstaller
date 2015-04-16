@@ -4,6 +4,7 @@
     <string name="action_feedback">反馈</string>
     <string name="action_about">关于</string>
     <string name="title_activity_about">关于</string>
+    <string name="action_reboot">重启设备</string>
 
     <string name="title_install_status">当前状态</string>
     <string name="title_gapps">谷歌服务</string>
@@ -28,6 +29,7 @@
     <string name="title_feedback_input">反馈内容</string>
     <string name="title_update_available">发现新版本</string>
     <string name="title_check_update">检查更新</string>
+    <string name="title_confirm_reboot">是否立即重启设备?</string>
 
 
     <string name="btn_install">立即安装</string>

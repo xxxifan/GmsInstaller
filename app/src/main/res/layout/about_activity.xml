@@ -81,22 +81,17 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:lineSpacingMultiplier="1.1"
-            android:text="@string/msg_thanks_to_open_source_social" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:lineSpacingMultiplier="1.1"
+            android:gravity="center"
+            android:autoLink="web"
             android:text="@string/open_source_lst" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="32dp"
             android:layout_marginTop="32dp"
+            android:gravity="center"
             android:autoLink="web"
             android:text="@string/coolmarket_url" />
     </LinearLayout>

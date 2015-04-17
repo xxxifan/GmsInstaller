@@ -99,8 +99,9 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            if (mItemClickListener != null && mClickable) {
-                mItemClickListener.onItemClick(v, getAdapterPosition());
+            int position = getAdapterPosition();
+            if (mItemClickListener != null && (mClickable || position > 1)) {
+                mItemClickListener.onItemClick(v, position);
             }
         }
     }

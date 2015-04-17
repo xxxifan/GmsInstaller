@@ -17,7 +17,9 @@ import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.model.PackageInfo;
 import org.coolapk.gmsinstaller.ui.CardAdapter;
 import org.coolapk.gmsinstaller.ui.UiPresenter;
+import org.coolapk.gmsinstaller.ui.main.InstallConfirmCallback;
 import org.coolapk.gmsinstaller.ui.main.MainActivity;
+import org.coolapk.gmsinstaller.util.ViewUtils;
 import org.coolapk.gmsinstaller.util.ZipUtils;
 
 import java.io.File;
@@ -40,6 +42,7 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     private TextView mPackageSizeText;
     private TextView mPackageDetailsText;
     private TextView mInstallBtn;
+    private StatusListener mStatusListener;
 
     private int mDisplayIndex;
     private int mColorDisabled;
@@ -74,7 +77,6 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
 
         mPanel.setPanelState(PanelState.HIDDEN);
         mInstallBtn.setOnClickListener(this);
-        mInstallBtn.setTag(1);
     }
 
     public void display(int position) {
@@ -134,6 +136,10 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
         }
     }
 
+    public void setStatusListener(StatusListener listener) {
+        mStatusListener = listener;
+    }
+
     /**
      * @param type package type
      * @return package position in ui list with this type
@@ -175,46 +181,48 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         if (v == mInstallBtn) {
-            if (mInstallBtn.getTag() == 1) {
-                onInstallClick();
-            }
-            collapsePanel();
+            onInstallClick();
         }
     }
 
     private void onInstallClick() {
-        if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
-            MaterialDialog.ButtonCallback buttonCallback = new MaterialDialog.ButtonCallback() {
-                @Override
-                public void onPositive(MaterialDialog dialog) {
-                    startInstallTask();
-                }
-            };
-
-            new MaterialDialog.Builder(getContext())
-                    .content(R.string.msg_already_installed)
-                    .positiveText(R.string.btn_ok)
-                    .negativeText(R.string.btn_cancel)
-                    .callback(buttonCallback)
-                    .build()
-                    .show();
+        if (mStatusListener.isWorking()) {
+            Toast.makeText(getContext(), R.string.msg_worker_busy, Toast.LENGTH_SHORT).show();
         } else {
-            if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
+            if (mPackageInfos.get(mDisplayIndex).isInstalled()) {
+                MaterialDialog.ButtonCallback buttonCallback = new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        startInstallTask();
+                    }
+                };
+
                 new MaterialDialog.Builder(getContext())
-                        .content(R.string.msg_framework_need)
+                        .content(R.string.msg_already_installed)
                         .positiveText(R.string.btn_ok)
+                        .negativeText(R.string.btn_cancel)
+                        .callback(buttonCallback)
                         .build()
                         .show();
             } else {
-                // start to work :)
-                startInstallTask();
+                if (mDisplayIndex == 1 && !mPackageInfos.get(0).isInstalled()) {
+                    new MaterialDialog.Builder(getContext())
+                            .content(R.string.msg_framework_need)
+                            .positiveText(R.string.btn_ok)
+                            .build()
+                            .show();
+                } else {
+                    // start to work :)
+                    startInstallTask();
+                }
             }
         }
+        collapsePanel();
     }
 
     private void startInstallTask() {
-        new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... params) {
+        new AsyncTask<Void, Void, String>() {
+            protected String doInBackground(Void... params) {
                 if (mDisplayIndex < 0) {
                     Toast.makeText(getContext(), R.string.msg_error_interrupt, Toast.LENGTH_SHORT).show();
                     return null;
@@ -225,16 +233,22 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
                 String packageName = gpack.packageName;
                 File targetFile = new File(AppHelper.getAppExternalPath(), packageName);
                 if (targetFile.exists() && checkDownload(gpack, targetFile)) {
-                    postEvent(new MainActivity.InstallEvent(packageName));
-                    mInstallBtn.setTag(0);
+                    return packageName;
                 } else {
                     // start download
                     Intent data = new Intent();
                     data.putExtra("path", targetFile.getPath());
                     CloudHelper.downloadPackage(CloudHelper.CLOUD_DOMAIN + packageName, data);
-                    mInstallBtn.setTag(0);
                 }
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(String packageName) {
+                super.onPostExecute(packageName);
+                if (packageName != null) {
+                    ViewUtils.showInstallDialog(getContext(), new InstallConfirmCallback(new MainActivity.InstallEvent(packageName)));
+                }
             }
         }.execute();
     }
@@ -254,7 +268,6 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
     }
 
     public void onInstallFinished() {
-        mInstallBtn.setTag(1);
         mWorkingIndex = -1;
     }
 
@@ -267,5 +280,9 @@ public class PanelPresenter extends UiPresenter implements View.OnClickListener 
             }
         }
         return null;
+    }
+
+    public interface StatusListener {
+        boolean isWorking();
     }
 }

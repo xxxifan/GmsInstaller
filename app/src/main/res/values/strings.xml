@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">谷歌框架安装器</string>
-    <string name="app_mark">酷安出品</string>
     <string name="action_feedback">反馈</string>
     <string name="action_about">关于</string>
     <string name="title_activity_about">关于</string>
@@ -24,12 +23,14 @@
     <string name="title_choose_file">选择文件</string>
     <string name="title_gapps_browse">前往酷市场下载谷歌系列以及更多好玩儿的应用</string>
     <string name="title_alert">提示</string>
+    <string name="title_warning">警告</string>
     <string name="title_input_contact">您的QQ或者邮箱</string>
     <string name="title_contact_input_short">联系方式</string>
     <string name="title_feedback_input">反馈内容</string>
     <string name="title_update_available">发现新版本</string>
     <string name="title_check_update">检查更新</string>
     <string name="title_confirm_reboot">是否立即重启设备?</string>
+    <string name="title_install_confirm">即将开始安装谷歌应用框架，这有可能导致您的系统异常，请确认系统备份然后继续</string>
 
 
     <string name="btn_install">立即安装</string>
@@ -51,6 +52,7 @@
     <string name="btn_ignore">忽略</string>
     <string name="btn_install_more">安装更多</string>
     <string name="btn_install_coolmarket">安装酷市场</string>
+    <string name="btn_continue">继续</string>
 
 
     <string name="msg_loading">请稍候&#8230;</string>
@@ -67,6 +69,8 @@
     <string name="msg_start_download">开始下载</string>
     <string name="msg_download_failed">下载失败</string>
     <string name="msg_download_canceled">下载已取消</string>
+    <string name="msg_download_finished">下载完成</string>
+    <string name="msg_install_canceled">安装已取消</string>
     <string name="msg_install_finished">看起来安装已经成功了，系统需要重启一次使变更生效，是否继续？</string>
     <string name="msg_framework_need">您的谷歌基本框架尚未安装，请先安装基本服务框架</string>
     <string name="msg_already_installed">您已安装当前服务包，是否继续？</string>
@@ -85,7 +89,7 @@
     <string name="msg_like4">还点，嗯？要我承包你？</string>
     <string name="msg_thanks_to_open_source_social">本应用的诞生离不开开源世界\n感谢以下开源库的支持</string>
     <string name="msg_download_coolmarket">开始下载酷市场&#8230;</string>
-
+    <string name="msg_worker_busy">有任务正在进行中，请稍后再试</string>
 
     <string name="share_text">跟大家分享一款应用，由 @酷安网 出品[谷歌框架安装器]，如题大家懂的，需要ROOT，下载 http://fir.im/gmsinstaller</string>
     <string name="open_source_lst">Android support library\nAndroguide/FlashGordon\nafollestad/material-dialogs\numano/AndroidSlidingUpPanel\nrengwuxian/MaterialEditText\nlecho/filechooser\nsquare/okhttp\nsquare/okio\ngreenrobot/EventBus\nGson</string>

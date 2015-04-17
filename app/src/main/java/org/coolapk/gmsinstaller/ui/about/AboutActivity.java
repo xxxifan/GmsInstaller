@@ -32,6 +32,7 @@ public class AboutActivity extends ActionBarActivity implements View.OnClickList
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle("");
+        ViewUtils.setFlymeStatusBarDarkIcon(getWindow(), true);
 
         TextView versionText = (TextView) findViewById(R.id.about_version);
         versionText.setText(AppHelper.getAppVersionName() + "(" + AppHelper.getAppVersionCode() + ")");

@@ -65,6 +65,10 @@ public class CloudHelper {
     }
 
     public static void downloadPackage(String packageName, Intent data) {
+        if (AppHelper.isServiceRunning(DownloadService.class.getName())) {
+            return;
+        }
+
         Context context = AppHelper.getContext();
         Intent intent = new Intent(context, DownloadService.class);
         if (data != null) {

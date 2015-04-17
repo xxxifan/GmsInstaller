@@ -25,7 +25,7 @@ import de.greenrobot.event.EventBus;
  * Created by BobPeng on 2015/3/26.
  */
 public class StatusPresenter extends UiPresenter {
-    public static final int STATUS_DOWNLOADING_FAILED = -13;
+    public static final int STATUS_DOWNLOADING_FAILED = -14;
     public static final int STATUS_NO_ROOT = -12;
     public static final int STATUS_EXTENSION_NOT_INSTALLED = -2;
     public static final int STATUS_MINIMAL_NOT_INSTALLED = -1;
@@ -35,7 +35,9 @@ public class StatusPresenter extends UiPresenter {
     public static final int STATUS_MINIMAL_INSTALL_INCOMPLETE = 3;
     public static final int STATUS_UPDATE_AVAILABLE = 4;
     public static final int STATUS_DOWNLOAD_CANCELED = 5;
-    public static final int STATUS_INSTALL_FINISHED = 6;
+    public static final int STATUS_INSTALL_CANCELED = 6;
+    public static final int STATUS_INSTALL_FINISHED = 7;
+    public static final int STATUS_DOWNLOAD_FINISHED = 8;
     // working status
     public static final int STATUS_INSTALLING = 11;
     public static final int STATUS_CHECKING_ROOT = 13;
@@ -168,6 +170,10 @@ public class StatusPresenter extends UiPresenter {
                 setStatusText(R.string.msg_download_canceled);
                 setStatusIconState(ICON_STATE_WARN);
                 break;
+            case STATUS_INSTALL_CANCELED:
+                setStatusText(R.string.msg_install_canceled);
+                setStatusIconState(ICON_STATE_WARN);
+                break;
             case STATUS_DOWNLOADING_FAILED:
                 setStatusText(R.string.msg_download_failed);
                 setStatusIconState(ICON_STATE_ERROR);
@@ -175,6 +181,10 @@ public class StatusPresenter extends UiPresenter {
             case STATUS_INSTALL_FINISHED:
                 setStatusText(R.string.btn_done);
                 setStatusIconState(ICON_STATE_DONE);
+                break;
+            case STATUS_DOWNLOAD_FINISHED:
+                setStatusText(R.string.msg_download_finished);
+                setStatusIconState(ICON_STATE_LOADING);
                 break;
         }
 

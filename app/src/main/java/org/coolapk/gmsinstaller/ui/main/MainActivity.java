@@ -41,6 +41,7 @@ import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_
 import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOADING;
 import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOADING_FAILED;
 import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOAD_CANCELED;
+import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_DOWNLOAD_FINISHED;
 import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_INIT;
 import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_INSTALLING;
 import static org.coolapk.gmsinstaller.ui.main.presenter.StatusPresenter.STATUS_INSTALL_FINISHED;
@@ -61,7 +62,6 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.main_activity);
 
         initView();
-        setTitle(R.string.app_mark);
         mIsDlServiceRunning = AppHelper.isServiceRunning(DownloadService.class.getName());
     }
 
@@ -73,17 +73,27 @@ public class MainActivity extends ActionBarActivity {
         mStatusUi = new StatusPresenter(root);
         mPanelUi = new PanelPresenter(root);
         mChooserUi = new ChooserPresenter(root);
+
+        mPanelUi.setStatusListener(new PanelPresenter.StatusListener() {
+            @Override
+            public boolean isWorking() {
+                return isWorkingStatus();
+            }
+        });
     }
 
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        toolbar.setTitleTextColor(getResources().getColor(R.color.black));
         toolbar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mScrollView.smoothScrollTo(0, ViewUtils.dp2px(56));
             }
         });
+
+        ViewUtils.setFlymeStatusBarDarkIcon(getWindow(), true);
     }
 
     @Override
@@ -101,9 +111,9 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mIsDlServiceRunning && needInit()) {
+        if (!isWorkingStatus() && needInit()) {
             postEvent(new InitEvent());
-        } else if (mIsDlServiceRunning) {
+        } else if (mStatusUi != null && mStatusUi.getStatus() == STATUS_DOWNLOADING) {
             postEvent(new DownloadService.ProgressUpdateEvent());
         }
     }
@@ -266,7 +276,6 @@ public class MainActivity extends ActionBarActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mStatusUi.setupCancelBtn(false, null);
                 if (mScrollView.getScrollY() > 0) {
                     mScrollView.smoothScrollTo(0, ViewUtils.dp2px(56));
                 }
@@ -333,7 +342,11 @@ public class MainActivity extends ActionBarActivity {
             mStatusUi.setStatusText(getString(R.string.title_downloading), getString(R.string
                     .title_downloaded, event.progress + "%"));
         } else if (event.status == 1) {
-            postStickyEvent(new InstallEvent(event.filename));
+            mStatusUi.setupCancelBtn(false, null);
+            postStickyEvent(new StatusEvent(STATUS_DOWNLOAD_FINISHED));
+
+            ViewUtils.showInstallDialog(this, new InstallConfirmCallback(new InstallEvent(event.filename)));
+
             removeSticky(DownloadEvent.class);
         } else if (event.status < 0) {
             mStatusUi.setStatusText(getString(R.string.msg_download_failed));
@@ -373,12 +386,16 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
+    private boolean isWorkingStatus() {
+        return mStatusUi != null && mStatusUi.getStatus() > 10;
+    }
+
     @Override
     public void onBackPressed() {
         if (mPanelUi.isPanelExpanded()) {
             mPanelUi.collapsePanel();
         } else {
-            if (mStatusUi.getStatus() > 10) {
+            if (isWorkingStatus()) {
                 moveTaskToBack(false);
             } else {
                 super.onBackPressed();
@@ -439,8 +456,9 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onPositive(MaterialDialog dialog) {
             CloudHelper.downloadApk("http://www.coolapk.com/dl?pn=com.coolapk.market", "Coolmarket.apk");
-            Toast.makeText(dialog.getContext(),getString(R.string.msg_download_coolmarket),Toast
+            Toast.makeText(dialog.getContext(), getString(R.string.msg_download_coolmarket), Toast
                     .LENGTH_SHORT).show();
         }
     }
+
 }

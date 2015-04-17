@@ -10,7 +10,9 @@ import android.widget.Toast;
 import org.coolapk.gmsinstaller.R;
 import org.coolapk.gmsinstaller.model.Gpack;
 import org.coolapk.gmsinstaller.ui.UiPresenter;
+import org.coolapk.gmsinstaller.ui.main.InstallConfirmCallback;
 import org.coolapk.gmsinstaller.ui.main.MainActivity;
+import org.coolapk.gmsinstaller.util.ViewUtils;
 
 import java.io.File;
 
@@ -56,7 +58,7 @@ public class ChooserPresenter extends UiPresenter implements View.OnClickListene
         } else if (v == mFlashBtn) {
             MainActivity.InstallEvent event = new MainActivity.InstallEvent(new File(mWorkingFile).getName());
             event.isLocal = true;
-            postEvent(event);
+            ViewUtils.showInstallDialog(getContext(), new InstallConfirmCallback(event));
         }
     }
 

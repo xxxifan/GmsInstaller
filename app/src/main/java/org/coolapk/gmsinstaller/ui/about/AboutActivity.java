@@ -112,18 +112,25 @@ public class AboutActivity extends ActionBarActivity implements View.OnClickList
                 break;
             case 3:
                 mLikeCounter++;
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.btn_share));
-                intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(Intent.createChooser(intent, getString(R.string.app_name)));
+                share();
                 break;
             case 4:
                 Toast.makeText(this, R.string.msg_like4, Toast.LENGTH_SHORT).show();
                 AVAnalytics.onEvent(this, "like4");
                 mLikeCounter++;
                 break;
+            default:
+                share();
+                break;
         }
+    }
+
+    private void share() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.btn_share));
+        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(intent, getString(R.string.app_name)));
     }
 }

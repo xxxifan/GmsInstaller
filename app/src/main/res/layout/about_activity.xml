@@ -80,19 +80,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
+            android:autoLink="web"
+            android:gravity="center"
             android:lineSpacingMultiplier="1.1"
-            android:gravity="center"
-            android:autoLink="web"
+            android:paddingBottom="16dp"
             android:text="@string/open_source_lst" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="32dp"
-            android:layout_marginTop="32dp"
-            android:gravity="center"
-            android:autoLink="web"
-            android:text="@string/coolmarket_url" />
     </LinearLayout>
 </ScrollView>

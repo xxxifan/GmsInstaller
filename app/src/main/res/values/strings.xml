@@ -88,12 +88,10 @@
     <string name="msg_like2">还不分享给朋友，嗯？</string>
     <string name="msg_like3">还要我动手，嗯？</string>
     <string name="msg_like4">还点，嗯？要我承包你？</string>
-    <string name="msg_thanks_to_open_source_social"></string>
     <string name="msg_download_coolmarket">开始下载酷市场&#8230;</string>
     <string name="msg_worker_busy">有任务正在进行中，请稍后再试</string>
 
-    <string name="coolmarket_url"></string>
-    <string name="share_text">跟大家分享一款应用，由 @酷安网 出品[谷歌框架安装器]，如题大家懂的，需要ROOT，下载 http://fir.im/gmsinstaller</string>
+    <string name="share_text">跟大家分享一款应用，由 @酷安网 出品[谷歌框架安装器]，如题大家懂的，需要ROOT，下载 http://www.coolapk.com/apk/org.coolapk.gmsinstaller</string>
     <string name="open_source_lst">出自酷安『屌爆了』团队\n\n酷安 － 发现应用的乐趣\nhttp://www.coolapk.com\n\n\n感谢以下开源库的支持\n\nAndroid support library\nAndroguide/FlashGordon\nafollestad/material-dialogs\nrengwuxian/MaterialEditText\numano/SlidingUpPanel\ngreenrobot/EventBus\nlecho/filechooser\nsquare/okhttp\nsquare/okio\nGson</string>
     <string name="gapps_minimal">基本服务框架\nPlay商店\n联系人同步\n日历同步</string>
     <string name="gapps_extension">人脸解锁\nGoogle搜索\nGoogle Ears\nGoogle TTS</string>

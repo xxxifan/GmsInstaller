@@ -86,6 +86,7 @@ public class MainActivity extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setTitle(R.string.app_title);
         toolbar.setTitleTextColor(getResources().getColor(R.color.black));
         toolbar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

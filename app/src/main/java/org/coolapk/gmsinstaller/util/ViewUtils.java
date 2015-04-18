@@ -15,6 +15,7 @@ import org.coolapk.gmsinstaller.model.AppInfo;
 import org.coolapk.gmsinstaller.ui.UpdateDialogCallback;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Created by BobPeng on 2015/3/19.
@@ -58,33 +59,47 @@ public class ViewUtils {
     }
 
     /**
-     * Fix for Flyme OS
+     * Fix for Flyme OS and MIUI
      */
-    public static boolean setFlymeStatusBarDarkIcon(Window window, boolean dark) {
+    public static boolean setStatusBarDarkIcon(Window window, boolean dark) {
+        if (window == null) {
+            return false;
+        }
         boolean result = false;
-        if (window != null) {
-            try {
-                Field darkFlag = WindowManager.LayoutParams.class
-                        .getDeclaredField("MEIZU_FLAG_DARK_STATUS_BAR_ICON");
-                Field meizuFlags = WindowManager.LayoutParams.class
-                        .getDeclaredField("meizuFlags");
-                darkFlag.setAccessible(true);
-                meizuFlags.setAccessible(true);
 
-                WindowManager.LayoutParams lp = window.getAttributes();
-                int bit = darkFlag.getInt(null);
-                int value = meizuFlags.getInt(lp);
-                if (dark) {
-                    value |= bit;
-                } else {
-                    value &= ~bit;
-                }
-                meizuFlags.setInt(lp, value);
-                window.setAttributes(lp);
-                result = true;
-            } catch (Exception e) {
-                Log.e("ViewUtils", "No flyme os detected");
+        try {
+            Field darkFlag = WindowManager.LayoutParams.class
+                    .getDeclaredField("MEIZU_FLAG_DARK_STATUS_BAR_ICON");
+            Field meizuFlags = WindowManager.LayoutParams.class
+                    .getDeclaredField("meizuFlags");
+            darkFlag.setAccessible(true);
+            meizuFlags.setAccessible(true);
+
+            WindowManager.LayoutParams lp = window.getAttributes();
+            int bit = darkFlag.getInt(null);
+            int value = meizuFlags.getInt(lp);
+            if (dark) {
+                value |= bit;
+            } else {
+                value &= ~bit;
             }
+            meizuFlags.setInt(lp, value);
+            window.setAttributes(lp);
+            result = true;
+        } catch (Exception e) {
+            Log.e("ViewUtils", "No flyme os detected");
+        }
+
+        try {
+            Class<? extends Window> clazz = window.getClass();
+            int darkModeFlag;
+            Class<?> layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
+            Field field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE");
+            darkModeFlag = field.getInt(layoutParams);
+            Method extraFlagField = clazz.getMethod("setExtraFlags", int.class, int.class);
+            extraFlagField.invoke(window, dark ? darkModeFlag : 0, darkModeFlag);
+        } catch (Exception e) {
+            Log.e("ViewUtils", "No MIUI detected");
         }
         return result;
     }

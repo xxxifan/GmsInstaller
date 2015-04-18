@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        ViewUtils.setFlymeStatusBarDarkIcon(getWindow(), true);
+        ViewUtils.setStatusBarDarkIcon(getWindow(), true);
     }
 
     @Override
